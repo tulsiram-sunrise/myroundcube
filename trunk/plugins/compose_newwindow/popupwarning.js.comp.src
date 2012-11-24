@@ -1,0 +1,78 @@
+var PopupWarning = {
+  
+  init : function()
+  {      
+      
+    if(this.popups_are_disabled() == true)
+    {       
+      this.redirect_to_instruction_page();
+    }
+  },
+
+  redirect_to_instruction_page : function()
+  {
+    //document.location.href = "http://thecodeabode.blogspot.com/";
+    rcmail.display_message(rcmail.gettext('popupblockerwarning', 'compose_newwindow'),'warning');
+  },
+
+  popups_are_disabled : function()
+  {
+    if(window.location.search.indexOf('_task=logout') > -1){
+      var exp = new Date();
+      exp.setYear(exp.getFullYear() + 1);
+      bw.set_cookie('popupwarning', 0, exp);
+      rcmail.env.popupwarning = false;
+    }
+    else if(window.opener || rcmail.env.popupwarning || rcmail.env.framed || document.cookie.indexOf('popupwarning=1') > -1){
+      return false;
+    }
+    var exp = new Date();
+    exp.setYear(exp.getFullYear() + 1);
+    bw.set_cookie('popupwarning', 1, exp);
+    var popup = window.open("plugins/compose_newwindow/popupwarning.html", "popup_tester", "width=1,height=1,left=0,top=0,status=0,toolbar=0");
+    rcmail.env.popupwarning = popup;
+    
+    if(!popup || popup.closed || typeof popup == 'undefined' || typeof popup.closed=='undefined')
+    {
+        return true;
+    }
+
+    window.focus();
+    popup.blur();
+
+    //
+    // Chrome popup detection requires that the popup validates itself 
+    // - so we need to give
+    // the popup time to load, then call js on the popup itself
+    //
+    if(navigator && (navigator.userAgent.toLowerCase()).indexOf("chrome") > -1)
+    {      
+      var on_load_test = function(){PopupWarning.test_chrome_popups(popup);};
+      var timer = setTimeout(on_load_test, 500);
+      return;
+    }
+    
+    
+    popup.close();
+    return false;
+  },
+
+  test_chrome_popups : function(popup)
+  {
+    if(popup && popup.chrome_popups_permitted && popup.chrome_popups_permitted() == true)
+    {      
+      popup.close();
+      return true;
+    }
+    
+    //
+    // If the popup js fails - popups are blocked
+    //
+    this.redirect_to_instruction_page();
+  }
+};
+$(document).ready(function() {
+  rcmail.addEventListener('init', function(evt) {
+    PopupWarning.init();
+  });
+});

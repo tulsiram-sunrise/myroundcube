@@ -1,0 +1,12 @@
+#taskbar {
+  display: none;
+}
+
+#messagetoolbar {
+  top: 25px;
+  z-Index: 1000;
+}
+
+#mainscreen {
+  top: 55px;
+}

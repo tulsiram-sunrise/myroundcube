@@ -1,0 +1,17 @@
+<roundcube:object name="doctype" value="html5" />
+<html>
+<head>
+<title><roundcube:object name="pagetitle" /></title>
+<roundcube:include file="/includes/links.html" />
+<link rel="stylesheet" type="text/css" href="/settings.css" />
+</head>
+<body class="iframe">
+<div id="prefs-title" class="boxtitle"><roundcube:label name="userpreferences" /></div>
+<div id="prefs-details" class="boxcontent">
+<div class="settingsplugin">
+<roundcube:object name="plugin.moreuserinfo_html" />
+<roundcube:container name="userprefs" id="userprefscontainer" />
+</div>
+</div>
+</body>
+</html>

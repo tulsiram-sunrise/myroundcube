@@ -1,0 +1,10 @@
+$(document).ready(function(){
+  if(parent.location.href != document.location.href){
+    if(rcmail.env.skin == 'larry'){
+      $('.formbuttons').hide();
+    }
+    else{
+      $('#formfooter').hide();
+    }
+  }
+});

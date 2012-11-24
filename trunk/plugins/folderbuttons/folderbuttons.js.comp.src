@@ -1,0 +1,15 @@
+function collapseall(){
+  $("#mailboxlist div.expanded").each( function() {
+    var el = $(this);
+    var matches = String($(el).attr('onclick')).match(/.*rcmail.command\(["']collapse-folder["'],\s*["']([^"']*)["']\).*/i);
+    rcmail.collapse_folder(matches[1]);
+  });
+}
+						
+function expandall (){
+  $("#mailboxlist div.collapsed").each( function() {
+    var el = $(this);
+    var matches = String($(el).attr('onclick')).match(/.*rcmail.command\(["']collapse-folder["'],\s*["']([^"']*)["']\).*/i);
+    rcmail.collapse_folder(matches[1]);
+  });
+}

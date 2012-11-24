@@ -1,0 +1,11 @@
+<?php
+
+/* moreuserinfo plugin */
+// navigation config (requires plugin settings @website http://myroundcube.googlecode.com)
+$GLOBALS['settingsnav']['moreuserinfo'] = array('part' => '', 'label' => 'userinfo', 'href' => './?_task=settings&_action=plugin.moreuserinfo&_framed=1', 'onclick' => '', 'descr' => 'moreuserinfo');
+
+/* Replace "localhost" */
+$rcmail_config['real_localhost_imap'] = "imap.mydomain.tld";
+$rcmail_config['real_localhost_smtp'] = "smtp.mydomain.tld";
+
+?>

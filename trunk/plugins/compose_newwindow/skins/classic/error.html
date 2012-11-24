@@ -1,0 +1,38 @@
+<roundcube:object name="doctype" value="html5" />
+<html>
+<head>
+<title><roundcube:object name="pagetitle" /></title>
+<roundcube:include file="/includes/links.html" />
+<style type="text/css">
+#message{
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0 0 0 0;
+}
+</style>
+</head>
+<body>
+
+<roundcube:include file="/includes/header.html" />
+
+<div class="uibox centerbox errorbox">
+<center class="content"><roundcube:object name="message" id="message" class="initial"/></center>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+  //var error = "<roundcube:label name="errortitle" />";
+  //$('.initial').html('<div class="error">' + error + '</div>');
+  if(self.location.href != opener.location.href){
+    window.setTimeout('self.close();', 15000);
+    $('a').remove();
+    try{
+      window.resizeBy(-500, -750);
+    }
+    catch(e){
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+$(document).ready(function(){parent.location.href!=document.location.href&&("larry"==rcmail.env.skin?$(".formbuttons").hide():$("#formfooter").hide())});

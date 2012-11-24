@@ -1,0 +1,10 @@
+$(document).ready(function() {
+  rcmail.addEventListener('init', function(response) {
+    try{
+      $('#planner_button').insertBefore('#' + rcmail.buttons['settings'][0].id);
+    }
+    catch(e){
+    }
+    $('#planner_button').show();
+  });
+});

@@ -1,0 +1,5 @@
+<?php
+
+$rcmail_config['archive_show_button'] = TRUE;
+
+?>
