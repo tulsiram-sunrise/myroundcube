@@ -95,7 +95,7 @@ class calendar extends rcube_plugin
     ),
     'recommended_plugins' => array(
       'savepassword' => 'config',
-      'calendar_plus' => 'require_plugin',
+      'calendar_plus' => 'config',
     ),
   );
   static private $prefs = array(

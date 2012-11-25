@@ -2,7 +2,7 @@
 /**
  * planner
  *
- * @version 2.9.1 - 21.11.2012
+ * @version 2.9.2 - 21.11.2012
  * @author Roland 'rosali' Liebl (forked from: see below)
  * @website http://myroundcube.googlecode.com
  *
@@ -56,7 +56,7 @@ class planner extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.9.1';
+  static private $version = '2.9.2';
   static private $date = '21-11-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
@@ -64,6 +64,7 @@ class planner extends rcube_plugin
     'PHP' => '5.2.1',
     'required_plugins' => array(
       'jqueryui' => 'require_plugin',
+      'timepicker' => 'require_plugin',
     ),
   );
   static private $prefs = array('planner_view', 'planner_filter', 'planner_birthdays');

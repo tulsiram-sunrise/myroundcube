@@ -14,7 +14,7 @@
  * @since       Version 0.1
  */
 
-class Http
+class MyRCHttp
 {
     /**
      * Contains the target URL

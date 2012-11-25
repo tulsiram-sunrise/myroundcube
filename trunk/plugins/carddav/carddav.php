@@ -53,7 +53,7 @@ class carddav extends rcube_plugin{
       'settings' => 'require_plugin',
     ),
     'recommended_plugins' => array(
-      'carddav_plus' => 'require_plugin',
+      'carddav_plus' => 'config',
     ),
   );
   static private $prefs = array(
@@ -70,9 +70,6 @@ class carddav extends rcube_plugin{
 
   public function init(){
     $rcmail = rcmail::get_instance();
-    if(is_dir(INSTALL_PATH . 'plugins/carddav_plus')){
-      $this->require_plugin('carddav_plus');
-    }
     $skin_path = $this->local_skin_path();
     if(!is_dir($skin_path)){
       $skin_path = 'skins/classic';

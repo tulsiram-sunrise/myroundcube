@@ -2,7 +2,7 @@
 /**
  * http_request
  *
- * @version 1.1 - 19.11.2012
+ * @version 1.2 - 25.11.2012
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -20,17 +20,20 @@ class http_request extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.1';
-  static private $date = '19-11-2012';
+  static private $version = '1.2';
+  static private $date = '25-11-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.7.1',
     'PHP' => '5.2.1'
   );
   
+  static public $http;
+  
   function init(){
     if(!class_exists('Http')){
       require_once('class.http.php');
+      self::$http = new MyRCHttp();
     }
   }
   

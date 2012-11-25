@@ -1,0 +1,4 @@
+VERSION                COMMENT
+-------------------------------------------------------------------------------
+10.0                   - Moved advanced features to calendar_plus plugin
+                       - Separated jQuery timepicker code

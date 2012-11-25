@@ -171,7 +171,7 @@ class Utils
    */
   public function curlRequest($url, $auth=false, $timeout=false) {
     // find me: implement fetch local feeds directly from database
-    $http = new Http();
+    $http = http_request::$http;
     if(ini_get('safe_mode') || ini_get('open_basedir')){
       $http->useCurl(false);
     }
