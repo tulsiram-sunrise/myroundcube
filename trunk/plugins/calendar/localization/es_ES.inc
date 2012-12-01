@@ -5,10 +5,9 @@
  |
  | Language file of MyRoundcube Plugins Bundle
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 09/24/2012 08:16:59
+ | Author: Yoni - 11/27/2012 04:48:15
  +-----------------------------------------------------------------------+
 */
 
@@ -49,6 +48,8 @@ $labels['detect'] = 'detectar automaticamente';
 $labels['cal_notify'] = 'Enviar email cuando los eventos cambien';
 $labels['cal_notify_to'] = 'Receptor';
 $labels['showbirthdays'] = 'Mostrar cumpleaños';
+$labels['googlecaptcha'] = 'Permitir acceso a tu cuenta de Google';
+$labels['clickhere'] = 'Haga clic aquí';
 $labels['titleFormatMonth'] = 'MMMM yyyy';
 $labels['titleFormatDay'] = 'dddd,';
 $labels['columnFormatMonth'] = 'ddd';
@@ -134,6 +135,13 @@ $labels['third'] = 'tercero';
 $labels['fourth'] = 'cuarto';
 $labels['fifth'] = 'quinto';
 $labels['last'] = 'último';
+$labels['sunday'] = 'Domingo';
+$labels['monday'] = 'Lunes';
+$labels['tuesday'] = 'Martes';
+$labels['wednesday'] = 'Miércoles';
+$labels['thursday'] = 'Jueves';
+$labels['friday'] = 'Viernes';
+$labels['saturday'] = 'Sábado';
 $labels['january'] = 'Enero';
 $labels['february'] = 'Febrero';
 $labels['march'] = 'Marzo';

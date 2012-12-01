@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 10.0 - 19.11.2012
+ * @version 10.0.1 - 01.12.2012
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -80,8 +80,8 @@ class calendar extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v9.9 $rcmail_config[\'cal_tempdir\'] is not required anymore.<br />Remove field <i>all_day</i> from database tables (<i>events, events_cache, events_caldav</i>).<br />Note new config key "cal_short_urls".<br />Important Update Notes for Versions 9.x: <a href="http://mirror.mail4us.net/docs/calendar.html" target="_new">Click here</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '10.0';
-  static private $date = '19-11-2012';
+  static private $version = '10.0.1';
+  static private $date = '01-12-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -92,6 +92,7 @@ class calendar extends rcube_plugin
       'qtip' =>      'require_plugin',
       'http_auth' => 'require_plugin',
       'http_request' => 'require_plugin',
+      'timepicker' => 'require_plugin',
     ),
     'recommended_plugins' => array(
       'savepassword' => 'config',
@@ -2608,7 +2609,9 @@ class calendar extends rcube_plugin
       $field_id = 'rcmfd_default_duration';
       $choices = array('0.25', '0.50', '0.75', '1.00', '1.50', '2.00');
       $select = new html_select(array('name' => '_default_duration', 'id' => $field_id));
-      $select->add($choices);      
+      foreach($choices as $choice){
+        $select->add($this->gettext((60 * $choice) . '_min'), $choice);
+      }
       $args['blocks']['calendar']['options']['default_duration'] = array(
         'title' => html::label($field_id, Q($this->gettext('duration'))),
         'content' => $select->show((string)$rcmail->config->get('default_duration','1')),

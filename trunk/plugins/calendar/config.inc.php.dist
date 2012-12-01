@@ -34,7 +34,7 @@ Edit .htaccess in Roundcube Root Folder as follows:
 RewriteEngine On
 RewriteRule ^favicon.ico$ skins/classic/images/favicon.ico
 # security rules
-RewriteRule .svn/ - [F]
+RewriteRule .git/ - [F]
 RewriteRule ^README|INSTALL|LICENSE|SQL|bin|CHANGELOG$ - [F]
 # calendar
 RewriteRule ^ics/([0-9]+)/([a-z0-9]+)$ index.php?_task=dummy&_action=plugin.calendar_showlayer&_userid=$1&_ct=$2&_ics=1

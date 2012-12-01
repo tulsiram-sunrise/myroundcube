@@ -1,5 +1,4 @@
 <?php
-//compile 0a1a5a5d8ee6affa8ab79b4be4d87ea8
 class Utils
 {
   private $rcmail = null;
@@ -172,6 +171,9 @@ class Utils
   public function curlRequest($url, $auth=false, $timeout=false) {
     // find me: implement fetch local feeds directly from database
     $http = new MyRCHttp;
+    $httpConfig['method'] = 'GET';
+    $httpConfig['target'] = $url;
+    $http->initialize($httpConfig); 
     if(ini_get('safe_mode') || ini_get('open_basedir')){
       $http->useCurl(false);
     }
@@ -179,7 +181,7 @@ class Utils
       $http->setAuth($_SESSION['username'],$this->rcmail->decrypt($_SESSION['password']));
     if($timeout)
       $http->SetTimeout($timeout);
-    $http->execute($url);
+    $http->execute();
     $content = ($http->error) ? $http->error : $http->result;
     return $content;
   }    
