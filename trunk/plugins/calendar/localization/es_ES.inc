@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 11/27/2012 04:48:15
+ | Author: Yoni - 12/03/2012 20:15:32
  +-----------------------------------------------------------------------+
 */
 
@@ -154,6 +154,12 @@ $labels['september'] = 'Septiembre';
 $labels['october'] = 'Octubre';
 $labels['november'] = 'Noviembre';
 $labels['december'] = 'Diciembre';
+$labels['15_min'] = '15 minutos';
+$labels['30_min'] = '30 minutos';
+$labels['45_min'] = '45 minutos';
+$labels['90_min'] = '1.5 horas';
+$labels['60_min'] = '1 hora';
+$labels['120_min'] = '2 horas';
 $labels['in'] = 'en';
 $labels['export_as_file'] = 'Como archivo';
 $labels['send_invitation'] = 'Enviar invitación';

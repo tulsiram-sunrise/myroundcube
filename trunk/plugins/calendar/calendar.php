@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 10.0.1 - 01.12.2012
+ * @version 10.0.2 - 06.12.2012
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -80,8 +80,8 @@ class calendar extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v9.9 $rcmail_config[\'cal_tempdir\'] is not required anymore.<br />Remove field <i>all_day</i> from database tables (<i>events, events_cache, events_caldav</i>).<br />Note new config key "cal_short_urls".<br />Important Update Notes for Versions 9.x: <a href="http://mirror.mail4us.net/docs/calendar.html" target="_new">Click here</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '10.0.1';
-  static private $date = '01-12-2012';
+  static private $version = '10.0.2';
+  static private $date = '06-12-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -2194,7 +2194,6 @@ class calendar extends rcube_plugin
 
   function getSettings() {
     $rcmail = rcmail::get_instance();
-    
     if($rcmail->config->get('caldav_protect')){
       $rcmail->user->save_prefs(array('caldavs' => $rcmail->config->get('default_caldavs', array())));
       $default_categories = $rcmail->config->get('default_categories', array());
@@ -2206,11 +2205,8 @@ class calendar extends rcube_plugin
       }
       $rcmail->user->save_prefs(array('categories' => $categories));
     }
-    
     $_SESSION['tzname'] = get_input_value('_tzname', RCUBE_INPUT_POST);
-
     $settings = array();
-    
     // CalDAVs
     if($_SESSION['caluserid'] != $_SESSION['user_id']){
       $arr_user = $this->getUser($_SESSION['caluserid']);
@@ -2236,13 +2232,11 @@ class calendar extends rcube_plugin
       $settings['caldavs'][] = $category;
     if(count($settings['caldavs']) == 0)
       $settings['caldavs'] = true;
-    
     // template objects
     $settings['boxtitle'] = $this->boxTitle(array());
     $settings['usersselector'] = $this->usersSelector(array());
     $settings['filtersselector'] = $this->filtersSelector(array());
     $settings['categorieshtml'] = $this->generateHTML();
-    
     // configuration
     $settings['default_view'] = (string)$rcmail->config->get('default_view', 'agendaWeek');
     $settings['timeslots'] = (int)$rcmail->config->get('timeslots', 2);
@@ -2251,11 +2245,9 @@ class calendar extends rcube_plugin
     $settings['duration'] = (int) (60 * 60 * $rcmail->config->get('default_duration',1));
     $settings['clienttimezone'] = (string)$rcmail->config->get('timezone', 'auto');
     $settings['cal_previews'] = (int)$rcmail->config->get('cal_previews', 0);
-    
     //jquery ui theme
     $settings['ui_theme_main'] = $rcmail->config->get('ui_theme_main_cal', true);
     $settings['ui_theme_upcoming'] = $rcmail->config->get('ui_theme_upcoming_cal', true);
-
     // date formats
     switch($rcmail->config->get('date_format', 'm/d/Y')){
       case 'Y-m-d':
@@ -2308,7 +2300,6 @@ class calendar extends rcube_plugin
     $settings['columnFormatDay'] = $rcmail->gettext('calendar.columnFormatDay') . ' ' . $ddatepart;
     $settings['columnFormatWeek'] = $rcmail->gettext('calendar.columnFormatWeek') . ' ' . $wdatepart;
     $settings['columnFormatMonth'] = $rcmail->gettext('calendar.columnFormatMonth');
-    
     // localisation
     $settings['days'] = array(
       rcube_label('sunday'),   rcube_label('monday'),
@@ -2340,13 +2331,11 @@ class calendar extends rcube_plugin
     );
     $settings['today'] = rcube_label('today');
     $settings['calendar_week'] = $rcmail->gettext('calendar.calendar_week');
-    
     // goto Date
     if($date = get_input_value('_date', RCUBE_INPUT_POST)){
       $settings['date'] = $date;
       $settings['event_id'] = get_input_value('_event_id', RCUBE_INPUT_POST);
     }
-    
     $rcmail->output->command('plugin.getSettings', array('settings' => $settings));
   }
   
@@ -2789,7 +2778,7 @@ class calendar extends rcube_plugin
     if($_SESSION['tzname']){
       $args['prefs']['tzname'] = $_SESSION['tzname'];
     }
-    if ($args['section'] == 'calendarfeeds') {
+    if($args['section'] == 'calendarfeeds'){
       $rcmail = rcmail::get_instance();
       $feeds = $_POST['_calendarfeeds'];
       
@@ -2910,15 +2899,15 @@ class calendar extends rcube_plugin
       $categories = get_input_value('_categories', RCUBE_INPUT_POST);
       $colors = get_input_value('_colors', RCUBE_INPUT_POST);
       foreach($categories as $key => $val){
+        if($val == ''){
+          unset($categories[$key]);
+          unset($colors[$key]);
+        }
+        else{
+          $categories[$key] = $val;
+        }
         if(substr($val, 0, 1) == '?'){
           $val = substr($val, 1);
-          if($val == ''){
-            unset($categories[$key]);
-            unset($colors[$key]);
-          }
-          else{
-            $categories[$key] = $val;
-          }
         }
       }
       $categories = array_combine($categories,$colors);

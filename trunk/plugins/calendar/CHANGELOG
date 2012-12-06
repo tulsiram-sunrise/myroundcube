@@ -2,3 +2,5 @@ VERSION                COMMENT
 -------------------------------------------------------------------------------
 10.0                   - Moved advanced features to calendar_plus plugin
                        - Separated jQuery timepicker code
+10.0.1                 - Added timepicker plugin to required plugins
+10.0.2                 - Bug fix: Don't save empty categories
