@@ -142,8 +142,8 @@ function opencomposewindowcaller(url){
       self.close();
     });
     rcmail.addEventListener('actionafter', function(response) {
-      if(response.action == 'savedraft'){
-        window.setTimeout("cnw_obj.rcmail.command('list');",2000);
+      if(response.action == 'savedraft' && cnw_obj.rcmail.env.mailbox == cnw_obj.rcmail.env.drafts_mailbox){
+        window.setTimeout("cnw_obj.rcmail.command('list');", 2000);
       }
     });
   }
