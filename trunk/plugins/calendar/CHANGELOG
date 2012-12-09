@@ -4,3 +4,5 @@ VERSION                COMMENT
                        - Separated jQuery timepicker code
 10.0.1                 - Added timepicker plugin to required plugins
 10.0.2                 - Bug fix: Don't save empty categories
+10.0.3                 - CSS fix for #sectionslist
+                       - Moved some images to calendar_plus
