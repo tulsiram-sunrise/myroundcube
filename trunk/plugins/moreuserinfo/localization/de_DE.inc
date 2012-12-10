@@ -3,8 +3,12 @@
 $labels = array();
 $labels['pluginname'] = 'Benutzer Information';
 $labels['plugindescription'] = 'Zeigt Ihren Benutzern Informationen zum IMAP-, SMTP-, CalDAV-, CardDAV-Servern sowie das letzte Anmeldedatum und die Standard-Identität an.';
-$labels['imapserver'] = 'IMAP-Server';
-$labels['smtpserver'] = 'SMTP-Server';
+$labels['accountinformation'] = 'Kontodetails';
+$labels['encryption'] = 'Verschlüsselung';
+$labels['port'] = 'Port';
+$labels['auth'] = 'Authentifizierung';
+$labels['yes'] = 'Ja';
+$labels['no'] = 'Nein';
 $labels['port'] = 'Port';
 $labels['created'] = 'Erstellt';
 $labels['lastlogin'] = 'Letzter Login';

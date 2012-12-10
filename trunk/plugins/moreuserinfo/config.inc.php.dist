@@ -4,8 +4,42 @@
 // navigation config (requires plugin settings @website http://myroundcube.googlecode.com)
 $GLOBALS['settingsnav']['moreuserinfo'] = array('part' => '', 'label' => 'userinfo', 'href' => './?_task=settings&_action=plugin.moreuserinfo&_framed=1', 'onclick' => '', 'descr' => 'moreuserinfo');
 
-/* Replace "localhost" */
-$rcmail_config['real_localhost_imap'] = "imap.mydomain.tld";
-$rcmail_config['real_localhost_smtp'] = "smtp.mydomain.tld";
-
+$rcmail_config['moreuserinfo'] = array(
+  'IMAP' => array( // Service
+    'mydomain.tld' => array( //Domain (use 'default' if your user don't have a domain part)
+      'encryption' => 'SSL',
+      'server' => 'imap.mydomain.tld',
+      'port' => '993',
+      'auth' => 'yes'
+    ),
+    'mydomain2.tld' => array(
+      'encryption' => 'SSL',
+      'server' => 'imap.mydomain2.tld',
+      'port' => '993',
+      'auth' => 'yes'
+    ),
+  ),
+  'POP' => array(
+    'mydomain.tld' => array(
+      'encryption' => 'no',
+      'server' => 'pop.mydomain.tld',
+      'port' => '110',
+      'auth' => 'yes'
+    ),
+    'mydomain2.tld' => array(
+      'encryption' => 'SSL',
+      'server' => 'pop.mydomain2.tld',
+      'port' => '25',
+      'auth' => 'yes'
+    ),
+  ),
+  'SMTP' => array(
+    'mydomain.tld' => array(
+      'encryption' => 'no',
+      'server' => 'smtp.mydomain.tld',
+      'port' => '25',
+      'auth' => 'yes'
+    ), // NOTE: In this config example mydomain2.tld does not offer SMTP service
+  ),
+);
 ?>

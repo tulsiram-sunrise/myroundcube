@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 2.9 - 01.11.2012
+ * @version 3.0 - 10.12.2012
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -18,16 +18,16 @@
 class moreuserinfo extends rcube_plugin
 {
 
-  public $task = 'mail|settings';
+  public $task = 'mail|settings|addressbook|dummy';
   public $noajax = true;
   
   /* unified plugin properties */
-  static private $plugin = 'idle_timeout';
+  static private $plugin = 'moreuserinfo';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
+  static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.9';
-  static private $date = '01-11-2012';
+  static private $version = '3.0';
+  static private $date = '10-12-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -107,7 +107,6 @@ class moreuserinfo extends rcube_plugin
   {
     $rcmail = rcmail::get_instance();
     $rcmail->output->add_script("rcmail.add_onload(\"rcmail.sections_list.select('accountlink')\");");
-    $rcmail->output->add_script("rcmail.add_onload(\"window.frames['prefs-frame'].location.href='./?_task=settings&_action=plugin.moreuserinfo&_framed=1'\");");
     $rcmail->output->send("settings");
     exit;
   }
@@ -120,10 +119,16 @@ class moreuserinfo extends rcube_plugin
 
   function showuser($p)
   {
+    $rcmail = rcmail::get_instance();
+    if($rcmail->config->get('skin') == 'larry'){
+      $href = './?_task=settings&_action=plugin.moreuserinfo_show';
+      $rcmail->output->add_script('$(".topleft").html($(".topleft").html() + "<a id=\'summarylink\' href=\'' . $href . '\'>' . $this->gettext('accountinformation') . '</a>");', 'docready');
+    }
+    if($p['template'] == 'settingsedit'){
+      $rcmail->output->add_script('if(parent.rcmail.env.action == "plugin.moreuserinfo_show"){ document.location.href="./?_task=settings&_action=plugin.moreuserinfo&_framed=1" };', 'docready');
+    }
     if($p['template'] != "mail")
       return $p;
-
-    $rcmail = rcmail::get_instance();  
 
     if(isset($_SESSION['temp']) || strtolower($rcmail->task) != "mail")
       return $p; 
@@ -165,27 +170,32 @@ class moreuserinfo extends rcube_plugin
     $rcmail = rcmail::get_instance();
 
     $user = $rcmail->user;
-    
+    $username = $user->data['username'];
+    $temp = explode('@', $username);
+    $domainpart = $temp[1] ? $temp[1] : 'default';
+
     $table = new html_table(array('cols' => 2, 'cellpadding' => 3));
-    $table->add('title', Q($this->gettext('imapserver') . ':'));
-    $imap_host = $_SESSION['storage_host'];    
-    if(strtolower($imap_host) == "localhost")
-      $imap_host = $rcmail->config->get('real_localhost_imap');
-    if(!empty($_SESSION['storage_ssl']))  
-      $imap_host = "ssl://" . $imap_host;
-    $table->add('', Q($imap_host));
-
-    $table->add('title', Q($this->gettext('port') . ':'));
-    $table->add('', Q($_SESSION['storage_port']));
-
-    $table->add('title', Q($this->gettext('smtpserver') . ':'));
-    $smtp_host = $rcmail->config->get('smtp_server');
-
-    if(strtolower($smtp_host) == "localhost")
-      $smtp_host = $rcmail->config->get('real_localhost_smtp');
-    $table->add('', Q($smtp_host));
-    $table->add('title', Q($this->gettext('port') . ':'));
-    $table->add('', Q($rcmail->config->get('smtp_port')));
+    $conf = $rcmail->config->get('moreuserinfo');
+    foreach($conf as $service => $domains){
+      $table->add('title', Q($service . ':'));
+      $table->add('', '&nbsp;');
+      foreach($domains as $domain => $details){
+        if($domainpart == $domain){
+          foreach($details as $detail => $setting){
+            $label = $this->gettext($detail);
+            if(substr($label, 0, 1) == '['){
+              $label = $detail;
+            }
+            $table->add('title', Q('&raquo; ' . $label . ':'));
+            $label = $this->gettext($setting);
+            if(substr($label, 0, 1) == '['){
+              $label = $setting;
+            }
+            $table->add('', Q($label));
+          }
+        }
+      } 
+    }
 
     $date_format = $rcmail->config->get('date_format', 'm/d/Y') . ' ' . $rcmail->config->get('time_format', 'H:i');
 
@@ -201,7 +211,7 @@ class moreuserinfo extends rcube_plugin
     $table->add('', Q($identity['name'] . ' <' . $identity['email'] . '>'));
     $cals = $rcmail->config->get('caldavs', array());
     $clients = '';
-    $user = $_SESSION['username'];
+    $user = $username;
     if(isset($_SESSION['global_alias'])){
       $user = $_SESSION['global_alias'];
     }
@@ -248,6 +258,7 @@ class moreuserinfo extends rcube_plugin
       $clients .= ' + ' . html::tag('a', array('href' => 'http://www.sogo.nu/english/downloads/frontends.html', 'target' => '_new'), 'SOGo Connector') . html::tag('a', array('href' => 'http://myroundcube.com/myroundcube-plugins/thunderbird-carddav', 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Thunderbird ' . $this->gettext('tutorial')));
       $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.android.com/', 'target' => '_new'), 'Android') . ' + ' . html::tag('a', array('href' => 'https://play.google.com/store/apps/details?id=org.dmfs.carddav.sync&hl=en', 'target' => '_new'), 'CardDAV-sync') . ' + ';
       $clients .= html::tag('a', array('href' => 'https://play.google.com/store/apps/details?id=org.dmfs.android.contacts&hl=en', 'target' => '_new'), 'Contact Editor') . html::tag('a', array('href' => 'http://myroundcube.com/myroundcube-plugins/android-carddav', 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Android ' . $this->gettext('tutorial')));
+      $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_new'), 'iPhone') . html::tag('a', array('href' => 'http://myroundcube.com/myroundcube-plugins/iphone-carddav', 'target' => '_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial')));
     }
     $out  = $out .= html::tag('fieldset', null, html::tag('legend',  null, $this->gettext('userinfo') . ' ::: ' . $_SESSION['username']) . $table->show() . $clients);
     $out .= html::tag('br') . html::tag('div', array('id' => 'formfooter'),

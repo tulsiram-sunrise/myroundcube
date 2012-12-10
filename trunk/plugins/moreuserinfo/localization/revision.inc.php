@@ -2,9 +2,9 @@
 
 $ps_localization_update = serialize(
   array(
-    'translator' => 'Rosali',
-    'language ' => 'de_DE',
-    'date' => '21/10/2012 15:47:24'
+    'translator' => 'Yoni',
+    'language ' => 'es_ES',
+    'date' => '11/27/2012 05:27:15'
   )
 );
 
