@@ -6,3 +6,4 @@ VERSION                COMMENT
 10.0.2                 - Bug fix: Don't save empty categories
 10.0.3                 - CSS fix for #sectionslist
                        - Moved some images to calendar_plus
+10.0.4                 - Escape '?' in events dialog inputs
