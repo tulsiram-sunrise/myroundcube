@@ -5,10 +5,9 @@
  |
  | Language file of MyRoundcube Plugins Bundle
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
  |
  +-----------------------------------------------------------------------+
- | Author: Hijack! - 11/04/2012 10:34:31
+ | Author: Emiel Wieldraaijer - 12/26/2012 19:05:43
  +-----------------------------------------------------------------------+
 */
 
@@ -19,7 +18,7 @@ $labels['calendarprovider'] = 'Provider';
 $labels['forinstance'] = 'bijv.';
 $labels['caldavserver'] = 'CalDAV Server';
 $labels['unlink_caldav'] = 'Om deze categorie te wissen dient u eerst de verbinding met de CalDAV server te verbreken';
-$labels['caldavurl'] = 'CalDAV Url';
+$labels['caldavurl'] = 'CalDAV internetadres';
 $labels['passwordisset'] = 'Wachtwoord opgeslagen';
 $labels['passwordisnotset'] = 'Wachtwoord niet opgeslagen';
 $labels['default_view'] = 'Standaard weergave';
@@ -32,14 +31,19 @@ $labels['add_category'] = 'Voeg categorie toe';
 $labels['remove_category'] = 'Verwijder categorie';
 $labels['calendar_feeds'] = 'Agenda feeds';
 $labels['feeds'] = 'Agenda Feeds';
-$labels['add_feed'] = 'Voeg feed toe';
-$labels['remove_feed'] = 'Verwijder feed';
+$labels['add_feed'] = 'Feed toevoegen';
+$labels['remove_feed'] = 'Feed verwijderen';
+$labels['share'] = 'Delen';
+$labels['resource'] = 'Hulpbron';
 $labels['caltoken'] = 'Token';
+$labels['confidentialcaldavaccess'] = 'Vertrouwelijke CalDAV toegang [%s]';
+$labels['readwrite'] = 'lezen/schrijven';
 $labels['calconfidentialurl'] = 'Vertrouwelijke feed toegang [%s]';
 $labels['readonly'] = 'alleen lezen';
 $labels['calicsurl'] = 'ICS URL';
 $labels['calfeedurl'] = 'Feed URL';
 $labels['icsaccesshint'] = 'Kopiëer de URL hierboven en geef deze aan anderen om iemand alleen-lezen toegang tot uw agenda te geven. Wis of wijzig het token om de toegang tot uw agenda te verwijderen.';
+$labels['sharehint'] = 'De informatie hierboven dient u op te geven (Aanmeldnaam, Wachtwoord (Token) and Internetadres) zodat andere gebruikers uw gedeelde agenda kunnen benaderen. Deze informatie geeft lees- en schrijfrechten op je agenda items. Verander of verwijder de token om te.....';
 $labels['minutes'] = 'minuten';
 $labels['replicateautomatically'] = 'Repliceer CalDAV database iedere';
 $labels['caldavreplicationrange'] = 'Repliceer CalDAV voor de jaren';
@@ -155,6 +159,12 @@ $labels['september'] = 'September';
 $labels['october'] = 'Oktober';
 $labels['november'] = 'November';
 $labels['december'] = 'December';
+$labels['15_min'] = '15 minuten';
+$labels['30_min'] = '30 minuten';
+$labels['45_min'] = '45 minuten';
+$labels['90_min'] = '1 uur en 30 minuten';
+$labels['60_min'] = '1 uur';
+$labels['120_min'] = '2 uren';
 $labels['in'] = 'in';
 $labels['export_as_file'] = 'Als bestand';
 $labels['send_invitation'] = 'Stuur uitnodiging';
@@ -215,7 +225,7 @@ $labels['editsingle'] = 'alleen deze afspraak';
 $labels['editfuture'] = 'alleen deze en de volgende afspraken';
 $labels['applyrecurring'] = 'Pas wijzigingen toe op...';
 $labels['birthday'] = 'Verjaardag';
-$labels['happybirthday'] = 'Van harte gefeliciteerd met de verjaardag!';
+$labels['happybirthday'] = 'Van harte gefeliciteerd met je verjaardag!';
 $labels['undefined'] = '---';
 
 ?>

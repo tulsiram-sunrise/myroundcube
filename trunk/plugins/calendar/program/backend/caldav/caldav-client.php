@@ -27,11 +27,11 @@
 */
 class CalDAVClient {
   /**
-  * Server, username, password, calendar
+  * Server, username, password, etc.
   *
   * @var string
   */
-  var $base_url, $user, $pass, $auth, $entry, $protocol, $server, $port;
+  var $base_url, $query_string, $user, $pass, $auth, $entry, $protocol, $server, $port;
 
   /**
   * The useragent which is send to the caldav server
@@ -47,6 +47,7 @@ class CalDAVClient {
   var $xmlRequest = ""; // for debugging xml sent
   var $httpResponse = ""; // for debugging http headers received
   var $xmlResponse = ""; // for debugging xml received
+  var $resultcode = false;
   var $debug = false;
 
   /**
@@ -70,6 +71,11 @@ class CalDAVClient {
       $this->server = $matches[2];
       $this->base_url = $matches[5];
       $this->base_url = str_replace(' ', '%20', $this->base_url);
+      $temp = explode('?', $this->base_url, 2);
+      $this->base_url = $temp[0];
+      if($temp[1]){
+        $this->query_string = '?' . $temp[1];
+      }
       if ( $matches[1] == 'https' ) {
         $this->protocol = 'ssl';
         $this->port = 443;
@@ -186,7 +192,7 @@ class CalDAVClient {
   function DoRequest( $relative_url = "" ) {
     if(!defined("_FSOCK_TIMEOUT")){ define("_FSOCK_TIMEOUT", 10); }
     if(!function_exists('curl_init')){
-      $headers[] = $this->requestMethod." ". $this->base_url . $relative_url . " HTTP/1.1";
+      $headers[] = $this->requestMethod." ". slashify($this->base_url) . $relative_url . $this->query_string . " HTTP/1.1";
       if($this->auth == 'detect'){
         if($auth = $this->GetAuthHeader())
           $headers[] = $auth;
@@ -219,17 +225,16 @@ class CalDAVClient {
       $this->ParseResponse($rsp);
       if($this->debug)
         write_log('fsockopen',"\r\n__________\r\nResponse:\r\n__________\r\n$rsp");
-      return $rsp;
     }
     else{
       $s = '';
       if($this->protocol == ssl)
         $s = 's';
       $ch = curl_init();
-      curl_setopt($ch, CURLOPT_URL, 'http'.$s.'://'.$this->server.':'.$this->port.$this->base_url.$relative_url);
+      curl_setopt($ch, CURLOPT_URL, 'http'.$s.'://'.$this->server.':'.$this->port.slashify($this->base_url).$relative_url.$this->query_string);
       if($this->debug){
         write_log('cURL', "\r\nMethod: ".$this->requestMethod);
-        write_log('cURL', "\r\nRequest:\r\n__________\r\n" . 'http'.$s.'://'.$this->server.':'.$this->port.$this->base_url.$relative_url . "\r\n\r\n" . $this->body);
+        write_log('cURL', "\r\nRequest:\r\n__________\r\n" . 'http'.$s.'://'.$this->server.':'.$this->port.slashify($this->base_url).$relative_url.$this->query_string."\r\n\r\n" .$this->body);
       }
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -238,7 +243,7 @@ class CalDAVClient {
       if($this->auth == 'basic')
         $auth = CURLAUTH_BASIC;
       else
-        $auth = CURLAUTH_DIGEST;
+        $auth = CURLAUTH_ANY;
       curl_setopt($ch, CURLOPT_HTTPAUTH, $auth);
       curl_setopt($ch, CURLOPT_USERPWD, $this->user.':'.$this->pass);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->requestMethod);
@@ -258,9 +263,16 @@ class CalDAVClient {
         $this->ParseResponse($rsp);
         if($this->debug)
           write_log('cURL',"\r\n__________\r\nResponse:\r\n__________\r\n$rsp");
-        return $rsp;
       }
     }
+    $temp = explode('http/1.1 ', strtolower($rsp));
+    foreach($temp as $idx => $code){
+      $code = substr($code, 0, 3);
+      if(is_numeric($code)){
+        $this->resultcode = $code;
+      }
+    }
+    return $rsp;
   }
 
   /**
@@ -594,9 +606,11 @@ EOFILTER;
       $line = fgets($fp, 512);
       if (stripos($line,"WWW-Authenticate: BASIC") !== false){
         fclose($fp);
+        $this->auth = 'basic';
         return "Authorization: Basic ".base64_encode($this->user .":". $this->pass );
       }
       else if (stripos($line,"WWW-Authenticate: Digest") !== false){
+        $this->auth = 'digest';
         $authline=trim(substr($line,18));
       }
     }

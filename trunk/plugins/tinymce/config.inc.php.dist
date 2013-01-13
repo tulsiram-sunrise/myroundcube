@@ -1,10 +1,11 @@
+<?php
 /* TinyMCE gzip compression */
-$rcmail_config['tinymce_gzip'] = false;
+$rcmail_config['tinymce_gzip'] = true; // NOTE: ./plugins/tinymce/cache/ must have write permissions !!!
 
 /* NOTE: The following config values are eval'ed into javascript. Make sure values have correct javascript syntax! */
 
 /* TinyMCE plugins */
-$rcmail_config['tinymce_plugins_compose'] = "if(typeof config == 'undefined'){config = a};'Jsvk,paste,emotions,media,nonbreaking,table,searchreplace,visualchars,directionality,tabfocus' + (config.spellcheck ? ',spellchecker' : '')";
+$rcmail_config['tinymce_plugins_compose'] = "if(typeof config == 'undefined'){config = a};'Jsvk,paste,emotions,inlinepopups,media,nonbreaking,table,searchreplace,visualchars,directionality,tabfocus' + (config.spellcheck ? ',spellchecker' : '')";
 $rcmail_config['tinymce_plugins_identity'] = "'paste,tabfocus,inlinepopups'";
 
 /* TinyMCE button rows */
@@ -12,3 +13,4 @@ $rcmail_config['tinymce_buttons_compose_row1'] = "'bold,italic,underline,|,justi
 $rcmail_config['tinymce_buttons_compose_row2'] = "if(typeof config == 'undefined'){config = a};'Jsvk,|,link,unlink,table,|,emotions,charmap,image,media,|,code,search' + (config.spellcheck ? ',spellchecker' : '') + ',undo,redo'";
 $rcmail_config['tinymce_buttons_identity_row1'] = "'bold,italic,underline,strikethrough,justifyleft,justifycenter,justifyright,justifyfull,separator,outdent,indent,charmap,hr,link,unlink,code,forecolor'";
 $rcmail_config['tinymce_buttons_identity_row2'] = "'fontselect,fontsizeselect'";
+?>

@@ -8,6 +8,9 @@ $rcmail_config['use_auto_abook'] = true;
 /* Should automatic_addressbook be used for completion by default? */
 $rcmail_config['use_auto_abook_for_completion'] = true;
 
+/* Show database addressbook even if they are empty */
+$rcmail_config['show_empty_database_addressbooks'] = false;
+
 /* CardDAV database tables */
 $rcmail_config['db_table_carddav_server'] = 'carddav_server';
 $rcmail_config['db_table_carddav_contacts'] = 'carddav_contacts';

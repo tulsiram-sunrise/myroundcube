@@ -1,5 +1,4 @@
 <?php
-//@compile 0a1a5a5d8ee6affa8ab79b4be4d87ea8
 chdir(dirname(__FILE__));
 $time_start = microtime_float();
 $time_start_s = time();

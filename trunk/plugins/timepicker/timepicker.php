@@ -2,7 +2,7 @@
 /**
  * timepicker
  *
- * @version 1.0 - 19.11.2012
+ * @version 2.0 - 01.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -20,8 +20,8 @@ class timepicker extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.0';
-  static private $date = '19-11-2012';
+  static private $version = '2.0';
+  static private $date = '01-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.7.1',
@@ -30,6 +30,8 @@ class timepicker extends rcube_plugin{
   
   function init(){
     $this->include_script("jquery.timepicker.js");
+    $skin = rcmail::get_instance()->config->get('skin');
+    $this->include_stylesheet('skins/' . $skin . '/timepicker.css');
   }
   
   static public function about($keys = false){

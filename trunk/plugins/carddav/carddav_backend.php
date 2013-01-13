@@ -228,14 +228,9 @@ class carddav_backend
 	*/
 	public function set_url($url)
 	{
-		$this->url = $url;
-
-		if (substr($this->url, -1, 1) !== '/')
-		{
-			$this->url = $this->url . '/';
-		}
-
-		$this->url_parts = parse_url($this->url);
+		$temp = explode('?', $url, 2);
+    $this->url = slashify($temp[0]);
+		$this->url_parts = parse_url($this->url . ($temp[1] ? ('?' . $temp[1]) : ''));
 	}
 
 	/**
@@ -300,7 +295,6 @@ class carddav_backend
 	public function get_xml_vcard($vcard_id, $raw = false)
 	{
 		$vcard_id = str_replace($this->ext, null, $vcard_id);
-
 		$xml = new XMLWriter();
 		$xml->openMemory();
 		$xml->setIndent(4);
@@ -451,7 +445,14 @@ class carddav_backend
 	private function simplify($response, $include_vcards = true)
 	{
 		$response = $this->clean_response($response);
-		$xml = new SimpleXMLElement($response);
+		try
+		{
+		  $xml = new SimpleXMLElement($response);
+		}
+	  catch (Exception $e)
+	  {
+		  return false;
+		}
 
 		$simplified_xml = new XMLWriter();
 		$simplified_xml->openMemory();
@@ -584,6 +585,9 @@ class carddav_backend
 	 */
 	private function query($url, $method, $content = null, $content_type = null, $return_boolean = false)
 	{
+	  if($this->url_parts['query']){
+	    $url .= '?' . $this->url_parts['query'];
+	  }
     if ( preg_match( '#^(https?)://([a-z0-9.-]+)(:([0-9]+))?(/.*)$#', $url, $matches ) ) {
       $host = $matches[2];
       $file = $matches[5];

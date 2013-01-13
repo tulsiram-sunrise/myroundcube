@@ -4,11 +4,10 @@
  | ./plugins/calendar/localization/de_DE.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 06/30/2012 07:42:07
+ | Author: myroundcube@mail4us.net - 01/02/2013 07:42:28
  +-----------------------------------------------------------------------+
 */
 
@@ -34,18 +33,36 @@ $labels['calendar_feeds'] = 'Kalender Feeds';
 $labels['feeds'] = 'Feeds';
 $labels['add_feed'] = 'Feed hinzufügen';
 $labels['remove_feed'] = 'Feed entfernen';
+$labels['sharing'] = 'Freigaben';
+$labels['share'] = 'Freigeben';
+$labels['resource'] = 'CalDAV-Kalender';
 $labels['caltoken'] = 'Token';
+$labels['confidentialcaldavaccess'] = 'Vertraulicher CalDAV-Zugang [%s]';
+$labels['readwrite'] = 'Schreibzugriff';
 $labels['calconfidentialurl'] = 'Vertraulicher ICS- und Feed-Zugang [%s]';
 $labels['readonly'] = 'Lesezugriff';
-$labels['calfeedurl'] = 'Feed URL';
-$labels['icsaccesshint'] = 'Benutzen Sie diese URLs, um Lesezugriff auf Ihren Kalender zu gewähren. Ändern oder entfernen Sie den Token, um den Zugang zu schließen.';
+$labels['calicsurl'] = 'ICS-URL';
+$labels['calfeedurl'] = 'Feed-URL';
+$labels['icsaccesshint'] = 'Benutzen Sie diese URLs, um Lesezugriff auf Ihren Kalender zu gewähren.<br />Ändern oder entfernen Sie den Token, um den Zugang zu schließen.';
+$labels['isenabled'] = 'ist aktiviert';
+$labels['isdisabled'] = 'ist deaktiviert';
+$labels['sharehint'] = 'Geben Sie die obigen Informationen (Benutzername, Passwort (Token) und URLs) an Personen weiter, denen Sie Schreibzugriff auf Ihren Kalender gewähren möchten.<br />Ändern oder entfernen Sie den Token, um den Zugang zu schließen.';
+$labels['sharehint_readonly'] = 'Geben Sie die obigen Informationen (Benutzername, Passwort (Token) und URLs) an Personen weiter, mit denen Sie Lesezugriff auf Ihren Kalender gewähren möchten.<br />Ändern oder entfernen Sie den Token, um den Zugang zu schließen.';
+$labels['calendar_modified'] = 'Kalender wurde geändert';
+$labels['notify_header'] = 'Liebe(r) %s,';
+$labels['event_modified'] = 'Ein Kalendereintrag wurde hinzugefügt oder geändert:';
+$labels['event_deleted'] = 'Ein Kalendareintrag wurde gelöscht';
+$labels['regards'] = 'Mit freundlichen Grüßen,';
+$labels['administrator'] = 'Ihr Administrator';
+$labels['notify_footer'] = 'Sie erhalten die Email, weil Sie die Option "Benachrichtigun bei Änderungen durch Dritte" ausgewählt haben. Bitte antworten Sie nicht auf diese Nachricht. Im Falle eines Missbrauchs oder nicht authorisierten Zugriffs, schließen Sie bitte Ihre Kalenderfreigaben.';
 $labels['minutes'] = 'Minuten';
 $labels['replicateautomatically'] = 'Synchronisierung automatisch erneuern nach';
 $labels['caldavreplicationrange'] = 'Synchronisierung für die Jahre';
 $labels['caldavauthentication'] = 'Authentifizierungsmethode';
 $labels['basic'] = 'BASIC';
 $labels['detect'] = 'automatisch erkennen';
-$labels['cal_notify'] = 'Email bei Änderung von Einträgen versenden';
+$labels['cal_notify'] = 'Email bei Änderung von Einträgen durch den Kalenderbesitzer versenden';
+$labels['caldav_notify'] = 'Email bei Änderung von Einträgen durch andere Nutzer versenden';
 $labels['cal_notify_to'] = 'Empfänger';
 $labels['showbirthdays'] = 'Geburtstage anzeigen';
 $labels['googlecaptcha'] = 'Zugriff auf Ihr Google-Konto gewähren';
@@ -173,7 +190,6 @@ $labels['invalidresponse'] = 'Ungültige Antwort von';
 $labels['verifyexpiredate'] = 'Das Ablaufdatum ist unplausibel. Wollen Sie es überprüfen?';
 $labels['importconfirmation'] = 'Möchten Sie diese(n) Termin(e) in Ihren Kalender importieren [%s Objekt(e)]?';
 $labels['item'] = 'Ereignis';
-$labels['run_tests'] = 'Einstellungen testen';
 $labels['errorsaving'] = 'Beim Speichern ist ein Fehler aufgetreten';
 $labels['calreadonly'] = 'Sie haben nur Lesezugriff';
 $labels['mycalendar'] = 'mein Kalender';

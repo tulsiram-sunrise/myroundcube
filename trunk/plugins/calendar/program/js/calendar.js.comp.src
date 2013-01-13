@@ -1,4 +1,3 @@
-//compile 0a1a5a5d8ee6affa8ab79b4be4d87ea8
 /* calendar initialization */
 $(document).ready(function() {
  
@@ -200,8 +199,6 @@ $(document).ready(function() {
         calendar_callbacks.loading(isLoading, rcmail.env.calendar_msgid);
       },
       eventRender: function(event, element, view){
-        if(rcmail.env.calreadonly)
-          event.editable = false;
         calendar_callbacks.eventRender(event, element, view, response);
       },
       eventDragStart: function(event, jsEvent, ui, view){
@@ -217,19 +214,13 @@ $(document).ready(function() {
         calendar_callbacks.eventResizeStop(event, jsEvent, ui, view);
       },
       select: function(startDate, endDate, allDay, jsEvent, view) {
-        if(!rcmail.env.calreadonly){
-          calendar_callbacks.select(startDate, endDate, allDay, jsEvent, view, response);
-        }
+        calendar_callbacks.select(startDate, endDate, allDay, jsEvent, view, response);
       },
       dayClick: function(date, allDay, jsEvent, view) {
-        if(!rcmail.env.calreadonly){
-          calendar_callbacks.dayClick(date, allDay, jsEvent, view, response);
-        }
+        calendar_callbacks.dayClick(date, allDay, jsEvent, view, response);
       },
       eventClick : function(event) {
-        if(!rcmail.env.calreadonly){
-          calendar_callbacks.eventClick(event, response);
-        }
+        calendar_callbacks.eventClick(event, response);
       }
     });
     

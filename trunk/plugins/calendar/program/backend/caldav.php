@@ -16,6 +16,7 @@ final class calendar_caldav extends Backend
   private $account;
   private $_rule;
   private $_part;
+  public $sync = true;
   
   public function __construct($rcmail, $type) {
     $this->rcmail = $rcmail;
@@ -140,6 +141,9 @@ final class calendar_caldav extends Backend
   }
 
   private function syncCalDAV($events,$request='PUT',$categories=false){
+    if(!$this->sync){
+      return true;
+    }
     $return = false;
     if($this->type == 'caldav'){
       $event = $this->utils->exportEvents(0,0,$events);
@@ -152,12 +156,28 @@ final class calendar_caldav extends Backend
       if($categories){
         $caldavs = $this->caldavs;
         if(!empty($caldavs[$categories])){
+          $url = $caldavs[$categories]['url'];
+          $url = explode('?', $url, 2);
+          if($url[1]){
+            $url = explode('=', $url[1]);
+            if($url[0] == 'access'){
+              $url = explode('?', $caldavs[$categories]['url'], 2);
+              $url = explode('/', $url[0]);
+              $oldcategory = ucwords($url[count($url) - 1]);
+              $event = str_replace("\nCATEGORIES:", "\nCATEGORIES:$oldcategory\nX-CATEGORIES:", $event);
+            }
+          }
           $this->connect($caldavs[$categories]['url'],$caldavs[$categories]['user'],$caldavs[$categories]['pass'],$caldavs[$categories]['auth']);
         }
       }
       if($request == 'DELETE'){
-        $this->caldav->DoDELETERequest($caldav_props[0]);
-        $return = true;
+        $code = $this->caldav->DoDELETERequest($caldav_props[0]);
+        if(substr($code, 0, 1) != 2){
+          return false;
+        }
+        else{
+          return true;
+        }
       }
       else if($request == 'PUT'){
         if(!$caldav_props[1]){
@@ -165,8 +185,12 @@ final class calendar_caldav extends Backend
         }
         $ret = $this->caldav->DoPUTRequest($caldav_props[0], $event, $caldav_props[1]);
         if($ret){
-          if(stripos($ret,'HTTP/1.1') !== false){
-            if(stripos($ret,'HTTP/1.1 201') !== false || stripos($ret,'HTTP/1.1 204') !== false || $caldav_props[2] == '*'){
+          if(stripos($ret, 'HTTP/1.1') !== false){
+            $code = $this->caldav->resultcode;
+            if($code == 403 || $code == 412){
+              return false;
+            }
+            if($code == 201 || $code == 204 || $caldav_props[2] == '*'){
               $ret = $this->caldav->GetEntryByHref($caldav_props[0]);
               $count = preg_match('/Etag:(.*?)\n/i',$ret,$temp);
               if($count > 0){
@@ -192,19 +216,6 @@ final class calendar_caldav extends Backend
           }
         }
       }
-      if($ctag = $this->getCtag()){
-        $ctags = $this->rcmail->config->get('ctags', array());
-        $hash = $this->account['url'];
-        if($caldavs[$categories]['url'])
-          $hash = $caldavs[$categories]['url'];
-        $ctags[md5($hash)] = $ctag;
-        $save['ctags'] = $ctags;
-        $this->rcmail->user->save_prefs($save);
-      }
-      else{
-        $save['ctags'] = array();
-        $this->rcmail->user->save_prefs($save);
-      }
     }
     else{
       $return = true;
@@ -212,7 +223,8 @@ final class calendar_caldav extends Backend
     return $return;
   }
   
-  private function getCtag() {
+  private function getCtag(){
+    $return = false;
     if($this->type == 'caldav'){
       $xmlC = <<<PROPP
 <?xml version="1.0" encoding="utf-8" ?>
@@ -226,18 +238,27 @@ final class calendar_caldav extends Backend
 PROPP;
       $this->caldav->SetDepth(1);
       $folder_xml = $this->caldav->DoXMLRequest("PROPFIND", $xmlC);
-      $this->caldav->SetDepth(1);
+      $xml = false;
       $temparr = explode("\r\n\r\n", $folder_xml);
-      $xml = $temparr[1];
+      foreach($temparr as $idx => $part){
+        $xml = false;
+        if(strtolower(substr($part, 0, 5)) == '<?xml'){
+          $xml = $temparr[$idx];
+          break;
+        }
+      }
+      if(!$xml){
+        $return = false;
+      }
       $p = xml_parser_create();
       xml_parse_into_struct($p, $xml, $vals, $index);
       // sabredav
       if($ctag = $vals[$index['CS:GETCTAG'][0]]['value']){
-        return $ctag;
+        $return = $ctag;
       }
       // davical
       else if($ctag = $vals[$index['C:GETCTAG'][0]]['value']){
-        return $ctag;
+        $return = $ctag;
       }
       else{
         $ctag = false;
@@ -247,8 +268,14 @@ PROPP;
             break;
           }
         }
-        return $ctag;
+        $return = $ctag;
       }
+    }
+    else{
+      $return = false;
+    }
+    if($return){
+      return $return;
     }
     else{
       return false;
@@ -267,8 +294,7 @@ PROPP;
           $ctags[md5($caldav['url'])] = $ctag;
         }
         else{
-          $ctags = array();
-          break;
+          $ctags[md5($caldav['url'])] = false;
         }
       }
       $this->connect($this->account['url'], $this->account['user'], $this->account['pass'], $this->account['auth']);
@@ -277,7 +303,7 @@ PROPP;
   }
   
   public function searchEvents($str) {
-    if (!empty($this->rcmail->user->ID)) {
+    if(!empty($this->rcmail->user->ID)) {
       $cal_searchset = $this->rcmail->config->get('cal_searchset', array('summary'));
       $str = str_replace(array('\\'),array(''),$str);
       $str = str_replace('%','\%',$str);
@@ -573,6 +599,14 @@ PROPP;
       if ($uid==false) $uid='0';
       if ($client==false) $client='0';
       //
+      if($this->type == 'caldav'){
+        if(is_array($this->caldavs[$categories])){
+          $this->url = $this->caldavs[$categories]['url'];
+        }
+        else{
+          $this->url = $this->rcmail->config->get('caldav_url');
+        }
+      }
       if(is_array($uid)){
         $etag = $uid['etag'] ? $uid['etag'] : false;
         $href = $uid['href'] ? $uid['href'] : $uid['uid'];
@@ -1150,19 +1184,13 @@ PROPP;
         $endDay     = date('d',$eend  );
         $caldavs = $this->caldavs;
         if(!$category || ($category && !$caldavs[$category])){
-          $ctag = $this->getCtag();
-          if(isset($ctags[md5($this->rcmail->config->get('caldav_url'))]) && $ctag === $ctags[md5($this->rcmail->config->get('caldav_url'))]){
-            // skip request
+          if($type == 'events'){
+            $events = (array) $this->caldav->GetEvents($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
           }
-          else{
-            if($type == 'events'){
-              $events = (array) $this->caldav->GetEvents($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
-            }
-            else if($type == 'alarms'){
-              // cron login successful ?
-              if(method_exists($this->caldav, 'GetEventAlarms')){
-                $events = (array) $this->caldav->GetEventAlarms($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
-              }
+          else if($type == 'alarms'){
+            // cron login successful ?
+            if(method_exists($this->caldav, 'GetEventAlarms')){
+              $events = (array) $this->caldav->GetEventAlarms($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
             }
           }
         }
@@ -1170,27 +1198,21 @@ PROPP;
           if($category && $caldavs[$category]){
             $caldav = $caldavs[$category];
             $this->connect($caldav['url'],$caldav['user'],$caldav['pass'],$caldav['auth']);
-            $ctag = $this->getCtag();
-            if(isset($ctags[md5($caldav['url'])]) && $ctag === $ctags[md5($caldav['url'])]){
-              // skip request
+            $startYear  = date('Y',$estart);
+            $startMonth = date('m',$estart);
+            $startDay   = date('d',$estart);
+            if($type == 'events'){
+              $layers = (array) $this->caldav->GetEvents($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
             }
-            else{
-              $startYear  = date('Y',$estart);
-              $startMonth = date('m',$estart);
-              $startDay   = date('d',$estart);
-              if($type == 'events'){
-                $layers = (array) $this->caldav->GetEvents($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
-              }
-              else if($type == 'alarms'){
-                $layers = (array) $this->caldav->GetEventAlarms($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
-              }
-              foreach($layers as $key => $layer){
-                $layers[$key]['data'] = str_replace("\nCATEGORIES:","\nX-CATEGORIES:",$layers[$key]['data']);
-                $insert = "\nCATEGORIES:" . $category;
-                $layers[$key]['data'] = str_replace("\nBEGIN:VEVENT", "\nBEGIN:VEVENT" . $insert, $layers[$key]['data']);
-              }
-              $events = $layers;
+            else if($type == 'alarms'){
+              $layers = (array) $this->caldav->GetEventAlarms($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
             }
+            foreach($layers as $key => $layer){
+              $layers[$key]['data'] = str_replace("\nCATEGORIES:","\nX-CATEGORIES:",$layers[$key]['data']);
+              $insert = "\nCATEGORIES:" . $category;
+              $layers[$key]['data'] = str_replace("\nBEGIN:VEVENT", "\nBEGIN:VEVENT" . $insert, $layers[$key]['data']);
+            }
+            $events = $layers;
           }
         }
         foreach($events as $key => $val){

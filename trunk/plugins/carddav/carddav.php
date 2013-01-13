@@ -2,10 +2,9 @@
 /**
  * CardDAV
  *
- * @version 3.0 - 04.11.2012
+ * @version 3.2.4 - 12.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
- * @compile 0a1a5a5d8ee6affa8ab79b4be4d87ea8
  *
  **/
 
@@ -41,10 +40,10 @@ class carddav extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.mail4us.net/docs/carddav.html" target="_new">IMPORTANT</a>';
+  static private $authors_comments = 'Since v3.x you need carddav_plus plugin to achieve advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.mail4us.net/docs/carddav.html" target="_new">IMPORTANT</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.0';
-  static private $date = '04-11-2012';
+  static private $version = '3.2.4';
+  static private $date = '12-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -95,12 +94,10 @@ class carddav extends rcube_plugin{
         $this->add_hook('addressbook_get', array($this, 'get_automatic_addressbook'));
         $this->add_hook('addressbook_get', array($this, 'get_carddav_addressbook'));
         $this->add_hook('preferences_save', array($this, 'save_prefs'));
-        if(!$rcmail->config->get('carddav_protect', false)){
-          $this->add_hook('preferences_sections_list', array($this, 'carddav_link'));
-          $this->add_hook('preferences_list', array($this, 'carddav_settings'));
-          $this->include_script('carddav_settings.js');
-          $this->include_script('jquery.base64.js');
-        }
+        $this->add_hook('preferences_sections_list', array($this, 'carddav_link'));
+        $this->add_hook('preferences_list', array($this, 'carddav_settings'));
+        $this->include_script('carddav_settings.js');
+        $this->include_script('jquery.base64.js');
         $sources = $rcmail->config->get('autocomplete_addressbooks', array('sql'));
         $servers = $this->get_carddav_server();
         foreach($servers as $server){
@@ -172,6 +169,7 @@ class carddav extends rcube_plugin{
             $this->include_script('carddav_addressbook.js');
             $rcmail->output->set_env('sync_carddavs_interval', $rcmail->config->get('sync_carddavs_interval', 0));
           }
+          $this->add_hook('addressbooks_list', array($this, 'get_automatic_addressbook_source'));
           $this->add_hook('addressbooks_list', array($this, 'get_carddav_addressbook_sources'));
           $this->add_hook('addressbook_get', array($this, 'get_carddav_addressbook'));
           $sources = (array) $rcmail->config->get('autocomplete_addressbooks', array('sql'));
@@ -634,7 +632,7 @@ class carddav extends rcube_plugin{
           $query = 'SELECT user_id FROM ' . get_table_name('collected_contacts') . ' WHERE user_id=? AND del<>?';
         }
         $result = $rcmail->db->query($query, $rcmail->user->data['user_id'], 1);
-        if($rcmail->db->num_rows($result) == 0){
+        if($rcmail->db->num_rows($result) == 0 && !$rcmail->config->get('show_empty_database_addressbooks', true)){
           $show = false;
         }
       }
@@ -646,7 +644,7 @@ class carddav extends rcube_plugin{
       if($source['id'] == 0){
         $query = 'SELECT user_id FROM ' . get_table_name('contacts') . ' WHERE user_id=? AND del<>?';
         $result = $rcmail->db->query($query, $rcmail->user->data['user_id'], 1);
-        if($rcmail->db->num_rows($result) == 0 && $rcmail->config->get('automatic_addressbook', 'sql') != 'default' && $rcmail->config->get('default_addressbook', '0') != '0'){
+        if($rcmail->db->num_rows($result) == 0 && $rcmail->config->get('automatic_addressbook', 'sql') != 'default' && $rcmail->config->get('default_addressbook', '0') != '0' && !$rcmail->config->get('show_empty_database_addressbooks', true)){
           unset($args['sources'][$key]);
         }
         else{
@@ -782,19 +780,21 @@ class carddav extends rcube_plugin{
   public function carddav_link($args){
     $args['list']['addressbookcarddavs']['section'] = "&raquo;&nbsp;" . $this->gettext('settings');
     $args['list']['addressbookcarddavs']['id'] = 'addressbookcarddavs';
+    $args['list']['addressbooksharing']['id'] = 'addressbooksharing';
+    $args['list']['addressbooksharing']['section'] = "&raquo;&nbsp;" . $this->gettext('sharing');
     return $args;
   }
 
   public function carddav_settings($args){
-    if(class_exists('carddav_plus')){
-      $addressbooks = array();
-      if($args['section'] == 'addressbook'){
-        $addressbooks = (array) $this->get_carddav_addressbook_sources(false);
-      }
-      $list = false;
-      if($args['section'] == 'addressbookcarddavs'){
-        $list = $this->get_carddav_server_list();
-      }
+    $addressbooks = array();
+    if($args['section'] == 'addressbook'){
+      $addressbooks = (array) $this->get_carddav_addressbook_sources(false);
+    }
+    $list = false;
+    if($args['section'] == 'addressbookcarddavs'){
+      $list = $this->get_carddav_server_list();
+    }
+    if(class_exists('carddav_plus') && !rcmail::get_instance()->config->get('carddav_protect', false)){
       $args = carddav_plus::carddav_settings($args, $addressbooks, $list);
     }
     return $args;
@@ -818,6 +818,10 @@ class carddav extends rcube_plugin{
       $password = parse_input_value(base64_decode($_POST['_password']));
       $label = parse_input_value(base64_decode($_POST['_label']));
       $read_only = (int) parse_input_value(base64_decode($_POST['_read_only']));
+      $temp = explode('?', $url, 2);
+      if(carddav_plus::isSabreDAV($temp[0] . '?issabredav=1') && strpos($url, '?access=2') !== false){
+        $read_only = 1;
+      }
       $autocomplete = (int) parse_input_value(base64_decode($_POST['_autocomplete']));
       $idx = (int) parse_input_value(base64_decode($_POST['_idx']));
       $pwsync = $rcmail->config->get('carddav_synced_passwords', array());
@@ -825,7 +829,7 @@ class carddav extends rcube_plugin{
       if($password == $rcmail->decrypt($_SESSION['password'])){
         $password = '%p';
       }
-      if(isset($arr['host'])){
+      if(isset($arr['host']) && strpos($url, '?access=') === false){
         if(in_array($arr['host'], $pwsync)){
           $password = '%p';
         }

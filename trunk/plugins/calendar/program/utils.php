@@ -107,6 +107,7 @@ class Utils
       'location'            => $event['location'],
       'className'           => asciiwords($event['categories'],true,''),
       'classNameDisp'       => $event['categories'],
+      'classProtected'      => $event['classProtected'],
       'color_save'          => $color_save,
       'color'               => $colors,
       'backgroundColor'     => $colors,
@@ -746,6 +747,25 @@ class Utils
    */
   public function arrayEvents($start, $end, $category=false, $edit=true, $links=false, $returndel=false, $events=false, $client=false) {
     $rcmail = $this->rcmail;
+    $public_caldavs = $rcmail->config->get('public_caldavs', array());
+    foreach($public_caldavs as $category => $caldav){
+      $public_caldavs[$category]['pass'] = $rcmail->encrypt($caldav['pass']);
+    }
+    $protected = false;
+    $read = false;
+    $caldavs = array_merge($rcmail->config->get('caldavs', array()), $public_caldavs);
+    if($url = $caldavs[$category]['url']){
+      $url = explode('?', $url, 2);
+      if($url[1]){
+        $query = explode('=', $url[1]);
+        if($query[0] == 'access'){
+          $protected = true;
+          if($query[1] == 2){
+            $read = true;
+          }
+        }
+      }
+    }
     if(!is_array($events))
       $events = $this->backend->getEvents($start, $end, array(), $category, false, $client);
     $arr = array();
@@ -759,6 +779,8 @@ class Utils
           $editable = $event['editable'];
         else
           $editable = $edit;
+        if($read)
+          $editable = false;
         $onclick = '';
         if(is_array($links)){
           $onclick = $links[$event['uid']];
@@ -766,6 +788,7 @@ class Utils
         $event['editable'] = $editable;
         $event['categories'] = $className;
         $event['onclick'] = $onclick;
+        $event['classProtected'] = $protected;
         $arr[] = $this->eventArrayMap($event,$category);
       }
     }

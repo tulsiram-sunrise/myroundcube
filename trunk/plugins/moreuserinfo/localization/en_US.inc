@@ -7,17 +7,17 @@
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 11/27/2012 05:24:56
+ | Author: Yoni - 12/10/2012 10:00:47
  +-----------------------------------------------------------------------+
 */
 
 $labels = array();
 $labels['pluginname'] = 'Account Information';
-$labels['plugindescription'] = 'Displays basic account information such as IMAP & SMTP server details, default Identity, user’s CalDAV & CardDAV URLs and other details.';
-$labels['accountinformation'] = 'Account information';
+$labels['plugindescription'] = 'Displays basic account information such as IMAP, POP & SMTP server protocols, default Identity, user’s CalDAV & CardDAV URLs and other details.';
+$labels['accountinformation'] = 'Account Details';
 $labels['encryption'] = 'Encryption';
 $labels['port'] = 'Port';
-$labels['auth'] = 'Authenfication';
+$labels['auth'] = 'Authentication';
 $labels['yes'] = 'Yes';
 $labels['no'] = 'No';
 $labels['created'] = 'Created';

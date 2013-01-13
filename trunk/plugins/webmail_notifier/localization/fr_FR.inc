@@ -5,10 +5,9 @@
  |
  | Language file of MyRoundcube Plugins Bundle
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
  |
  +-----------------------------------------------------------------------+
- | Author: hugues@mail4us.net - 03/31/2012 15:32:58
+ | Author: Thomas Parvais - 12/11/2012 12:13:25
  +-----------------------------------------------------------------------+
 */
 
@@ -21,5 +20,6 @@ $labels['webmailnotifierflag'] = 'Notifiez la reception par un drapeau';
 $labels['webmailnotifierfolders'] = 'Vérification des répertoires';
 $labels['recent'] = 'Nouveaux';
 $labels['unseen'] = 'Non lus';
+$labels['tutorial'] = 'Didacticiel';
 
 ?>

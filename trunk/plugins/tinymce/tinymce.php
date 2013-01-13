@@ -2,7 +2,7 @@
 /**
  * tinymce
  *
- * @version 2.0 - 21.10.2012
+ * @version 2.0.3 - 07.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -28,8 +28,8 @@ class tinymce extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.0';
-  static private $date = '21-10-2012';
+  static private $version = '2.0.3';
+  static private $date = '07-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.7.1',
@@ -41,7 +41,7 @@ class tinymce extends rcube_plugin
   function init(){
     $rcmail = rcmail::get_instance();
     if($rcmail->action == 'compose' || $rcmail->action == 'edit-identity' || $rcmail->action == 'plugin.hmail_signature'){
-      if(!in_array('global_config', $plugins = $rcmail->config->get('plugins'))){
+      if(!in_array('global_config', $rcmail->config->get('plugins'))){
         $this->load_config();
       }
       $this->include_script('editor_init.js');
@@ -70,6 +70,7 @@ class tinymce extends rcube_plugin
   }
   
   function send_page($p){
+    $rcmail = rcmail::get_instance();
     if(rcmail::get_instance()->config->get('tinymce_gzip', false)){
       $p['content'] = str_replace("program/js/tiny_mce/tiny_mce.js", "program/js/tiny_mce/jquery.tinymce.js", $p['content']);
     }

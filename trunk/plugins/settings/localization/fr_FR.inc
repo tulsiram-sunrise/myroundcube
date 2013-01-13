@@ -5,14 +5,15 @@
  |
  | Language file of MyRoundcube Plugins Bundle
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
  |
  +-----------------------------------------------------------------------+
- | Author: hugues@mail4us.net - 08/09/2012 22:49:06
+ | Author: Thomas Parvais - 12/11/2012 12:10:07
  +-----------------------------------------------------------------------+
 */
 
 $labels = array();
+$labels['pluginname'] = 'Paramètres';
+$labels['plugindescription'] = 'Ce plugin est nécessaire pour le bon fonctionnement d\'autres plugin (par exmple tous les hmail* plugins)';
 $labels['menu'] = 'Menu';
 $labels['managefolders'] = 'Gestion des dossiers';
 $labels['account'] = 'Administration du compte';

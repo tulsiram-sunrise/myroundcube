@@ -1,3 +1,12 @@
 VERSION                COMMENT
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
 3.0                    - Moved advanced features to carddav_plus plugin
+3.1                    - Fixed a carddav_addressbook.php :: set_filter
+                         (*) check if value is array
+3.2                    - Give local addressbooks back to user's control in
+                         addressbook settings section
+3.2.1                  - Changes from 3.2 are now configurable:
+                         $rcmail_config['show_empty_database_addressbooks'] = false;
+3.2.2                  - Paritial fix of http://code.google.com/p/myroundcube/issues/detail?id=457
+3.2.3                  - Fix http://code.google.com/p/myroundcube/issues/detail?id=457
+3.2.4                  - Code clean up

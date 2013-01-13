@@ -1,10 +1,19 @@
 <?php
+/*
+ +-----------------------------------------------------------------------+
+ | ./plugins/calendar/localization/en_US.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: Yoni - 12/24/2012 23:58:09
+ +-----------------------------------------------------------------------+
+*/
+
 $labels = array();
-// plugin_manager
 $labels['pluginname'] = 'Calendar';
 $labels['plugindescription'] = 'Manage your events with the Webmail-Calendar. You can link the calendar with your Google Calendar or with most CalDAV-Servers.';
-
-// config
 $labels['calendarprovider'] = 'Provider';
 $labels['forinstance'] = 'f.e.';
 $labels['caldavserver'] = 'CalDAV Server';
@@ -24,40 +33,51 @@ $labels['calendar_feeds'] = 'Feeds';
 $labels['feeds'] = 'Calendar Feeds';
 $labels['add_feed'] = 'Add Feed';
 $labels['remove_feed'] = 'Remove Feed';
+$labels['sharing'] = 'Sharing';
+$labels['share'] = 'Share';
+$labels['resource'] = 'Resource';
 $labels['caltoken'] = 'Token';
+$labels['confidentialcaldavaccess'] = 'Confidential CalDAV access [%s]';
+$labels['readwrite'] = 'read/write';
 $labels['calconfidentialurl'] = 'Confidential ics and feed access [%s]';
 $labels['readonly'] = 'read only';
 $labels['calicsurl'] = 'ICS URL';
 $labels['calfeedurl'] = 'Feed URL';
-$labels['icsaccesshint'] = 'Copy and paste the above URLs and pass it to others to grant readonly access to your calendar events. Change or remove the token to close access.';
+$labels['icsaccesshint'] = 'Copy the above URLs and pass it to others to grant read-only access to your calendar events.<br />Change or remove the token to close access.';
+$labels['isenabled'] = 'is enabled';
+$labels['isdisabled'] = 'is disabled';
+$labels['sharehint'] = 'Provide the above information (Username, Password (Token) and URLs) for  others to connect to your shared calendars.<br />This information grants read and write access. Change or remove the token to close access.';
+$labels['sharehint_readonly'] = 'Provide the above information (Username, Password (Token) and URLs) for  others to connect to your shared calendars.<br />This information grants read-only access. Change or remove the token to close access.';
+$labels['calendar_modified'] = 'Calendar has been modified';
+$labels['notify_header'] = 'Dear %s,';
+$labels['event_modified'] = 'An event has been added or modified:';
+$labels['event_deleted'] = 'An event has been deleted';
+$labels['regards'] = 'Regards,';
+$labels['administrator'] = 'Administrator';
+$labels['notify_footer'] = 'You receive this email because you have opted to notified when an attendee modifies you calendar. Do not reply to this message. In case of any unauthorized access or abuse, please close shared calendars access and inform your attendees accordingly.';
 $labels['minutes'] = 'minutes';
 $labels['replicateautomatically'] = 'Synchronize CalDAV database every';
 $labels['caldavreplicationrange'] = 'Synchronize CalDAV for the years';
 $labels['caldavauthentication'] = 'Authentication Method';
 $labels['basic'] = 'BASIC';
 $labels['detect'] = 'detect automatically';
-$labels['cal_notify'] = 'Send Email when events change';
+$labels['cal_notify'] = 'Send Email when events are changed by owner';
+$labels['caldav_notify'] = 'Send Email when events are changed by attendee';
 $labels['cal_notify_to'] = 'Recipient';
 $labels['showbirthdays'] = 'Show birthdays';
 $labels['googlecaptcha'] = 'Grant access to your Google Account';
 $labels['clickhere'] = 'Click here';
-
-// calendar
-/* date and time formatting */
 $labels['titleFormatMonth'] = 'MMMM yyyy';
-// only day part, the rest is associated to Roundcube date/time settings
 $labels['titleFormatDay'] = 'dddd,';
 $labels['columnFormatMonth'] = 'ddd';
 $labels['columnFormatWeek'] = 'ddd';
 $labels['columnFormatDay'] = 'dddd';
-/* jquery-ui timepicker addon */
 $labels['timeOnlyTitle'] = 'Choose Time';
 $labels['timeText'] = 'Time';
 $labels['hourText'] = 'Hour';
 $labels['minuteText'] = 'Minute';
 $labels['currentText'] = 'Now';
 $labels['closeText'] = 'Done';
-/* others */
 $labels['calendar'] = 'Calendar';
 $labels['prevrange'] = 'Previous time range';
 $labels['nextrange'] = 'Next time range';

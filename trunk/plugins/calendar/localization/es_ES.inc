@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 12/03/2012 20:15:32
+ | Author: Yoni - 12/25/2012 00:02:59
  +-----------------------------------------------------------------------+
 */
 
@@ -33,12 +33,17 @@ $labels['calendar_feeds'] = 'Canales de calendarios';
 $labels['feeds'] = 'RSS de Calendario';
 $labels['add_feed'] = 'Añadir canal';
 $labels['remove_feed'] = 'Eliminar canal';
+$labels['share'] = 'Compartir';
+$labels['resource'] = 'Recurso';
 $labels['caltoken'] = 'Token';
+$labels['confidentialcaldavaccess'] = 'Acceso CalDAV confidencial [%s]';
+$labels['readwrite'] = 'lectura/escritura';
 $labels['calconfidentialurl'] = 'Acceso confidencial al canal [%s]';
 $labels['readonly'] = 'sólo lectura';
 $labels['calicsurl'] = 'URL de ICS';
 $labels['calfeedurl'] = 'URL del canal';
-$labels['icsaccesshint'] = 'Copie la dirección URL anterior y envíela a otros para conceder acceso de solo lectura a los eventos de su calendario. Cambie o elimine el token para cerrar el acceso.';
+$labels['icsaccesshint'] = 'Copie las direcciones URL anteriores y envíelas a otros para conceder acceso de solo lectura a los eventos de su calendario.<br />Cambie o elimine el token para cerrar el acceso.';
+$labels['sharehint'] = 'Proporcione la información anterior (Nombre de usuario, Contraseña (Token) y URLs) para que otros puedan conectarse a los calendarios compartidos. Esta información concede permisos de lectura y escritura a través del protocolo CalDAV a los eventos de su calendario.<br />Cambie o elimine el token para cerrar el acceso.';
 $labels['minutes'] = 'Minutos';
 $labels['replicateautomatically'] = 'Replicar base de datos de todos los CalDAV';
 $labels['caldavreplicationrange'] = 'Replicar CalDAV para los años';

@@ -4,11 +4,10 @@
  | ./plugins/calendar/localization/pt_BR.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: filhocf - 07/19/2012 14:59:23
+ | Author: filhocf - 01/03/2013 18:54:07
  +-----------------------------------------------------------------------+
 */
 
@@ -34,13 +33,19 @@ $labels['calendar_feeds'] = 'RSS';
 $labels['feeds'] = 'RSS de Calendário';
 $labels['add_feed'] = 'Adicionar RSS';
 $labels['remove_feed'] = 'Remover RSS';
+$labels['sharing'] = 'Compartilhando';
+$labels['share'] = 'Compartilhar';
+$labels['resource'] = 'Recurso';
 $labels['caltoken'] = 'Ficha';
+$labels['confidentialcaldavaccess'] = 'Acesso confidencial CalDAV [%s]';
+$labels['readwrite'] = 'leitura/escrita';
 $labels['calconfidentialurl'] = 'Acesso confidencial ao RSS [%s]';
-$labels['read_write'] = 'Acesso completo (ler/escrever)';
 $labels['readonly'] = 'Somente leitura';
+$labels['calicsurl'] = 'URL do ICS';
 $labels['calfeedurl'] = 'URL do RSS';
-$labels['feedaccesshint'] = 'Copie e cole a URL acima e passe aos %s usuários para compartilhar seus eventos ou para acessar a URL através de um leitor de RSS. Altere ou remova a ficha para fechar o acesso.';
 $labels['icsaccesshint'] = 'Copie e cole a URL acima e passe para outros usuários para dar acesso de somente leitura para seus eventos. Mude ou remova o passe (token) para fechar o acesso.';
+$labels['sharehint'] = 'Forneça as informações acima (nome de usuário, senha (token) e URLs) para os outros se conectarem aos seus calendários compartilhados. Estas informações permitem acesso de leitura e escrita. Altere ou remova o token para fechar o acesso.';
+$labels['sharehint_readonly'] = 'Forneça as informações acima (nome de usuário, senha (token) e URLs) para os outros se conectarem aos seus calendários compartilhados. Estas informações permitem acesso somente leitura. Altere ou remova o token para fechar o acesso.';
 $labels['minutes'] = 'minutos';
 $labels['replicateautomatically'] = 'Replicar a base de dados do CalDAV a cada';
 $labels['caldavreplicationrange'] = 'Replicar o CalDAV para os anos';
@@ -50,6 +55,8 @@ $labels['detect'] = 'detectar automaticamente';
 $labels['cal_notify'] = 'Notificar por email';
 $labels['cal_notify_to'] = 'Receptor';
 $labels['showbirthdays'] = 'Mostrar aniversários';
+$labels['googlecaptcha'] = 'Garantir acesso para sua conta Google';
+$labels['clickhere'] = 'Clique aqui';
 $labels['titleFormatMonth'] = 'MMMM aaaa';
 $labels['titleFormatDay'] = 'dddd,';
 $labels['columnFormatMonth'] = 'ddd';
@@ -73,6 +80,7 @@ $labels['calendar_week'] = 'Calendário da semana';
 $labels['month'] = 'Mês';
 $labels['year'] = 'Ano';
 $labels['new_event'] = 'Novo Evento';
+$labels['new_event_short'] = 'Criar evento';
 $labels['edit_event'] = 'Editar evento';
 $labels['save'] = 'Salvar';
 $labels['remove'] = 'Remover';
@@ -81,6 +89,9 @@ $labels['summary'] = 'Resumo';
 $labels['description'] = 'Descrição';
 $labels['all-day'] = 'todo o dia';
 $labels['export'] = 'Exportar para ICS';
+$labels['export_short'] = 'Exportar';
+$labels['import'] = 'Importar do ICS';
+$labels['import_short'] = 'Importar';
 $labels['category'] = 'Categoria';
 $labels['preview'] = 'Pré-visualizar';
 $labels['location'] = 'Localização';
@@ -110,9 +121,11 @@ $labels['addicalmsg'] = 'Importar para o calendário';
 $labels['icalsavefailed'] = 'Não foi possível importar o arquivo de calendário';
 $labels['importedsuccessfully'] = 'Importado com sucesso';
 $labels['switch_calendar'] = 'Mudar calendário';
+$labels['user'] = 'Usuários';
 $labels['cal_user'] = 'Usuário do calendário';
 $labels['submit'] = 'Enviar';
 $labels['filter_events'] = 'Filtrar eventos';
+$labels['filter'] = 'Filtros';
 $labels['allevents'] = 'todos os eventos';
 $labels['removefilters'] = 'Remover Filtros';
 $labels['defaultcategory'] = 'Padrão';
@@ -129,6 +142,13 @@ $labels['third'] = 'terceiro';
 $labels['fourth'] = 'quarto';
 $labels['fifth'] = 'quinto';
 $labels['last'] = 'último';
+$labels['sunday'] = 'Segunda-feira';
+$labels['monday'] = 'Terça-feira';
+$labels['tuesday'] = 'Quarta-feira';
+$labels['wednesday'] = 'Quinta-feira';
+$labels['thursday'] = 'Sexta-feira';
+$labels['friday'] = 'Sábado';
+$labels['saturday'] = 'Domingo';
 $labels['january'] = 'Janeiro';
 $labels['february'] = 'Fevereiro';
 $labels['march'] = 'Março';
@@ -141,6 +161,12 @@ $labels['september'] = 'Setembro';
 $labels['october'] = 'Outubro';
 $labels['november'] = 'Novembro';
 $labels['december'] = 'Dezembro';
+$labels['15_min'] = '15 minutos';
+$labels['30_min'] = '30 minutos';
+$labels['45_min'] = '45 minutos';
+$labels['90_min'] = '1.5 horas';
+$labels['60_min'] = '1 hora';
+$labels['120_min'] = '2 horas';
 $labels['in'] = 'em';
 $labels['export_as_file'] = 'Como arquivo';
 $labels['send_invitation'] = 'Enviar convite';
@@ -148,12 +174,12 @@ $labels['invitation_subject'] = 'Convite de evento';
 $labels['reminder_before'] = 'Lembrar antes do evento iniciar';
 $labels['removereminders'] = 'Remover lembretes';
 $labels['remindersloading'] = 'Carregar lembretes...';
+$labels['reminderfooter'] = 'Você está recebendo este e-mail porque solicitou ser lembrado sobre o próximo evento no seu calendário.';
 $labels['show_upcoming_cal'] = 'Habilitar visualização de próximos eventos';
 $labels['invalidresponse'] = 'Resposta inválida de';
 $labels['verifyexpiredate'] = 'A data de expiração não é plausível. Deseja remarcá-la?';
 $labels['importconfirmation'] = 'Deseja importar o(s) evento(s) anexado(s) no seu [%s item(ns)] de calendário?';
 $labels['item'] = 'Item';
-$labels['run_tests'] = 'Configurações de teste (acessível somente para administradores do calendário)';
 $labels['errorsaving'] = 'Um erro ocorreu enquanto salvava';
 $labels['calreadonly'] = 'Este calendário é somente leitura';
 $labels['mycalendar'] = 'meu Calendário';
@@ -163,6 +189,7 @@ $labels['calsearch'] = 'Resultados da busca';
 $labels['calsearchnomatches'] = 'Sem combinações';
 $labels['properties'] = 'Propriedades';
 $labels['reload'] = 'Reler calendário';
+$labels['sync'] = 'Sincronizar';
 $labels['unloadwarning'] = 'Ações de banco de dados estão incompletas. Por favor, permaneça neste sistema.';
 $labels['backgroundreplication'] = 'Replicação está rodando...';
 $labels['lastreplication'] = 'Última replicação:';

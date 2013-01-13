@@ -4,6 +4,19 @@
 // navigation config (requires plugin settings @website http://myroundcube.googlecode.com)
 $GLOBALS['settingsnav']['moreuserinfo'] = array('part' => '', 'label' => 'userinfo', 'href' => './?_task=settings&_action=plugin.moreuserinfo&_framed=1', 'onclick' => '', 'descr' => 'moreuserinfo');
 
+// HoTo links
+/* CalDAV */
+$rcmail_config['caldav_thunderbird'] = 'http://myroundcube.com/thunderbird-calddav';
+$rcmail_config['caldav_android'] = 'http://myroundcube.com/myroundcube-plugins/android-caldav';
+$rcmail_config['caldav_android_app'] = 'https://play.google.com/store/apps/details?id=org.dmfs.caldav.lib&hl=en';
+$rcmail_config['caldav_iphone'] = 'http://myroundcube.com/myroundcube-plugins/iphone-caldav';
+/* CardDAV */
+$rcmail_config['carddav_thunderbird'] = 'http://myroundcube.com/myroundcube-plugins/thunderbird-carddav';
+$rcmail_config['carddav_android'] = 'http://myroundcube.com/myroundcube-plugins/android-carddav';
+$rcmail_config['carddav_android_app'] = 'https://play.google.com/store/apps/details?id=org.dmfs.carddav.sync&hl=en';
+$rcmail_config['carddav_android_app_editor'] = 'https://play.google.com/store/apps/details?id=org.dmfs.android.contacts&hl=en'; // false, if your recommendation does not need a separate editor
+$rcmail_config['carddav_iphone'] = 'http://myroundcube.com/myroundcube-plugins/iphone-carddav';
+
 $rcmail_config['moreuserinfo'] = array(
   'IMAP' => array( // Service
     'mydomain.tld' => array( //Domain (use 'default' if your user don't have a domain part)

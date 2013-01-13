@@ -5,10 +5,9 @@
  |
  | Language file of MyRoundcube Plugins Bundle
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
  |
  +-----------------------------------------------------------------------+
- | Author: Thomas Parvais - 09/21/2012 13:20:29
+ | Author: Thomas Parvais - 12/11/2012 11:37:02
  +-----------------------------------------------------------------------+
 */
 
@@ -49,6 +48,8 @@ $labels['detect'] = 'détecter automatiquement';
 $labels['cal_notify'] = 'Notifier par courriel';
 $labels['cal_notify_to'] = 'Destinataire';
 $labels['showbirthdays'] = 'Afficher les anniversaires';
+$labels['googlecaptcha'] = 'Donner l\'accès à votre compte google';
+$labels['clickhere'] = 'Cliquer ici';
 $labels['titleFormatMonth'] = 'MMMM yyyy';
 $labels['titleFormatDay'] = 'dddd,';
 $labels['columnFormatMonth'] = 'ddd';
@@ -134,6 +135,13 @@ $labels['third'] = 'Troisième';
 $labels['fourth'] = 'Quatrième';
 $labels['fifth'] = 'Cinquième';
 $labels['last'] = 'Dernier';
+$labels['sunday'] = 'dimanche';
+$labels['monday'] = 'Lundi';
+$labels['tuesday'] = 'Mardi';
+$labels['wednesday'] = 'Mercredi';
+$labels['thursday'] = 'Jeudi';
+$labels['friday'] = 'Vendredi';
+$labels['saturday'] = 'Samedi';
 $labels['january'] = 'Janvier';
 $labels['february'] = 'Février';
 $labels['march'] = 'Mars';
@@ -146,6 +154,12 @@ $labels['september'] = 'Septembre';
 $labels['october'] = 'Octobre';
 $labels['november'] = 'Novembre';
 $labels['december'] = 'Décembre';
+$labels['15_min'] = '15 minutes';
+$labels['30_min'] = '30 minutes';
+$labels['45_min'] = '45 minutes';
+$labels['90_min'] = '1,5 heures';
+$labels['60_min'] = '1 heure';
+$labels['120_min'] = '2 heures';
 $labels['in'] = 'dans';
 $labels['export_as_file'] = 'En tant que fichier';
 $labels['send_invitation'] = 'Envoyer une invitation';

@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 3.9.1 - 19.11.2012
+ * @version 3.9.5 - 10.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -27,8 +27,8 @@ class settings extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Please adjust config key "limit_skins". "default" has to become "classic" since Roundcube 0.8.x.';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.9.1';
-  static private $date = '19-11-2012';
+  static private $version = '3.9.5';
+  static private $date = '10-01-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -159,6 +159,7 @@ class settings extends rcube_plugin
       $args['list']['identitieslink'] = array();
       $args['list']['addressbook'] = $temparr['addressbook'];
       $args['list']['addressbookcarddavs'] = array();
+      $args['list']['addressbooksharing'] = array();
       $args['list']['folderslink'] = array();
       $args['list']['folders'] =  $temparr['folders'];
       if($skin != 'larry'){
@@ -167,6 +168,7 @@ class settings extends rcube_plugin
       $args['list']['calendarlink'] = array();
       $args['list']['calendarcategories'] = array();
       $args['list']['calendarfeeds'] = array();
+      $args['list']['calendarsharing'] = array();
       $args['list']['nabblelink'] = array();
       $args['list']['plugin_manager'] = array();
       $args['list']['plugin_manager_update'] = array();
@@ -206,7 +208,7 @@ class settings extends rcube_plugin
         $i++;
         $out .= "<div class=\"userprefs-accountblock\" id='accountsblock_$i'>\n";
         $out .= "<div class=\"userprefs-accountblock-border\">\n";
-        $out .= "&raquo;&nbsp;<a class=\"plugin-description-link\" href=\"" . $part['href'] . "\">" . $this->gettext($part['descr'] . '.' . $part['label']) . "</a>\n";
+        $out .= "&raquo;&nbsp;<a class=\"plugin-description-link\" href=\"" . $part['href'] . "\" onclick='" . $part['onclick'] . "'>" . $this->gettext($part['descr'] . '.' . $part['label']) . "</a>\n";
         $out .= "</div>\n";
         $out .= "</div>\n";
         $out .= '
@@ -252,9 +254,6 @@ element.qtip({
   function userprefs($p)
   {
     $rcmail = rcmail::get_instance();
-    $user = $rcmail->user->data['username'];
-    if($_SESSION['global_alias'])
-      $user = $_SESSION['global_alias'];
     (array)$temparr = explode("<fieldset>",$p['content']);
     for($i=1;$i<count($temparr);$i++){
       $langs = $rcmail->list_languages();
@@ -285,15 +284,10 @@ element.qtip({
         }         
       }
       $temparr[$i] = "<div class=\"settingsplugin\" id=\"" . $parts[$i-1] . "\"><fieldset>" . str_replace("</fieldset>","</fieldset></div>",$temparr[$i]);
-      if($_GET['_section'] == "remotefolders" || $_POST['_section'] == "remotefolders"){
+      if($_GET['_section'] == "folders" || $_POST['_section'] == "folders"){
+        $user = $_SESSION['username'];
         $temparr[$i] = str_replace("</legend>"," ::: " . $user . "</legend>",$temparr[$i]);
         $temparr[$i] = str_replace("remotefolders :::", $this->gettext('remotefolders') . " :::", $temparr[$i]);
-      }
-      else if($_GET['_section'] == "accountlink" || $_POST['_section'] == "accountlink"){
-        $temparr[$i] = str_replace("<legend />","<legend>" . $this->gettext('settings.account') . " ::: " . $user . "</legend>",$temparr[$i]);
-      }        
-      else{
-        $temparr[$i] = str_replace("</legend>\n<table"," ::: " . $user . "</legend>\n<table",$temparr[$i]);
       }
     }
     

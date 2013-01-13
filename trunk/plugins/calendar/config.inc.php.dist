@@ -75,11 +75,7 @@ $rcmail_config['caldav_replication_range'] = array(
 */
 $rcmail_config['caldav_replicate_automatically'] = 1800;
 
-/* Don't save passwords
-   Notice: If enabled shared calendaring is limited if the user is on a CalDAV
-           backend. The plugin will use the replicated local database without
-           sync'ing.
-*/
+/* Don't save passwords */
 $rcmail_config['cal_dont_save_passwords'] = false;
 
 /* Database table mapping */

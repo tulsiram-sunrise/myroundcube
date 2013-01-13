@@ -262,8 +262,7 @@ class carddav_addressbook extends rcube_addressbook
 	{
 		$rcmail		= rcmail::get_instance();
 		$filter		= null;
-
-		if (!is_array($fields) && $fields == $this->primary_key)
+		if (!is_array($fields) && is_array($value) && $fields == $this->primary_key)
 		{
 		  $filter = " AND ";
 		  foreach($value as $idx){
@@ -346,7 +345,7 @@ class carddav_addressbook extends rcube_addressbook
       $server['password'] = $rcmail->config->get('googlepass');
     }
 		$carddav_backend->set_auth($server['username'], $rcmail->decrypt($server['password']));
-
+		
 		if ($carddav_backend->check_connection())
 		{
 			self::write_log('Connected to the CardDAV-Server ' . $server['url']);

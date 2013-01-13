@@ -2,6 +2,10 @@
   /*width: 60px;*/
 }
 
+.ui-dialog .ui-widget-content {
+  border: 0 !important;
+}
+
 #messagetoolbar a.calloadingbut {
   background-image: url('images/loading.gif');
   background-repeat: no-repeat;
@@ -239,6 +243,7 @@ table.records-table {
 	right: 5px;
   padding-left: 8px;
   border-radius: 0 0 4px 4px;
+  background: url(images/ui-bg_highlight-soft_90_e4e4e4_1x100.png) 50% 50% repeat-x;
   background: -moz-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#EAEAEA), color-stop(100%,#C8C8C8));
   background: -o-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
@@ -294,6 +299,7 @@ table.records-table {
 
 #sectionslist {
   width: 210px;
+  overflow: hidden;
 }
 
 #prefs-box {

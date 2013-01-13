@@ -1,4 +1,16 @@
 <?php
+/*
+ +-----------------------------------------------------------------------+
+ | ./plugins/carddav/localization/nl_NL.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: Emiel Wieldraaijer - 12/15/2012 15:26:12
+ +-----------------------------------------------------------------------+
+*/
+
 $labels = array();
 $labels['pluginname'] = 'CardDAV';
 $labels['plugindescription'] = 'Beheer uw contacten op CardDAV servers';
@@ -16,8 +28,11 @@ $labels['settings_saved'] = 'CardDAV server instellingen en vCards zijn opgeslag
 $labels['settings_save_failed'] = 'Kan de CardDAV instellingen niet opslaan';
 $labels['settings_delete_loading'] = 'Verwijder de CardDAV server instellingen en gerelateerde local contacten';
 $labels['settings_deleted'] = 'CardDAV server instellingen verwijderd';
+$labels['settings_delete_failed'] = 'Kan de CardDAV server instellingen niet verwijderen';
 $labels['settings_no_connection'] = 'Krijg geen verbinding met een CardDAV server';
+$labels['settings_init_server'] = 'Controleren van de CardDAV server verbinding en importeer vCards';
 $labels['addressbook_synced'] = 'CardDAV contactpersonen gesynchroniseerd';
+$labels['addressbook_sync_failed'] = 'Er is een probleem ontstaan tijdens het synschroniseren van de CardDAV contacten';
 $labels['addressbook_sync_loading'] = 'Synchroniseer CardDAV contactpersonen';
 $labels['contact_moved_single'] = 'Contact met succes verplaatst';
 $labels['contact_moved_multiple'] = 'Contactpersonen met succes verplaatst';

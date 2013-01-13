@@ -5,10 +5,9 @@
  |
  | Language file of MyRoundcube Plugins Bundle
  | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
  |
  +-----------------------------------------------------------------------+
- | Author: Thomas Parvais - 10/08/2012 15:46:37
+ | Author: Thomas Parvais - 12/11/2012 11:47:18
  +-----------------------------------------------------------------------+
 */
 
@@ -35,13 +34,33 @@ $labels['settings_init_server'] = 'Vérificationde la connexion au serveur CardD
 $labels['addressbook_synced'] = 'Contacts CardDAV synchronisés';
 $labels['addressbook_sync_failed'] = 'Erreur lors de la synchronisation des contacts CardDAV';
 $labels['addressbook_sync_loading'] = 'Synchroniser les CardDAV contacts';
+$labels['contact_moved_single'] = 'Le contact a été déplacé';
+$labels['contact_moved_multiple'] = 'Les contacts ont été déplacés';
 $labels['autocomplete'] = 'Autocomplete';
 $labels['automaticallycollected'] = 'Collectées automatiquement';
 $labels['automaticallycollected_local'] = 'Adresse automatiquement collectée (local)';
 $labels['useautoabook'] = 'Utiliser le carnet d\'adresses automatique';
 $labels['useforcompletion'] = 'Utiliser les adresses collectées automatiquement pour l\'autocomplétion';
 $labels['automatic_addressbook'] = 'Ajouter automatiquement les contacts collectés à...';
+$labels['googlecontacts'] = 'Contacts Google';
+$labels['usegoogleabook'] = 'Utiliser le répertoire de contact Google';
+$labels['googleuser'] = 'Compte google';
+$labels['googlepass'] = 'Mot de passe Google';
+$labels['googlepassisset'] = 'Le mot de passe Google a été introduit';
+$labels['googlepassisnotset'] = 'Le mot de passe Google n\'a pas encore été introduit';
 $labels['toggle'] = '(Dés)activer';
 $labels['protected'] = 'Protégé';
+$labels['defaultaddressbook'] = 'Contacts personnels';
+$labels['Google'] = 'Google';
+$labels['Global'] = 'Global (lecture)';
+$labels['Work'] = 'Travail';
+$labels['Family'] = 'Famille';
+$labels['Personal'] = 'Personnel';
+$labels['Collected'] = 'Collecté';
+$labels['local'] = 'local';
+$labels['fe'] = 'f.e.';
+$labels['googlecaptcha'] = 'Donner l\'accès à votre compte google';
+$labels['clickhere'] = 'Cliquer ici';
+$labels['blank'] = 'vide';
 
 ?>

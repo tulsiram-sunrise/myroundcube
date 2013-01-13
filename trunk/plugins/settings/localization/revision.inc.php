@@ -2,9 +2,9 @@
 
 $ps_localization_update = serialize(
   array(
-    'translator' => 'HiJack!',
-    'language ' => 'nl_NL',
-    'date' => '10/22/2012 20:03:26'
+    'translator' => 'unknown',
+    'language ' => 'da_DK',
+    'date' => '01/02/2013 05:17:07'
   )
 );
 

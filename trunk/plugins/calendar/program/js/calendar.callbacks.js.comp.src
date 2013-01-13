@@ -139,25 +139,7 @@ function calendar_callbacks(){
     }
     if(event.onclick){
       element.bind('click', function() {
-        if(event.onclick == '__caluserid__'){
-          var $dialogContent = $("#calswitch");
-          var token = $dialogContent.find("input[name='_token']");
-          if(!rcmail.env.replication_complete){
-            rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
-            return;
-          }
-          rcmail.http_post('plugin.calendar_switch_user', '_caluser='+event.userid+'&_token='+token.val()+'&_date='+Math.round(event.start.getTime()/1000)+'&_event_id='+event.id);
-          $("#calswitch option").each(function(i){
-             if($(this).val() == event.userid){
-               $('#calusernamecontent').html($(this).text());
-               $("#_caluser").prop('selectedIndex', i);
-             }
-          });
-        }
-        else{
-          window.open(event.onclick);
-          rcmail.http_post('plugin.calendar_clearCache','');
-        }
+        // reserved
       });
     }
   }
@@ -217,26 +199,8 @@ function calendar_callbacks(){
       }
     }
     if(event.onclick){
-      element.bind('click', function() {
-        if(event.onclick == '__caluserid__'){
-          var $dialogContent = $("#calswitch");
-          var token = $dialogContent.find("input[name='_token']");
-          if(!rcmail.env.replication_complete){
-            rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
-            return;
-          }
-          rcmail.http_post('plugin.calendar_switch_user', '_caluser='+event.userid+'&_token='+token.val()+'&_date='+Math.round(event.start.getTime()/1000)+'&_event_id='+event.id);
-          $("#calswitch option").each(function(i){
-             if($(this).val() == event.userid){
-               $('#calusernamecontent').html($(this).text());
-               $("#_caluser").prop('selectedIndex', i);
-             }
-          });
-        }
-        else{
-          window.open(event.onclick);
-          rcmail.http_post('plugin.calendar_clearCache','');
-        }
+      element.bind('click', function(){
+        //reserved
       });
     }
   }
@@ -398,6 +362,7 @@ function calendar_callbacks(){
       rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
       return;
     }
+    $('#catprotected').remove();
     var $dialogContent = $("#event");
     if($dialogContent.dialog('isOpen') === true)
       return;
@@ -764,6 +729,14 @@ function calendar_callbacks(){
     }
     else{
       categories.prop('selectedIndex', 0);
+    }
+    if(event.classProtected && event.editable){
+      categories.prop('disabled', true);
+      $('#catprotected').remove();
+      categories.parent().append('<span id="catprotected">&nbsp;<i>(' + rcmail.gettext('calendar.protected') +')</i></span>');
+    }
+    else{
+      $('#catprotected').remove();
     }
     var old_categories = categories.val();
     var fexpires = new Date((parseInt(event.expires) + (3600 * parseInt(new Date(event.start).getTimezoneOffset() / 60))) * 1000).format('yyyy-MM-dd');
