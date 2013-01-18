@@ -100,9 +100,17 @@ function calendar_categories_gui(response){
   }
   if(response.url){
     $('#caldav_url').val(response.url);
+    rcmail.env.caldav_url = response.url;
   }
   else{
     $('#caldav_url').val(response.cat);
+    rcmail.env.caldav_url = response.cat;
+    if($('#caldav_url').val().indexOf('google.') > -1){
+      $('#googlecaptcha').show();
+    }
+    else{
+      $('#googlecaptcha').hide();
+    }
   }
   if(response.saved){
     $('#edit_' + response.category).attr('style','visibility:visible');
@@ -112,7 +120,22 @@ function calendar_categories_gui(response){
   }
   if(response.cal_dont_save_passwords){
     $('#caldav_password').attr('readonly', true);
+    $('#caldav_url').blur(function(){
+      if($('#caldav_url').val().indexOf('?access=') > -1 && rcmail.env.caldav_url != $('#caldav_url').val()){
+        $('#caldav_password').val('');
+        $('#caldav_password').attr('title', rcmail.gettext('passwordisnotset','calendar'));
+        $('#caldav_password').attr('readonly', false);
+      }
+    });
   }
+  $('#caldav_url').blur(function(){
+    if($('#caldav_url').val().indexOf('google.') > -1){
+      $('#googlecaptcha').show();
+    }
+    else{
+      $('#googlecaptcha').hide();
+    }
+  });
   if(response.extr == 'external' || response.extr === true){
     $('#caldav_extr').val('external');
   }
@@ -123,8 +146,9 @@ function calendar_categories_gui(response){
     $('#caldav_auth').val('detect');
   else
     $('#caldav_auth').val('basic');
-  if(response.show)
-    $("#caldav_dialog").show();
+  if(response.show){
+    $('#caldav_dialog').show();
+  }
 }
 
 function addRowCategories(size) 

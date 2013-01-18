@@ -1,4 +1,16 @@
 <?php
+/*
+ +-----------------------------------------------------------------------+
+ | ./plugins/calendar/localization/ru_RU.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: Pavel - 01/14/2013 18:22:28
+ +-----------------------------------------------------------------------+
+*/
+
 $labels = array();
 $labels['pluginname'] = 'Календарь';
 $labels['plugindescription'] = 'Управление вашими событиями в Почтовом календаре. Вы можете связать календарь с Google Calendar или другими CalDAV-серверами.';
@@ -27,6 +39,10 @@ $labels['readonly'] = 'только чтение';
 $labels['calicsurl'] = 'URL ICS';
 $labels['calfeedurl'] = 'URL адрес фида';
 $labels['icsaccesshint'] = 'Используйте приведенный выше URL для доступа к своему календарю через Thunderbird или другой программный клиент. Измените или удалите токен для прекращения доступа.';
+$labels['calendar_modified'] = 'Календарь был изменен';
+$labels['notify_header'] = 'Дорогой %s,';
+$labels['regards'] = 'С уважением,';
+$labels['administrator'] = 'Администратор';
 $labels['minutes'] = 'минут';
 $labels['replicateautomatically'] = 'Реплицировать базу данных CalDAV каждые';
 $labels['caldavreplicationrange'] = 'Реплицировать CalDAV в течение года(лет)';

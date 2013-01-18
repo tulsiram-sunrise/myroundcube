@@ -1422,7 +1422,7 @@ PROPP;
         if($event['exdates']){
           $exdates = @unserialize($event['exdates']);
           if(is_array($exdates) && count($exdates) > 0){
-            $exdates = $this->utils->array_flatten($exdates);
+            $exdates = (array) $this->utils->array_flatten($exdates);
             $exdates = array_flip($exdates);
             if(isset($exdates[$event['start']])){
               $add = false;

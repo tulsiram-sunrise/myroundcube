@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 3.0.3 - 13.01.2013
+ * @version 4.0 - 13.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,7 +26,7 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.0.3';
+  static private $version = '4.0';
   static private $date = '13-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
@@ -173,15 +173,18 @@ class moreuserinfo extends rcube_plugin
     $username = $user->data['username'];
     $temp = explode('@', $username);
     $domainpart = $temp[1] ? $temp[1] : 'default';
-
+    $skin = $rcmail->config->get('skin', 'classic');
+    $icon = '&nbsp;' . html::tag('img', array('src' => 'plugins/moreuserinfo/skins/' . $skin . '/images/clipboard.png', 'title' => $this->gettext('copytoclipboardtitle'), 'alt' => $this->gettext('copytoclipboardtitle'), 'align' => 'baseline', 'onclick' => 'window.prompt ("'. $this->gettext('copytoclipboard') . '", $(this).prev().text())'));
     $table = new html_table(array('cols' => 2, 'cellpadding' => 3));
     $conf = $rcmail->config->get('moreuserinfo');
     foreach($conf as $service => $domains){
       $table->add('title', Q($service . ':'));
       $table->add('', '&nbsp;');
       foreach($domains as $domain => $details){
+        $i = 0;
         if($domainpart == $domain){
           foreach($details as $detail => $setting){
+            $i ++;
             $label = $this->gettext($detail);
             if(substr($label, 0, 1) == '['){
               $label = $detail;
@@ -191,7 +194,7 @@ class moreuserinfo extends rcube_plugin
             if(substr($label, 0, 1) == '['){
               $label = $setting;
             }
-            $table->add('', Q($label));
+            $table->add('', html::tag('span', null, Q($label)) . (($i ==2 || $i ==3) ? $icon : ''));
           }
         }
       } 
@@ -224,7 +227,7 @@ class moreuserinfo extends rcube_plugin
         $table->add('title', '&raquo; ' . $this->gettext('default'));
         $temp = explode('?', $default, 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
-        $table->add('', Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url))));
+        $table->add('', html::tag('span', null, Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url)))) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
           $user = $caldav['user'];
           $access = $this->gettext('calendar.readwrite');
@@ -233,7 +236,7 @@ class moreuserinfo extends rcube_plugin
           }
           $temp = parse_url($url);
           $table->add('', '');
-          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . $user . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . $rcmail->decrypt($caldav['pass']) . '&nbsp;|&nbsp;' . $access));
+          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . html::tag('span', null, $user) . $icon . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . html::tag('span', null, $rcmail->decrypt($caldav['pass'])) . $icon . '&nbsp;|&nbsp;' . $access));
         }
         break;
       }
@@ -242,7 +245,7 @@ class moreuserinfo extends rcube_plugin
         $temp = explode('?', $caldav['url'], 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
         $table->add('title', '&raquo; ' . $key);
-        $table->add('', Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url))));
+        $table->add('', html::tag('span', null, Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url)))) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
           $user = $caldav['user'];
           $access = $this->gettext('calendar.readwrite');
@@ -251,7 +254,7 @@ class moreuserinfo extends rcube_plugin
           }
           $temp = parse_url($url);
           $table->add('', '');
-          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . $user . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . $rcmail->decrypt($caldav['pass']) . '&nbsp;|&nbsp;' . $access));
+          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . html::tag('span', null, $user) . $icon . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . html::tag('span', null, $rcmail->decrypt($caldav['pass'])) . $icon . '&nbsp;|&nbsp;' . $access));
         }
       }
       $clients .= html::tag('hr') . '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CalDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/organizations/all-esr.html', 'target' => '_new'), 'Thunderbird ESR');
@@ -280,7 +283,7 @@ class moreuserinfo extends rcube_plugin
         $temp = explode('?', $addressbook['url'], 2);
         $url = str_replace('@', urlencode('@'), slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : ''));
         $table->add('title', '&raquo; ' . $key);
-        $table->add('', Q(str_replace('%u', $user, $url)));
+        $table->add('', html::tag('span', null, Q(str_replace('%u', $user, $url))) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
           $sql = 'SELECT username from ' . get_table_name('users') . ' WHERE user_id=?';
           $res = $rcmail->db->query($sql, $addressbook['user_id']);
@@ -292,7 +295,7 @@ class moreuserinfo extends rcube_plugin
           }
           $temp = parse_url($url);
           $table->add('', '');
-          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . $user . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . $rcmail->decrypt($addressbook['password']) . '&nbsp;|&nbsp;' . $access));
+          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . html::tag('span', null, $user) . $icon . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . html::tag('span', null, $rcmail->decrypt($addressbook['password'])) . $icon . '&nbsp;|&nbsp;' . $access));
         }
       }
       if($clients == ''){

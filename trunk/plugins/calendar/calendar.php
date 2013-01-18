@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 11.0.9 - 12.01.2013
+ * @version 11.0.12- 17.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -78,10 +78,10 @@ class calendar extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'calendar';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).<br />Since v9.9 $rcmail_config[\'cal_tempdir\'] is not required anymore.<br />Remove field <i>all_day</i> from database tables (<i>events, events_cache, events_caldav</i>).<br />Note new config key "cal_short_urls".<br />Important Update Notes for Versions 9.x: <a href="http://mirror.mail4us.net/docs/calendar.html" target="_new">Click here</a>';
+  static private $authors_comments = 'Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).<br />Since v9.9 $rcmail_config[\'cal_tempdir\'] is not required anymore.<br />Remove field <i>all_day</i> from database tables (<i>events, events_cache, events_caldav</i>).<br />Note new config key "cal_short_urls".<br />Important Update Notes for Versions 9.x: <a href="http://mirror.myroundcube.com/docs/calendar.html" target="_new">Click here</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '11.0.9';
-  static private $date = '12-01-2013';
+  static private $version = '11.0.12';
+  static private $date = '17-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -2662,7 +2662,7 @@ class calendar extends rcube_plugin{
         $enabled = $rcmail->config->get('caldav_notify');
         $checkbox = new html_checkbox(array('name' => '_caldav_notify', 'id' => $field_id, 'value' => 1));
         $args['blocks']['calendar']['options']['caldav_notify'] = array(
-          'title' => html::label($field_id, Q($this->gettext('cal_notify'))),
+          'title' => html::label($field_id, Q($this->gettext('caldav_notify'))),
           'content' => $checkbox->show($enabled?1:0),
         );
              
@@ -2825,7 +2825,7 @@ class calendar extends rcube_plugin{
     if($args['section'] == 'calendarsharing'){
       $rcmail = rcmail::get_instance();
       $args['prefs']['caltoken'] = get_input_value('_caltoken', RCUBE_INPUT_POST);
-      $args['prefs']['caltoken'] = get_input_value('_caltoken', RCUBE_INPUT_POST);
+      $args['prefs']['caltokenreadonly'] = get_input_value('_caltokenreadonly', RCUBE_INPUT_POST);
       $args['prefs']['caltoken_davreadonly'] = get_input_value('_caltoken_davreadonly', RCUBE_INPUT_POST);
       if(isset($_POST['_caltoken_davreadonly_submit_x'])){
         $args['prefs']['caltoken_davreadonly'] = false;
@@ -2986,8 +2986,8 @@ class calendar extends rcube_plugin{
       $db->set_debug((bool)$rcmail->config->get('sql_debug'));
       $db->db_connect('r');
       if($action == 'delete'){
-        $sql = 'DELETE FROM ' . $rcmail->db->quoteIdentifier(get_table_name($table)) . ' WHERE ' . $rcmail->db->quoteIdentifier('username') . '=? AND ' . $rcmail->db->quoteIdentifier('rcube_id') .'=?';
-        $db->query($sql, $rcmail->user->data['username'], $rcmail->user->ID);
+        $sql = 'DELETE FROM ' . $rcmail->db->quoteIdentifier(get_table_name($table)) . ' WHERE ' . $rcmail->db->quoteIdentifier('username') . '=?';
+        $db->query($sql, $rcmail->user->data['username']);
       }
       else{
         $sql = 'INSERT INTO ' . $rcmail->db->quoteIdentifier(get_table_name($table)) . ' (' . $rcmail->db->quoteIdentifier('rcube_id') . ', ' . $rcmail->db->quoteIdentifier('username') . ', ' . $rcmail->db->quoteIdentifier('digesta1') . ') VALUES (?, ?, ?)';

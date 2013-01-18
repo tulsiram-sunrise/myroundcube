@@ -39,7 +39,9 @@ $rcmail_config['carddav_synced_passwords'] = array(
 );
 
 /* Default CardDAV addressbooks
-   placeholders: %u = $_SESSiON['username'], %p = $_SESSION['password']
+   placeholders: %u  = $_SESSiON['username'],
+                 %su = local part of $_SESSION['username'],
+                 %p  = $_SESSION['password']
 */
 $rcmail_config['def_carddavs'] = array(
   'Work' => array(
@@ -67,4 +69,24 @@ $rcmail_config['def_carddavs'] = array(
                    'readonly' => false,
                  ),
 );
+
+/* HINT
+   By default %u is replaced by rcmail::get_instance()->user->data['username'] (eq. to $_SESSION['username']).
+   If it does not fit your needs, this is the right place to replace %u by whatever you need.
+   Here follow an example how to strip off the domain part of the user
+*/
+
+/*
+if(function_exists('get_input_value')){
+  $user = explode('@', get_input_value('_user', RCUBE_INPUT_POST), 2);
+  $user = $user[0];
+  foreach($rcmail_config['def_carddavs'] as $key => $props){
+    if($rcmail_config['def_carddavs'][$key]['user'] == '%u'){
+      $rcmail_config['def_carddavs'][$key]['user'] = $user;
+      $rcmail_config['def_carddavs'][$key]['url'] = str_replace('%u', $user, $rcmail_config['def_carddavs'][$key]['url']);
+    }
+  }
+}
+*/
+
 ?>

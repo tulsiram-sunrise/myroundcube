@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 3.2.4 - 12.01.2013
+ * @version 3.2.6 - 16.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -40,10 +40,10 @@ class carddav extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'Since v3.x you need carddav_plus plugin to achieve advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.mail4us.net/docs/carddav.html" target="_new">IMPORTANT</a>';
+  static private $authors_comments = 'Since v3.x you need carddav_plus plugin to achieve advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new">IMPORTANT</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.2.4';
-  static private $date = '12-01-2013';
+  static private $version = '3.2.6';
+  static private $date = '16-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -369,6 +369,10 @@ class carddav extends rcube_plugin{
       if($user == '%u'){
         $user = $rcmail->user->data['username'];
       }
+      else if($user == '%su'){
+        $user = explode('@', $rcmail->user->data['username']);
+        $user = $user[0];
+      }
       $readonly = 0;
       if($carddav['readonly']){
         $readonly = 1;
@@ -378,9 +382,9 @@ class carddav extends rcube_plugin{
         " . get_table_name('carddav_server') . "
         WHERE url=? AND user_id=?
       ";
-      $rcmail->db->query($query, str_replace('%u', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $carddav['url'])), $_SESSION['user_id']);
+      $rcmail->db->query($query, str_replace('%u', $user, str_replace('%su', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $carddav['url']))), $_SESSION['user_id']);
       $addressbooks = array();
-      $url = str_replace('%u', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $carddav['url']));
+      $url = str_replace('%u', $user, str_replace('%su', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $carddav['url'])));
       while($addressbook = $rcmail->db->fetch_assoc($result)){
         $addressbooks[$url] = $addressbook;
       }
@@ -489,10 +493,12 @@ class carddav extends rcube_plugin{
       $table->add_header(array('width' => '13%'), $this->gettext('settings_read_only'));
       $table->add_header(array('width' => '7%'), $this->gettext('autocomplete'));
       $table->add_header(array('width' => '6%'), '&nbsp');
+      $user = explode('@', $_SESSION['username']);
+      $user = $user[0];
       $addressbooks = array_merge($rcmail->config->get('carddavs', array()), $rcmail->config->get('def_carddavs', array()));
       $urls = array();
       foreach($addressbooks as $label => $addressbook){
-        $urls[strtolower(str_replace('%u', $_SESSION['username'], $addressbook['url']))] = $addressbook;
+        $urls[strtolower(str_replace('%u', $_SESSION['username'], str_replace('%su', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $addressbook['url']))))] = $addressbook;
       }
       $sorted = array();
       foreach($servers as $server){

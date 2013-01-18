@@ -1,44 +1,8 @@
-Description
------------
-This is a CardDAV-Implementation for roundcube 0.8.1 or higher.
-
-
-Features
---------
-* Add multiple CardDAV server for each user
-* CardDAV contacts are stored in the local database which provides great performance
-* Tested CardDAV servers: DAViCal, Apple Addressbook Server, meetoo, SabreDAV, ownCloud, SOGo, Google
-* You can read / add / delete / edit CardDAV contacts (vCards)
-* Autocomplete all CardDAV contacts within the compose email view
-* Search for all CardDAV contacts within the addressbook
-
-
-Requirements
-------------
-* MySQL
-* CURL
-
-
-Installation
-------------
-* http://myroundcube.com/myroundcube-plugins/carddav-plugin
-
-
-CardDAV server list
--------------------
-* DAViCal: https://example.com/{resource|principal|username}/{collection}/
-* Apple Addressbook Server: https://example.com/addressbooks/users/{resource|principal|username}/{collection}/
-* memotoo: https://sync.memotoo.com/cardDAV/
-* SabreDAV: https://example.com/addressbooks/{resource|principal|username}/{collection}/
-* ownCloud: https://example.com/apps/contacts/carddav.php/addressbooks/{resource|principal|username}/{collection}/
-* SOGo: https://example.com/SOGo/dav/{resource|principal|username}/Contacts/{collection}/
-* Google: https://google.com/m8/carddav/principals/__uids__/{username}/lists/default/
-
-
-Contact
+carddav
 -------
-* Author: myroundcube@mail4us.net based on graviox.de code (details below)
-* Author: Christian Putzke <christian.putzke@graviox.de>
-* Report feature requests and bugs here: https://github.com/graviox/Roundcube-CardDAV/issues
-* Visit Graviox Studios: http://www.graviox.de/
-* Follow me on Twitter: https://twitter.com/graviox/
+Documentation: 
+http://myroundcube.com/myroundcube-plugins/carddav-plugin
+
+
+MyRoundcube Dev Team
+www.myroundcube.com

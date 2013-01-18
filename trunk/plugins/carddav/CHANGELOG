@@ -10,3 +10,4 @@ VERSION                COMMENT
 3.2.2                  - Paritial fix of http://code.google.com/p/myroundcube/issues/detail?id=457
 3.2.3                  - Fix http://code.google.com/p/myroundcube/issues/detail?id=457
 3.2.4                  - Code clean up
+3.2.5                  - Added a hint in config.inc.php.dist regarding user mapping

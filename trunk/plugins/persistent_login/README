@@ -1,12 +1,8 @@
+persistent_login
+----------------
+Documentation: 
+http://myroundcube.com/myroundcube-plugins/
 
- Installation
--------------------------------
 
-	See the official website
-	http://www.insanefactory.com/roundcube-persistent-login-plugin/
-	
-
- Misc
--------------------------------
-
-	This plugin replaces the old "remember_me" plugin of the "myroundcube"-bundle.
+MyRoundcube Dev Team
+www.myroundcube.com

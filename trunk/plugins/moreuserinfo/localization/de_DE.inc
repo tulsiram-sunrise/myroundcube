@@ -19,5 +19,6 @@ $labels['description'] = 'Sehen Sie Informationen über Ihr Konto ein.';
 $labels['default'] = 'Standard';
 $labels['clients'] = 'Empfohlene Programme, die das %s-Protokoll unterstützen';
 $labels['tutorial'] = 'Anleitung';
-
+$labels['copytoclipboard'] = 'In die Zwischenablage kopieren: Strg+C, dann Eingabetaste';
+$labels['copytoclipboardtitle'] = 'In die Zwischenablage kopieren';
 ?>
