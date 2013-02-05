@@ -1,11 +1,30 @@
+#message.calstatusbar {
+	position: absolute;
+	bottom: 0px;
+	display: block;
+	border: 2px solid #AAA;
+	height: 25px;
+	left: 220px;
+	right: 5px;
+  padding-left: 8px;
+  border-radius: 0 0 4px 4px;
+  background: url(images/ui-bg_highlight-soft_90_e4e4e4_1x100.png) 50% 50% repeat-x;
+  background: -moz-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#EAEAEA), color-stop(100%,#C8C8C8));
+  background: -o-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  background: -ms-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  background: linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 #taskbar a.button-calendar {
-  background-color: #FFFFFF;
-  margin-top: 0;
-  color: black;
-  border-color: #ACE;
-  border-width: 2px;
-  border-bottom: none;
-  z-index: 3;
+	height: 22px;
+	background-color: #fff;
+	border: 2px solid #ACE;
+	border-bottom: none;
+	margin-top: 0;
 }
 
 .timeline {
@@ -100,8 +119,8 @@ ul.caltoolbarmenu li input {
 #calquicksearchbar
 {
   position: absolute;
-  top: 70px;
-  right: 25px;
+  top: 54px;
+  right: 16px;
   width: 182px;
   height: 24px;
   text-align: right;
@@ -141,9 +160,13 @@ ul.caltoolbarmenu li input {
   text-decoration: none;
 }
 
+#mainscreen {
+  top: 82px !important;
+}
+
 #calendaroverlay {
   position: absolute;
-  top: 55px;
+  top: 82px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -158,9 +181,11 @@ ul.caltoolbarmenu li input {
   height: expression(document.documentElement.clientHeight+'px');
 }
 
-.boxtitle
-{
-  padding: 2px;
+.boxtitle {
+  padding-top: 4px;
+  border: 1px solid #aaa;
+  height: 17px;
+  font-size: 11px;
 }
 
 
@@ -168,26 +193,37 @@ ul.caltoolbarmenu li input {
   margin: 0 auto;
   position: absolute;
   top: 20px;
-  bottom: 0px;
+  /*bottom: 25px;*/
   left: 0px;
   right: 0px;
-  overflow: auto;   
+  overflow: auto;
 }
 
 #calendar-container {
   position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;  
+  top: 5px;
+  bottom: 0;
+  left: 0;
+  right: 0;  
 }
 
 #calendar-header {
   position: absolute;
-  top: 111px;
-  left: 261px;
-  right: 26px;
+  top: 82px;
+  left: 230px;
+  right: 16px;
+  height: 25px;
   z-index: 1;
+  border-radius: 0 0 4px 4px;
+  background: url(images/ui-bg_highlight-soft_90_e4e4e4_1x100.png) 50% 50% repeat-x;
+  background: -moz-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#EAEAEA), color-stop(100%,#C8C8C8));
+  background: -o-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  background: -ms-linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  background: linear-gradient(top, #EAEAEA 0%, #C8C8C8 100%);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #calusernamecontent {
@@ -206,13 +242,15 @@ ul.caltoolbarmenu li input {
 }
 
 #sectionslist {
-  width: 230px;
+  width: 210px;
   overflow: hidden;
 }
 
 #prefs-box {
-  left: 240px;
+  left: 220px;
   right: 5px;
+  bottom: 27px;
+  background: #AAA;
 }
 
 #event li {
@@ -254,8 +292,8 @@ pre {
 }
 
 #messagetoolbar {
-  top: 70px;
-  left: 261px;
+  top: 59px !important;
+  left: 231px !important;
 }
 
 #toolbar {
@@ -266,9 +304,17 @@ pre {
 
 #todaybutton{
   position: absolute;
-  top: 70px;
-  left: 20px;
-  width: 220px;
+  top: 60px;
+  left: 10px;
+  width: 213px;
+}
+
+#todaybutton .button {
+color: #2c7dcf;
+padding: 2px 2px;
+background: #f4fbff;
+border: 1px solid #aaccee;
+font-size: 11px;
 }
 
 #event,
@@ -295,6 +341,14 @@ pre {
 .ui-widget-header,
 .ui-widget-content {
   font-weight: normal;
+  border: 1px solid #a6c9e2 !important;
+}
+
+.ui-widget-content {
+  border-top-style: dotted !important;
+  border-right-style: dotted !important;
+  border-bottom-style: none !important;
+  border-left-style: none !important;
 }
 
 .fc-event-title {

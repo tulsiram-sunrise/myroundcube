@@ -1,4 +1,3 @@
-//compile 0a1a5a5d8ee6affa8ab79b4be4d87ea8
 function TimezoneDetect(mydate){
     var dtDate = new Date('1/1/' + (new Date(mydate)).getUTCFullYear());
     var intOffset = 10000; //set initial offset high so it is adjusted on the first attempt

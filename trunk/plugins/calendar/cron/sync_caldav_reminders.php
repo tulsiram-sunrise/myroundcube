@@ -3,9 +3,6 @@ chdir(dirname(__FILE__));
 $time_start = microtime_float();
 $time_start_s = time();
 
-if(isset($_SERVER['REMOTE_ADDR']))
-  die("Access denied");
-
 /* Configuration */
 if(isset($_SERVER['SCRIPT_FILENAME']))
   $dir = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -32,6 +29,11 @@ else{
     $ext = "";
   include INSTALL_PATH . 'plugins/calendar/config.inc.php' . $ext;
 }
+
+if(isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != $rcmail_config['cron_ip']){
+  die("Access denied");
+}
+
 define('RCMAIL_URL', $rcmail_config['cron_rc_url']);
 /* End Configuration */
 

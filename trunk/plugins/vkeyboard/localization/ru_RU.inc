@@ -1,17 +1,14 @@
 <?php
-
 /*
-+-----------------------------------------------------------------------+
-| language/ru_RU/labels.inc                                             |
-|                                                                       |
-| Language file of the RoundCube Webmail client                         |
-| Copyright (C) 2008-2012, RoundQube Dev. - Switzerland                 |
-| Licensed under the GNU GPL                                            |
-|                                                                       |
-+-----------------------------------------------------------------------+
-| Author:                                                               |
-+-----------------------------------------------------------------------+
-
+ +-----------------------------------------------------------------------+
+ | ./plugins/vkeyboard/localization/ru_RU.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: Pavel - 01/23/2013 15:29:03
+ +-----------------------------------------------------------------------+
 */
 
 $labels = array();
@@ -28,5 +25,10 @@ $labels['vk07'] = 'Очистить';
 $labels['vk08'] = 'Очистить этот ввод';
 $labels['vk09'] = 'Версия';
 $labels['vk10'] = 'Изменить размер клавиатуры';
+$labels['shift'] = '⇑';
+$labels['tab'] = '⇔';
+$labels['caps'] = '⇓';
+$labels['enter'] = '  ↵  ';
+$labels['bksp'] = '  ←  ';
 
 ?>

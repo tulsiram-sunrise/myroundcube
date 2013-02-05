@@ -1,17 +1,37 @@
 /*
  * Roundcube Planner
  */
-#taskbar a.button-planner {
-  background-color: #FFFFFF;
-  margin-top: 0;
-  color: black;
-  border-color: #ACE;
-  border-width: 2px;
-  border-bottom: none;
-  z-index: 3;
-}
 a {
   text-decoration: none;
+  color: #69939E;
+}
+a:visited {
+  color: #69939E;
+}
+li a {
+  font-weight: bold;
+}
+select {
+  height: 18px;
+  font-size: 12px;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  color: #fff;
+  background: #AAA;
+  border: 1px solid #ababab;
+}
+fieldset
+{
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  /*-moz-box-shadow: 1px 1px 12px #999;
+  -webkit-box-shadow: #999 1px 1px 12px;*/
+}
+
+.buttonborder {
+  border: 1px solid #AAA;
 }
 .nodate, .datetime {
   cursor: pointer;
@@ -19,14 +39,26 @@ a {
 .nocursor {
   cursor: auto;
 }
+#message.plannerstatusbar {
+	position: absolute;
+	bottom: 0px;
+	left: 20px;
+	right: 20px;
+	height: 27px;
+	padding-left: 8px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+}
 #overlay {
   display: block;
   position: absolute;
   width: 700px;
   margin-left: -350px;
   left: 50%;
-  top: 125px;
-  bottom: 40px;
+  top: 135px;
+  bottom: 50px;
   overflow: hidden;
   background-color: rgba(0,0,0,0.5) !important;
   background-color: #F6F6F6;
@@ -35,6 +67,20 @@ a {
   box-shadow: 0pt 1px 3px rgba(0, 0, 0, 0.1);
   z-index: 4000;
 }
+#taskbar a.button-planner {
+  background-image: url(images/planner.png);
+	background-position: 10px 8px;
+	background-repeat: no-repeat;
+}
+
+#taskbar a.button-planner {
+	height: 22px;
+	background-color: #fff;
+	border: 2px solid #ACE;
+	border-bottom: none;
+	margin-top: 0;
+}
+
 #taskbar{
   z-index: 4999;
 }
@@ -43,6 +89,7 @@ a {
   position: absolute;
   top: 0;
   width: 670px;
+  opacity: 0.85;
 }
 #planner_drag_list li {
   width: 670px;
@@ -85,11 +132,11 @@ input#planner_raw {
 }
 #planner_controls_container {
   position: absolute;
-  top: 75px;
+  top: 85px;
   width: 700px;
   margin-left: -350px;
   left: 50%;
-  z-index: 4999;
+  z-index: 9;
 }
 ul#planner_controls {
   display: inline;
@@ -115,7 +162,7 @@ ul#planner_controls li {
   width: 150px;
   background: #efefef;
   border: 1px solid;
-  border-color: #79b7e7; /* Roundcube default for jqueryui today */
+  border-color: #a22; /* Roundcube default for jqueryui today */
   z-index: 5004;
 }
 #planner_help {
@@ -127,23 +174,25 @@ ul#planner_controls li {
   height: 90px;
   overflow: hidden;
   z-index: 5000;
+	background: #fff;
+	border: 1px solid #ddd;
 }
 #filter_bar {
   position: absolute;
   width: 700px;
   margin-left: -350px;
   left: 50%;
-  bottom: 15px;
+  bottom: 25px;
   padding: 5px;
   font-style: italic;
 }
 #control_bar {
   display: none;
   position: absolute;
-  top: 105px;
+  top: 115px;
   padding: 5px;
   font-style: italic;
-  z-index: 4999;
+  z-index: 9;
 }
 #expunge_bar {
   display: none;
@@ -157,8 +206,8 @@ ul#planner_controls li {
   width: 700px;
   margin-left: -350px;
   left: 50%;
-  top: 125px;
-  bottom: 40px;
+  top: 135px;
+  bottom: 50px;
   overflow: hidden;
 }
 #planner_formats,
@@ -205,11 +254,11 @@ ul#planner_controls li {
 #planner_items li {
   display: none;
 }
-#planner_preview li.today, 
+#planner_preview li.today,
 #planner_items li.today {
   background: #efefef;
   border: 1px solid;
-  border-color: #79b7e7; /* Roundcube default for jqueryui today */
+  border-color: #a22; /* Roundcube default for jqueryui today */
 }
 #planner_items li.highlight {
   background: #efefef;
@@ -219,7 +268,7 @@ ul#planner_controls li {
 #planner_items li a {
   display: inline;
   width: 15px;
-  height: 15px; 
+  height: 15px;
   margin-top: 2px;
   margin-right: 5px;
 }
@@ -290,11 +339,11 @@ a.remove {
 a.remove:hover {
   background-position: 0 -100px;
 }
-a.done { 
+a.done {
   float: left;
   background: url('images/sprite.png') no-repeat 0 -75px;
 }
-a.pdone { 
+a.pdone {
   float: left;
   background: url('images/sprite.png') no-repeat 0 -50px;
 }
@@ -312,4 +361,8 @@ span.count {
    text-shadow: #444444;
    border-radius: 8px;
    box-shadow: 0pt 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.plugin_planner .about-link, .plugin_planner .support-link {
+	display: none;
 }

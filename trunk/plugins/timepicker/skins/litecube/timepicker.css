@@ -8,3 +8,6 @@
 .ui-timepicker-rtl{ direction: rtl; }
 .ui-timepicker-rtl dl { text-align: right; }
 .ui-timepicker-rtl dl dd { margin: 0 65px 10px 10px; }
+.ui-slider { border: 1px solid #AAA; background: white url(ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: black; height: 10px; }
+.ui-dialog .ui-widget-content { border: 1px solid #AAA; background: white url(ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: black; }
+.ui-timepicker-div dt { margin-left: 5px; }

@@ -4,9 +4,9 @@
   background-color: #F4FBFF;
 }
 
-#taskbar a.button-calendar:hover {
+/*#taskbar a.button-calendar:hover {
   background-color: #FFFFFF;
-}
+}*/
 
 input.protected_category {
   background-color: #B9C4F2;
@@ -45,10 +45,11 @@ input.protected_category {
 #upcoming-content {
   position: absolute;
   bottom: 44px;
-  left: 20px;
-  /*border: 1px solid #AFCFEF;*/
+  left: 10px;
+  border: 1px solid #AFCFEF;
   background-color: #E9F4FF;
   cursor: auto;
+  z-index: 100;
 }
 
 #upcoming-content .boxtitle {

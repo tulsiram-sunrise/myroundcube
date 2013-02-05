@@ -305,7 +305,7 @@ class Utils
             else{
               $xevent['DTEND'] = min(0, $xevent['DTSTART']);
             }
-            if($vevent->summary['value']){
+            if(is_array($vevent->summary) && $vevent->summary['value']){
               $xevent['SUMMARY'] = $vevent->summary['value'];
             }
             if(is_array($vevent->description)){

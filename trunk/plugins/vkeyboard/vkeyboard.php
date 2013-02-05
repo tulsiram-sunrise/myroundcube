@@ -2,7 +2,7 @@
 /**
  * vkeyboard
  *
- * @version 1.8.3 - 10.09.2012
+ * @version 1.8.4 - 26.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -31,8 +31,8 @@ class vkeyboard extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.8.3';
-  static private $date = '10-09-2012';
+  static private $version = '1.8.4';
+  static private $date = '26-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',

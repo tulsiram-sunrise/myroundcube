@@ -3,10 +3,6 @@ chdir(dirname(__FILE__));
 $time_start = microtime_float();
 $time_start_s = time();
 
-if(isset($_SERVER['REMOTE_ADDR'])){
-  die("Access denied");
-}
-
 /* Configuration */
 if(isset($_SERVER['SCRIPT_FILENAME']))
   $dir = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -33,6 +29,11 @@ else{
     $ext = "";
   include INSTALL_PATH . 'plugins/calendar/config.inc.php' . $ext;
 }
+
+if(isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != $rcmail_config['cron_ip']){
+  die("Access denied");
+}
+
 define('RCMAIL_URL', $rcmail_config['cron_rc_url']);
 /* End Configuration */
 
@@ -270,6 +271,7 @@ function compose($val,$tz,$labels,$rcmail,$ical){
 include INSTALL_PATH . 'program/include/iniset.php';
 
 $rcmail = rcmail::get_instance();
+
 foreach($rcmail_config as $key => $val){
   $rcmail->config->set($key, $val);
 }
@@ -298,6 +300,7 @@ $reminders = array();
 while ($result && ($reminder = $rcmail->db->fetch_assoc($result))) {
   $reminders[] = $reminder;
 }
+
 $notifiers = array();
 foreach($reminders as $key => $reminder){
   $props = unserialize($reminder['props']);

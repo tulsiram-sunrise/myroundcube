@@ -31,5 +31,8 @@ $labels['clients'] = 'Recommended clients which support %s protocol';
 $labels['tutorial'] = 'Tutorial';
 $labels['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $labels['copytoclipboardtitle'] = 'Copy to clipboard';
+$labels['calendars'] = 'Calendars';
+$labels['addressbooks'] = 'Addressbooks';
+$labels['mailbox'] = 'Mailbox';
 
 ?>

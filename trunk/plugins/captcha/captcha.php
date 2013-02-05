@@ -5,7 +5,7 @@
  *
  * Plugin provides a captcha challenge
  *
- * @version 3.2.8 - 10.09.2012
+ * @version 3.2.9 - 29.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -38,8 +38,8 @@ class captcha extends rcube_plugin {
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.2 the captcha image is save in the session. The temporary folder (temp) can be removed.<br /><a href="http://myroundcube.com/myroundcube-plugins/captcha-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.2.8';
-  static private $date = '10-09-2012';
+  static private $version = '3.2.9';
+  static private $date = '29-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -330,7 +330,7 @@ class captcha extends rcube_plugin {
               <img onclick="show_riddle()" name="captcha_image" id="captcha_image" src="' .$img_fn.'" alt="' .$alt. '" title="' . $title . '"/>
               <div style="display:inline;margin-left:-20px;"><img onclick="hide_riddle();captcha_ajax()" src="plugins/captcha/' . $this->local_skin_path() . '/refresh.png" title="' . $this->gettext('captcha.reload') . '" /></div>
             </td>
-            <td nowrap>
+            <td nowrap>&nbsp;
               <input name="captcha_input" type="text" size="7" maxlength="16" autocomplete="off" />
               <input id="captcha_hash" name="captcha_hash" type="hidden" value="'.$hash. '" />
             </td></tr>

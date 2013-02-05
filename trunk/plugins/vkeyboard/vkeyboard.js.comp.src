@@ -5,5 +5,7 @@ $(document).ready(function(){
     if($(this).parent().get(0).tagName.toLowerCase() == 'td')
       $(this).parent().attr('nowrap','nowrap');
   });
-  $('#rcmloginpwd').attr('size', 35);
+  if(rcmail.env.skin == 'larry'){
+    $('#rcmloginpwd').attr('size', 35);
+  }
 });

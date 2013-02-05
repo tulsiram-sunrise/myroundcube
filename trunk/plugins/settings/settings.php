@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 3.9.5 - 10.01.2013
+ * @version 3.9.6 - 31.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -27,8 +27,8 @@ class settings extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Please adjust config key "limit_skins". "default" has to become "classic" since Roundcube 0.8.x.';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.9.5';
-  static private $date = '10-01-2013';
+  static private $version = '3.9.6';
+  static private $date = '31-01-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -294,7 +294,7 @@ element.qtip({
     $p['content'] = implode($temparr);
     if($_GET['_section'] == "general" || $_POST['_section'] == "general"){
       $p['content'] .= 
-'<br /><fieldset><legend>' . $this->gettext('skin_preview') . ' ::: ' . $user . '</legend><br /><div id="skin_preview" align="center">
+'<br /><fieldset><legend>' . $this->gettext('skin_preview') . '</legend><br /><div id="skin_preview" align="center">
 <iframe border="0" frameborder="0" id="skin_preview_frame" src="./plugins/settings/skins/' . $rcmail->config->get('skin','classic') . '/images/' . $rcmail->config->get('skin','classic') . '.png" width="540px" height="280px"></iframe>
 </div></fieldset>
 <script type="text/javascript">

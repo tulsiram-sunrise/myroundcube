@@ -875,8 +875,12 @@ PROPP;
           if($categories != $old_categories){
             if(!empty($caldavs[$old_categories]) || !empty($caldavs[$categories])){
               $sync = $this->newEvent($start, $end, $summary, $description, $location, $categories, $allDay, $srecur, $expires, $occurrences, $byday, $bymonth, $bymonthday);
-              if($sync)
+              if($sync){
+                if(!$old_categories){
+                  $old_categories = md5(time());
+                }
                 $events[0] = $this->removeEvent($id, $old_categories);
+              }
             }
             else{
               $events[0]['sync'] = $this->syncCalDAV($events);

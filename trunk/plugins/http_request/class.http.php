@@ -734,7 +734,7 @@ class MyRCHttp
         else
         {
             // Get a file pointer
-            $filePointer = fsockopen($this->host, $this->port, $errorNumber, $errorString, $this->timeout);
+            $filePointer = @fsockopen($this->host, $this->port, $errorNumber, $errorString, $this->timeout);
        
             // We have an error if pointer is not there
             if (!$filePointer)

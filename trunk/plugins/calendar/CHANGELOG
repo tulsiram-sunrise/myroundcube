@@ -17,4 +17,9 @@ VERSION                COMMENT
                          compatibilty)
 11.0.6 - 11.0.8        - Code clean up
 11.0.9                 - Fixed a bug if categories contained blanks or apostrophs
-11.0.10                - Code clean up
+11.0.10 - 11.0.13      - Code clean up
+11.0.14                - Fixed a bug when moving events from default category to a
+                         category linked with a CalDAV
+11.0.15 - 11.0.16      - Improved cron jobs (deny access if remote IP <> cron_ip)
+11.0.17                - Fixed buttons previous and next day
+11.0.18                - Fixed illegal string offset warning in utils.php

@@ -57,7 +57,7 @@ $rcmail_config['default_caldav_backend'] = array(
   'pass' => '%gp',
   'url' => 'https://www.google.com/calendar/dav/%gu/events',
   'cat' => 'https://www.google.com/calendar/dav/%gu/%c',
-  'auth' => 'basic',
+  'auth' => 'detect', //basic or detect
   'extr' => false, // external reminder service (f.e. google calendar reminders)
 );
 
@@ -186,7 +186,7 @@ $rcmail_config['public_caldavs'] = array();
                 'user' => '%u',
                 'pass' => '%p',
                 'url' => 'https://mycaldav.mydomain.tld/%u/events/public',
-                'auth' => 'basic',
+                'auth' => 'detect', // detect or basic
                 'readonly' => false,
                 'extr' => false,
               ),

@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 11.0.12- 17.01.2013
+ * @version 11.0.18- 04.02.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -80,8 +80,8 @@ class calendar extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).<br />Since v9.9 $rcmail_config[\'cal_tempdir\'] is not required anymore.<br />Remove field <i>all_day</i> from database tables (<i>events, events_cache, events_caldav</i>).<br />Note new config key "cal_short_urls".<br />Important Update Notes for Versions 9.x: <a href="http://mirror.myroundcube.com/docs/calendar.html" target="_new">Click here</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '11.0.12';
-  static private $date = '17-01-2013';
+  static private $version = '11.0.18';
+  static private $date = '04-02-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -2666,16 +2666,22 @@ class calendar extends rcube_plugin{
           'content' => $checkbox->show($enabled?1:0),
         );
              
-        $field_id = 'rcmfd_caldav_notify_to';
-        $select = new html_select(array('name' => '_caldav_notify_to', 'id' => $field_id));
-        foreach($identities as $key => $val){
-          $select->add($key, $val);
-        }
+        if(class_exists('sabredav') && method_exists('sabredav', 'about')){
+          $v = sabredav::about(array('version'));
+          $v = $v['version'];
+          if($v > '3'){
+            $field_id = 'rcmfd_caldav_notify_to';
+            $select = new html_select(array('name' => '_caldav_notify_to', 'id' => $field_id));
+            foreach($identities as $key => $val){
+              $select->add($key, $val);
+            }
     
-        $args['blocks']['calendar']['options']['caldav_notify_to'] = array(
-          'title' => '- ' . html::label($field_id, Q($this->gettext('cal_notify_to'))),
-          'content' => $select->show($rcmail->config->get('caldav_notify_to')),
-        );
+            $args['blocks']['calendar']['options']['caldav_notify_to'] = array(
+              'title' => '- ' . html::label($field_id, Q($this->gettext('cal_notify_to'))),
+              'content' => $select->show($rcmail->config->get('caldav_notify_to')),
+            );
+          }
+        }
       }
       if(!isset($no_override['upcoming_cal']) && class_exists('calendar_plus')){
         $args = calendar_plus::load_settings('upcoming', $args);

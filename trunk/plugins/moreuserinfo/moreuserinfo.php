@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0 - 13.01.2013
+ * @version 4.0.2 - 21.01.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,8 +26,8 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0';
-  static private $date = '13-01-2013';
+  static private $version = '4.0.2';
+  static private $date = '21-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -102,7 +102,7 @@ class moreuserinfo extends rcube_plugin
       return $ret;
     }
   }
- 
+  
   function frame()
   {
     $rcmail = rcmail::get_instance();
@@ -122,7 +122,7 @@ class moreuserinfo extends rcube_plugin
     $rcmail = rcmail::get_instance();
     if($rcmail->config->get('skin') == 'larry'){
       $href = './?_task=settings&_action=plugin.moreuserinfo_show';
-      $rcmail->output->add_script('$(".topleft").html($(".topleft").html() + "<a id=\'summarylink\' href=\'' . $href . '\'>' . $this->gettext('accountinformation') . '</a>");', 'docready');
+      $rcmail->output->add_script('$(".topleft").html($(".topleft").html() + "<a id=\'accountinformationlink\' href=\'' . $href . '\'>' . $this->gettext('accountinformation') . '</a>");', 'docready');
     }
     if($p['template'] == 'settingsedit'){
       $rcmail->output->add_script('if(parent.rcmail.env.action == "plugin.moreuserinfo_show"){ parent.rcmail.env.action = ""; document.location.href="./?_task=settings&_action=plugin.moreuserinfo&_framed=1" };', 'docready');
@@ -176,9 +176,25 @@ class moreuserinfo extends rcube_plugin
     $skin = $rcmail->config->get('skin', 'classic');
     $icon = '&nbsp;' . html::tag('img', array('src' => 'plugins/moreuserinfo/skins/' . $skin . '/images/clipboard.png', 'title' => $this->gettext('copytoclipboardtitle'), 'alt' => $this->gettext('copytoclipboardtitle'), 'align' => 'baseline', 'onclick' => 'window.prompt ("'. $this->gettext('copytoclipboard') . '", $(this).prev().text())'));
     $table = new html_table(array('cols' => 2, 'cellpadding' => 3));
+    
+    $table->add('title', html::tag('h3', null, Q($this->gettext('mainoptions') . ':')));
+    $table->add('', '');
+    $date_format = $rcmail->config->get('date_format', 'm/d/Y') . ' ' . $rcmail->config->get('time_format', 'H:i');
+    $created = new DateTime($user->data['created']);
+    $table->add('title', '&raquo;&nbsp;' . Q($this->gettext('created') . ':'));
+    $table->add('', Q(date_format($created, $date_format)));
+    $lastlogin = new DateTime($user->data['last_login']);
+    $table->add('title', '&raquo;&nbsp;' . Q($this->gettext('lastlogin') . ':'));
+    $table->add('', Q(date_format($lastlogin, $date_format)));
+    $identity = $user->get_identity();
+    $table->add('title', '&raquo;&nbsp;' . Q($this->gettext('defaultidentity') . ':'));
+    $table->add('', Q($identity['name'] . ' <' . $identity['email'] . '>'));
+    
+    $table->add('title', html::tag('h3', null, Q($this->gettext('mailbox') . ':')));
+    $table->add('', '');
     $conf = $rcmail->config->get('moreuserinfo');
     foreach($conf as $service => $domains){
-      $table->add('title', Q($service . ':'));
+      $table->add('title', html::tag('b', null, '&raquo;&nbsp;' . Q($service . ':')));
       $table->add('', '&nbsp;');
       foreach($domains as $domain => $details){
         $i = 0;
@@ -189,7 +205,7 @@ class moreuserinfo extends rcube_plugin
             if(substr($label, 0, 1) == '['){
               $label = $detail;
             }
-            $table->add('title', Q('&raquo; ' . $label . ':'));
+            $table->add('title', Q('&nbsp;&raquo;&nbsp;' . $label . ':'));
             $label = $this->gettext($setting);
             if(substr($label, 0, 1) == '['){
               $label = $setting;
@@ -200,18 +216,6 @@ class moreuserinfo extends rcube_plugin
       } 
     }
 
-    $date_format = $rcmail->config->get('date_format', 'm/d/Y') . ' ' . $rcmail->config->get('time_format', 'H:i');
-
-    $created = new DateTime($user->data['created']);
-    $table->add('title', Q($this->gettext('created') . ':'));
-    $table->add('', Q(date_format($created, $date_format)));
-    $lastlogin = new DateTime($user->data['last_login']);
-    $table->add('title', Q($this->gettext('lastlogin') . ':'));
-    $table->add('', Q(date_format($lastlogin, $date_format)));
-
-    $identity = $user->get_identity();
-    $table->add('title', Q($this->gettext('defaultidentity') . ':'));
-    $table->add('', Q($identity['name'] . ' <' . $identity['email'] . '>'));
     $cals = $rcmail->config->get('caldavs', array());
     $clients = '';
     $user = $username;
@@ -220,7 +224,7 @@ class moreuserinfo extends rcube_plugin
     }
     if(count($cals) > 0){
       $i = 1;
-      $table->add('title', 'CalDAV-URLs&sup' . $i . ';:');
+      $table->add('title', html::tag('h3', null, $this->gettext('calendars') . '&nbsp;(CalDAV-URLs)&sup' . $i . ';:'));
       $table->add('', '');
       foreach($cals as $key => $caldav){
         $default = str_ireplace($key, 'events', $caldav['url']);
@@ -276,7 +280,7 @@ class moreuserinfo extends rcube_plugin
     }
     if(count($addressbooks) > 0){
       $i ++;
-      $table->add('title', 'CardDAV-URLs&sup' . $i . ';:');
+      $table->add('title', html::tag('h3', null, $this->gettext('addressbooks') . '&nbsp;(CardDAV-URLs)&sup' . $i . ';:'));
       $table->add('', '');
       ksort($addressbooks);
       foreach($addressbooks as $key => $addressbook){

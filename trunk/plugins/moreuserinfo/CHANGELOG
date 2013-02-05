@@ -3,3 +3,4 @@ VERSION                COMMENT
 3.0                    - Made the plugin ready for multiple domain hosting
 3.0.1                  - Fixed navigation issue
 4.0                    - Copy and feature
+4.0.1                  - HTML fix (renamed duplicate id 'summarylink')

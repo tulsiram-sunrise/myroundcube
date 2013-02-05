@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 3.2.6 - 16.01.2013
+ * @version 3.2.7 - 05.02.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -42,8 +42,8 @@ class carddav extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v3.x you need carddav_plus plugin to achieve advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new">IMPORTANT</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.2.6';
-  static private $date = '16-01-2013';
+  static private $version = '3.2.7';
+  static private $date = '05-02-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',

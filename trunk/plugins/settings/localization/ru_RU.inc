@@ -1,30 +1,31 @@
 <?php
-
 /*
-+-----------------------------------------------------------------------+
-| language/ru_RU/labels.inc                                             |
-|                                                                       |
-| Language file of the RoundCube Webmail client                         |
-| Copyright (C) 2008-2009, RoundQube Dev. - Switzerland                 |
-| Licensed under the GNU GPL                                            |
-|                                                                       |
-+-----------------------------------------------------------------------+
-| Author:                                                               |
-+-----------------------------------------------------------------------+
-
+ +-----------------------------------------------------------------------+
+ | ./plugins/settings/localization/ru_RU.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: Pavel - 01/26/2013 15:03:49
+ +-----------------------------------------------------------------------+
 */
 
 $labels = array();
+$labels['pluginname'] = 'Настройки';
+$labels['plugindescription'] = 'Это плагин подсказки. Он требует наличия некоторых других плагинов';
 $labels['menu'] = 'Меню';
 $labels['managefolders'] = 'Управление папками';
 $labels['account'] = 'Управление аккаунтом';
 $labels['classic'] = 'Настройки по умолчанию';
 $labels['groupvice4'] = 'ГруппВайс';
 $labels['remotefolders'] = 'Особые папки';
-$labels['myroundcube'] = 'МойКруглоКуб';
+$labels['myroundcube'] = 'Мой Roundcube';
 $labels['skin_preview'] = 'Предпросмотр Скина';
 $labels['meh'] = 'МЕХ';
-$labels['litecube-f'] = 'Легкий';
+$labels['litecube-f'] = 'Легкий (бесплатный)';
+$labels['litecube'] = 'Легкий';
+$labels['litecube_mobile'] = 'Мобильный';
 $labels['larry'] = 'Ларри';
 
 ?>

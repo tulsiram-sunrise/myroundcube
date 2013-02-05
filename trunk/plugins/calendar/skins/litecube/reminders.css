@@ -1,7 +1,7 @@
 #remindersoverlay {
   display: none;
   position: absolute;
-  top: 55px;
+  top: 50px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -21,9 +21,9 @@
   text-align: center;
   overflow: hidden;
   position: absolute;
-  bottom: 0px;
+  bottom: 10px;
   width: 150px;
-  height: 18px;
+  height: 25px;
   left: 50%;
   margin-left: -75px;
   z-index: 5000;
@@ -36,7 +36,7 @@
   text-align: center;
   overflow: hidden;
   position: absolute;
-  bottom: 0px;
+  bottom: 11px;
   width: 250px;
   height: 18px;
   left: 50%;
