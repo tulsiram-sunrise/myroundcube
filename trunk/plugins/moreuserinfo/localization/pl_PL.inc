@@ -15,14 +15,24 @@
 */
 
 $labels = array();
-$labels['userinfo'] = 'Informacje o użytkowniku';
-$labels['imapserver'] = 'Serwer IMAP';
-$labels['smtpserver'] = 'Serwer SMTP';
+$labels['pluginname'] = 'Informcje o koncie';
+$labels['plugindescription'] = 'Pokazuje podstawowe informacje o koncie i serwerze POP3/IMAP, tożsamości użytkownika, linki do serwerów CalDAV i CardDAV.';
+$labels['accountinformation'] = 'Informacje o koncie';
+$labels['encryption'] = 'Szyfrowanie';
 $labels['port'] = 'Port';
+$labels['auth'] = 'Autentykacja';
+$labels['yes'] = 'Tak';
+$labels['no'] = 'Nie';
 $labels['created'] = 'Utworzono';
 $labels['lastlogin'] = 'Ostatnie logowanie';
 $labels['defaultidentity'] = 'Domyślny identyfikator';
-$labels['dateformat'] = 'Format daty';
 $labels['back'] = 'Powrót';
+$labels['userinfo'] = 'Informacje o użytkowniku';
+$labels['description'] = 'Pobierz dokładne informacje o swoim koncie.';
+$labels['default'] = 'Domyślne';
+$labels['clients'] = 'Zalecany klient który wspiera %s protokoł';
+$labels['tutorial'] = 'Samouczek';
+$labels['copytoclipboard'] = 'Skopjuj do schowka: CRTL+C i Enter';
+$labels['copytoclipboardtitle'] = 'Skopjuj do schowka';
 
 ?>

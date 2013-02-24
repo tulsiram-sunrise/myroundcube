@@ -4,10 +4,10 @@
  | ./plugins/moreuserinfo/localization/es_ES.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 12/11/2012 07:42:26
+ | Author: Yoni - 02/19/2013 03:16:00
  +-----------------------------------------------------------------------+
 */
 
@@ -29,5 +29,10 @@ $labels['description'] = 'Obtén información detallada de tu Cuenta.';
 $labels['default'] = 'Predeterminado';
 $labels['clients'] = 'Clientes recomendados que soportan protocolo %s';
 $labels['tutorial'] = 'Tutorial';
+$labels['copytoclipboard'] = 'Copiar al portapapeles: Ctrl+C, Enter';
+$labels['copytoclipboardtitle'] = 'Copiar al portapapeles';
+$labels['calendars'] = 'Calendarios';
+$labels['addressbooks'] = 'Libretas de direcciones';
+$labels['mailbox'] = 'Buzón';
 
 ?>

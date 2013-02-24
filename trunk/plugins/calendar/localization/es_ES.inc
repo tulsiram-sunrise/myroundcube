@@ -4,10 +4,10 @@
  | ./plugins/calendar/localization/es_ES.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 12/25/2012 00:02:59
+ | Author: Yoni - 02/19/2013 02:47:26
  +-----------------------------------------------------------------------+
 */
 
@@ -33,6 +33,7 @@ $labels['calendar_feeds'] = 'Canales de calendarios';
 $labels['feeds'] = 'RSS de Calendario';
 $labels['add_feed'] = 'Añadir canal';
 $labels['remove_feed'] = 'Eliminar canal';
+$labels['sharing'] = 'Compartir';
 $labels['share'] = 'Compartir';
 $labels['resource'] = 'Recurso';
 $labels['caltoken'] = 'Token';
@@ -43,7 +44,17 @@ $labels['readonly'] = 'sólo lectura';
 $labels['calicsurl'] = 'URL de ICS';
 $labels['calfeedurl'] = 'URL del canal';
 $labels['icsaccesshint'] = 'Copie las direcciones URL anteriores y envíelas a otros para conceder acceso de solo lectura a los eventos de su calendario.<br />Cambie o elimine el token para cerrar el acceso.';
+$labels['isenabled'] = 'está habilitado';
+$labels['isdisabled'] = 'está desactivado';
 $labels['sharehint'] = 'Proporcione la información anterior (Nombre de usuario, Contraseña (Token) y URLs) para que otros puedan conectarse a los calendarios compartidos. Esta información concede permisos de lectura y escritura a través del protocolo CalDAV a los eventos de su calendario.<br />Cambie o elimine el token para cerrar el acceso.';
+$labels['sharehint_readonly'] = 'Proporcione la información anterior (Nombre de usuario, Contraseña (Token) y URLs) para que otros puedan conectarse a sus calendarios compartidos. <br />Esta información concede permisos de sólo lectura.<br />Cambie o elimine el token para cerrar el acceso.';
+$labels['calendar_modified'] = 'Calendario ha sido modificado';
+$labels['notify_header'] = 'Estimado %s,';
+$labels['event_modified'] = 'Un evento se ha añadido o modificado:';
+$labels['event_deleted'] = 'Un evento ha sido eliminado';
+$labels['regards'] = 'Saludos,';
+$labels['administrator'] = 'Administrador';
+$labels['notify_footer'] = 'Usted ha recibido este correo electrónico porque ha optado por recibir una notificación cuando un asistente modifica eventos en sus calendarios. No responda a este mensaje. En el caso de acceso no autorizado o abuso, por favor, cierre o cambie el accesso a calendarios compartidos e informe a los asistentes consecuentemente.';
 $labels['minutes'] = 'Minutos';
 $labels['replicateautomatically'] = 'Replicar base de datos de todos los CalDAV';
 $labels['caldavreplicationrange'] = 'Replicar CalDAV para los años';
@@ -51,6 +62,7 @@ $labels['caldavauthentication'] = 'Método de Autentificación';
 $labels['basic'] = 'BÁSICO';
 $labels['detect'] = 'detectar automaticamente';
 $labels['cal_notify'] = 'Enviar email cuando los eventos cambien';
+$labels['caldav_notify'] = 'Enviar notificación cuando eventos han sido cambiados por los asistentes';
 $labels['cal_notify_to'] = 'Receptor';
 $labels['showbirthdays'] = 'Mostrar cumpleaños';
 $labels['googlecaptcha'] = 'Permitir acceso a tu cuenta de Google';
@@ -169,6 +181,7 @@ $labels['in'] = 'en';
 $labels['export_as_file'] = 'Como archivo';
 $labels['send_invitation'] = 'Enviar invitación';
 $labels['invitation_subject'] = 'Invitación a un evento';
+$labels['custommail'] = 'Programar correo electrónico personalizado';
 $labels['reminder_before'] = 'Recordar antes del comienzo del evento';
 $labels['removereminders'] = 'Eliminar avisos';
 $labels['remindersloading'] = 'Cargando avisos...';

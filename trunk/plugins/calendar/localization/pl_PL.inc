@@ -1,21 +1,21 @@
 <?php
 
 /*
- +-----------------------------------------------------------------------+
- | ./plugins/calendar/localization/pl_PL.inc
- |
- | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- | Licensed under the GNU GPL
- |
- +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 03/16/2012 13:03:41
- +-----------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+| ./plugins/calendar/localization/pl_PL.inc
+|
+| Language file of MyRoundcube Plugins Bundle
+| Copyright (C) 2010-2012, Roland 'rosali' Liebl
+|
++-----------------------------------------------------------------------+
+| Author: myroundcube@mail4us.net - 03/16/2012 13:03:41
++-----------------------------------------------------------------------+
 
 */
 
 $labels = array();
 $labels['pluginname'] = 'Kalendarz';
+$labels['plugindescription'] = 'Zarządzaj swoimi zdarzeniami przez Kalendarz-WWW. Możesz połączyć swój kalendarz z kalendarzem Google lub innymi kalendarzami typu CAL-DAV.';
 $labels['calendarprovider'] = 'Dostawca';
 $labels['forinstance'] = 'np.';
 $labels['caldavserver'] = 'Serwer CalDAV';
@@ -35,21 +35,40 @@ $labels['calendar_feeds'] = 'Kalendarz RSS';
 $labels['feeds'] = 'Dostawcy kalendarzy';
 $labels['add_feed'] = 'Dodaj RSS';
 $labels['remove_feed'] = 'Usuń RSS';
+$labels['sharing'] = 'Udostępnianie';
+$labels['share'] = 'Udostępnij';
+$labels['resource'] = 'Zasób';
 $labels['caltoken'] = 'Token';
+$labels['confidentialcaldavaccess'] = 'Pufny dostęp CalDAV do [%s]';
+$labels['readwrite'] = 'odczyt/zapis';
 $labels['calconfidentialurl'] = 'Poufny dostęp do RSS [%s]';
-$labels['read_write'] = 'pełny dostęp (odczyt/zapis)';
 $labels['readonly'] = 'tylko do odczytu';
+$labels['calicsurl'] = 'ICS URL';
 $labels['calfeedurl'] = 'RSS URL';
-$labels['feedaccesshint'] = 'Przekaż powyższy token osobom, które mają mieć dostęp do Twojego kalendarza. Zmień lub usuń token, aby zakończyć udostępnianie.';
+$labels['icsaccesshint'] = 'Skopjuj powyższe URL i przekaż je innych, aby otrzymali dostęp do twoich wydarzeń w trybie odczytu.<br /> Zmien lub usuń token, aby zlikwidować dostęp.';
+$labels['isenabled'] = 'jest włączone';
+$labels['isdisabled'] = 'jest wyłączone';
+$labels['sharehint'] = 'Podaj poniższe informacje ( Nazwa uzytkownika, Hasło (Token), i URL-e ) dla inych, aby połączyć swoje kalendarze. <br/> Ta informacja pozwala na dostęp w trybie zapisu i odczytu do twojego kalendarza. Zmien lub usuń Token, aby zlikwidować dostęp.';
+$labels['sharehint_readonly'] = 'Podaj poniższe informacje ( Nazwa uzytkownika, Hasło (Token), i URL-e ) dla inych aby połączyć swoje kalendarze. <br/> Ta informacja pozwala na dostęp w trybie tylko do odczytu do twojego kalendarza. Zmien lub usuń Token, aby zlikwidować dostęp.';
+$labels['calendar_modified'] = 'Kalendarz został zmodyfikowany';
+$labels['notify_header'] = 'Droga/i, ';
+$labels['event_modified'] = 'Zdarzenie zostało dodane lub zmodyfikowane:';
+$labels['event_deleted'] = 'Zdarzenie zostało usunięte';
+$labels['regards'] = 'Pozdrowienia,';
+$labels['administrator'] = 'Administrator';
+$labels['notify_footer'] = 'Otrzymałeś tego e-maila, bo zaznaczyłeś aby być informowanym o zmianach dokonanych przez uczestników w twoim kalendarzu. Nie odpowiadaj na tą wiadomość. W przypadku nieautoryzowanego dostępu lub nadyżuciu kaledarza, zamknij dostęp do kalendarza i poinformuj osoby, które miały do niego dostęp.';
 $labels['minutes'] = 'minut';
 $labels['replicateautomatically'] = 'Replikuj bazę CalDAV co';
 $labels['caldavreplicationrange'] = 'Replikacja bazy CalDAV dla lat';
 $labels['caldavauthentication'] = 'Metoda autentykacji';
 $labels['basic'] = 'BASIC';
 $labels['detect'] = 'wykryj automatycznie';
-$labels['cal_notify'] = 'Wyślij email gdy zdarzenie się zmieni';
+$labels['cal_notify'] = 'Wyślij email gdy zdarzenie się zmieni przez właściciela';
+$labels['caldav_notify'] = 'Wyślij email gdy zdarzenie się zmieni przez ';
 $labels['cal_notify_to'] = 'Odbiorca';
 $labels['showbirthdays'] = 'Pokaż urodziny';
+$labels['googlecaptcha'] = 'Pozwól na dostęp do twojego konta google';
+$labels['clickhere'] = 'Klinij tutaj';
 $labels['titleFormatMonth'] = 'MMMM yyyy';
 $labels['titleFormatDay'] = 'dddd';
 $labels['columnFormatMonth'] = 'ddd';
@@ -73,6 +92,7 @@ $labels['calendar_week'] = 'Tydzień kalendarza';
 $labels['month'] = 'Miesiąc';
 $labels['year'] = 'Rok';
 $labels['new_event'] = 'Nowe zdarzenie';
+$labels['new_event_short'] = 'Stwórz zdarzenie';
 $labels['edit_event'] = 'Edycja zdarzenia';
 $labels['save'] = 'Zapisz';
 $labels['remove'] = 'Usuń';
@@ -81,6 +101,9 @@ $labels['summary'] = 'Temat';
 $labels['description'] = 'Opis';
 $labels['all-day'] = 'cały dzień';
 $labels['export'] = 'Eksport do ICS';
+$labels['export_short'] = 'Eksport';
+$labels['import'] = 'Import do ICS';
+$labels['import_short'] = 'Import';
 $labels['category'] = 'Kategoria';
 $labels['preview'] = 'Podgląd';
 $labels['location'] = 'Lokalizacja';
@@ -110,9 +133,11 @@ $labels['addicalmsg'] = 'Zaimportuj do kalendarza';
 $labels['icalsavefailed'] = 'Nie można zaimportować pliku kalendarza';
 $labels['importedsuccessfully'] = 'Zaimportowano';
 $labels['switch_calendar'] = 'Przełącz kalendarz';
+$labels['user'] = 'Użytkownicy';
 $labels['cal_user'] = 'Kalendarz użytkownika';
 $labels['submit'] = 'Zatwierdź';
 $labels['filter_events'] = 'Filtrowanie zdarzeń';
+$labels['filter'] = 'Flitry';
 $labels['allevents'] = 'wszystkie zdarzenia';
 $labels['removefilters'] = 'Usuń filtry';
 $labels['defaultcategory'] = 'Brak';
@@ -129,6 +154,13 @@ $labels['third'] = 'trzeci';
 $labels['fourth'] = 'czwarty';
 $labels['fifth'] = 'piąty';
 $labels['last'] = 'ostatni';
+$labels['sunday'] = 'Niedziela';
+$labels['monday'] = 'Poniedziałek';
+$labels['tuesday'] = 'Wtorek';
+$labels['wednesday'] = 'Środa';
+$labels['thursday'] = 'Czwartek';
+$labels['friday'] = 'Piątek';
+$labels['saturday'] = 'Sobota';
 $labels['january'] = 'Styczeń';
 $labels['february'] = 'Luty';
 $labels['march'] = 'Marzec';
@@ -141,6 +173,12 @@ $labels['september'] = 'Wrzesień';
 $labels['october'] = 'Październik';
 $labels['november'] = 'Listopad';
 $labels['december'] = 'Grudzień';
+$labels['15_min'] = '15 minut';
+$labels['30_min'] = '30 minut';
+$labels['45_min'] = '45 minut';
+$labels['90_min'] = '1,5 godziny';
+$labels['60_min'] = '1 godzina';
+$labels['120_min'] = '2 godziny';
 $labels['in'] = 'w';
 $labels['export_as_file'] = 'Jako plik';
 $labels['send_invitation'] = 'Jako zaproszenie';
@@ -148,12 +186,12 @@ $labels['invitation_subject'] = 'Zaproszenie';
 $labels['reminder_before'] = 'Przypomnij przez rozpoczęciem zdarzenia';
 $labels['removereminders'] = 'Usuń przypomnienia';
 $labels['remindersloading'] = 'Ładowanie przypomnień';
+$labels['reminderfooter'] = 'Otrzymałeś tego e-maila,bo zaznaczyłes aby otrzymać przypomnienie o nadchodzącym zdarzeniu w twoim kalendarzu.';
 $labels['show_upcoming_cal'] = 'Włącz podgląd nadchodzących zdarzeń';
 $labels['invalidresponse'] = 'Niewłaściwa odpowiedź z';
 $labels['verifyexpiredate'] = 'Data wygaśnięcia jest niewłaściwa. Czy chcesz ją sprawdzić?';
 $labels['importconfirmation'] = 'Czy chcesz zaimportować dołączone zdarzenie(a) to Twojego kalendarza [%s element(ów)] ?';
 $labels['item'] = 'Element';
-$labels['run_tests'] = 'Przetestuj ustawienia (dostępne wyłącznie dla administratora kalendarza)';
 $labels['errorsaving'] = 'Wystąpił błąd podczas zapisu';
 $labels['calreadonly'] = 'Ten kalendarz jest tylko do odczytu';
 $labels['mycalendar'] = 'mój Kalendarz';
@@ -163,6 +201,8 @@ $labels['calsearch'] = 'Wyniki wyszukiwania';
 $labels['calsearchnomatches'] = 'Brak dopasowań';
 $labels['properties'] = 'Właściwości';
 $labels['reload'] = 'Przeładuj kalendarz';
+$labels['sync'] = 'Synchronizuj';
+$labels['unloadwarning'] = 'Zmiany w bazie danych są niekompletne. Prosimy o pozostanie na tej stronie.';
 $labels['backgroundreplication'] = 'Replikacja w toku...';
 $labels['lastreplication'] = 'Ostatnia replikacja:';
 $labels['successfullyreplicated'] = 'Kalendarz został pomyślnie zreplikowany';

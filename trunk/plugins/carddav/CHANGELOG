@@ -13,3 +13,5 @@ VERSION                COMMENT
 3.2.5                  - Added a hint in config.inc.php.dist regarding user mapping
 3.2.6                  - Code clean up
 3.2.7                  - Added PostgreSQL database script
+3.2.8                  - Set Referrer for remote requests
+3.2.9 - 3.2.11         - Cleanup vcard before writing to database (better Roundcube compatibility)

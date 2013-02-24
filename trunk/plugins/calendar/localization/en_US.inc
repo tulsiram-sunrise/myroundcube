@@ -4,10 +4,10 @@
  | ./plugins/calendar/localization/en_US.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 12/24/2012 23:58:09
+ | Author: Yoni - 02/19/2013 02:45:25
  +-----------------------------------------------------------------------+
 */
 
@@ -54,7 +54,7 @@ $labels['event_modified'] = 'An event has been added or modified:';
 $labels['event_deleted'] = 'An event has been deleted';
 $labels['regards'] = 'Regards,';
 $labels['administrator'] = 'Administrator';
-$labels['notify_footer'] = 'You receive this email because you have opted to notified when an attendee modifies you calendar. Do not reply to this message. In case of any unauthorized access or abuse, please close shared calendars access and inform your attendees accordingly.';
+$labels['notify_footer'] = 'You\'ve received this email because you have opted to be notified when an attendee modifies events in you calendars. Do not reply to this message. In case of unauthorized access or abuse, please close shared calendars access and inform your attendees accordingly.';
 $labels['minutes'] = 'minutes';
 $labels['replicateautomatically'] = 'Synchronize CalDAV database every';
 $labels['caldavreplicationrange'] = 'Synchronize CalDAV for the years';
@@ -181,6 +181,7 @@ $labels['in'] = 'in';
 $labels['export_as_file'] = 'As File';
 $labels['send_invitation'] = 'Send Invitation';
 $labels['invitation_subject'] = 'Event Invitation';
+$labels['custommail'] = 'Schedule a custom email';
 $labels['reminder_before'] = 'Remind before event starts';
 $labels['removereminders'] = 'Remove Reminders';
 $labels['remindersloading'] = 'Loading Reminders...';

@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.2 - 21.01.2013
+ * @version 4.0.4 - 21.02.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,8 +26,8 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0.2';
-  static private $date = '21-01-2013';
+  static private $version = '4.0.4';
+  static private $date = '21-02-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -222,28 +222,19 @@ class moreuserinfo extends rcube_plugin
     if(isset($_SESSION['global_alias'])){
       $user = $_SESSION['global_alias'];
     }
-    if(count($cals) > 0){
+    $i = 0;
+    if($rcmail->config->get('backend') == 'caldav'){
       $i = 1;
       $table->add('title', html::tag('h3', null, $this->gettext('calendars') . '&nbsp;(CalDAV-URLs)&sup' . $i . ';:'));
       $table->add('', '');
-      foreach($cals as $key => $caldav){
-        $default = str_ireplace($key, 'events', $caldav['url']);
-        $table->add('title', '&raquo; ' . $this->gettext('default'));
-        $temp = explode('?', $default, 2);
-        $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
-        $table->add('', html::tag('span', null, Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url)))) . $icon);
-        if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
-          $user = $caldav['user'];
-          $access = $this->gettext('calendar.readwrite');
-          if(strpos($temp[1], 'access=2') !== false){
-            $access = $this->gettext('calendar.readonly');
-          }
-          $temp = parse_url($url);
-          $table->add('', '');
-          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . html::tag('span', null, $user) . $icon . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . html::tag('span', null, $rcmail->decrypt($caldav['pass'])) . $icon . '&nbsp;|&nbsp;' . $access));
-        }
-        break;
-      }
+      $default = $rcmail->config->get('default_caldav_backend');
+      $default = $default['url'];
+      $table->add('title', '&raquo; ' . $this->gettext('default'));
+      $temp = explode('?', $default, 2);
+      $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
+      $table->add('', html::tag('span', null, Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url)))) . $icon);
+    }
+    if(count($cals) > 0){
       ksort($cals);
       foreach($cals as $key => $caldav){
         $temp = explode('?', $caldav['url'], 2);
@@ -320,11 +311,11 @@ class moreuserinfo extends rcube_plugin
       $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_new'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial')));
     }
     $out  = $out .= html::tag('fieldset', null, html::tag('legend',  null, $this->gettext('userinfo') . ' ::: ' . $_SESSION['username']) . $table->show() . $clients);
-    $out .= html::tag('br') . html::tag('div', array('id' => 'formfooter'),
+    /*$out .= html::tag('br') . html::tag('div', array('id' => 'formfooter'),
       html::tag('div', array('class' => 'footerleft formbuttons'),
         html::tag('input', array('type' => 'button',  'onclick' => 'document.location.href=\'./?_task=settings&_action=edit-prefs&_section=accountlink&_framed=1\'', 'class' => 'button mainaction',  'value' => Q($this->gettext('back'))))
       )
-    );
+    );*/
     return $out;
   }
 

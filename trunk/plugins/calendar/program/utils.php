@@ -103,7 +103,7 @@ class Utils
       'end'                 => $event['end'],
       'end_unix'            => $event['end'],
       'title'               => $event['summary'],
-      'description'         => $event['description'],
+      'description'         => stripcslashes($event['description']),
       'location'            => $event['location'],
       'className'           => asciiwords($event['categories'],true,''),
       'classNameDisp'       => $event['categories'],

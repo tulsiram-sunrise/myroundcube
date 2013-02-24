@@ -584,6 +584,7 @@ PROPP;
   ) {
     if (!empty($this->rcmail->user->ID)) {
       $srecur = (string) $recur;
+      $description = addcslashes($description, "\n\r"); 
       $rr = substr($recur,0,1);
       $recur = substr($recur,1);
       // PostgreSQL sets 'f' instead of '0' for false, which messes up our conditionals!
@@ -782,6 +783,7 @@ PROPP;
       $srecur = $recur;
       $rr = substr($recur,0,1);
       $recur = substr($recur,1);
+      $description = addcslashes($description, "\n\r");
       // PostgreSQL sets 'f' instead of '0' for false, which messes up our conditionals! 
       if ($byday==false) $byday='0';
       if ($bymonth==false) $bymonth='0';
@@ -874,7 +876,7 @@ PROPP;
           $caldavs = $this->caldavs;
           if($categories != $old_categories){
             if(!empty($caldavs[$old_categories]) || !empty($caldavs[$categories])){
-              $sync = $this->newEvent($start, $end, $summary, $description, $location, $categories, $allDay, $srecur, $expires, $occurrences, $byday, $bymonth, $bymonthday);
+              $sync = $this->newEvent($start, $end, $summary, $description, $location, $categories, $allDay, $srecur, $expires, $occurrences, $byday, $bymonth, $bymonthday, $recurrence_id, $exdates, $reminderbefore, $remindertype, $remindermailto);
               if($sync){
                 if(!$old_categories){
                   $old_categories = md5(time());
@@ -1193,7 +1195,7 @@ PROPP;
           }
           else if($type == 'alarms'){
             // cron login successful ?
-            if(method_exists($this->caldav, 'GetEventAlarms')){
+            if(class_exists('CalDAVClient') && method_exists('CalDAVClient', 'GetEventAlarms')){
               $events = (array) $this->caldav->GetEventAlarms($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
             }
           }

@@ -560,6 +560,7 @@ class carddav_backend
 			curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($this->curl, CURLOPT_USERAGENT, self::USERAGENT.self::VERSION);
+			curl_setopt($this->curl, CURLOPT_REFERER, 'http' . (rcube_https_check() ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF']);
 
 			if ($this->auth !== null)
 			{

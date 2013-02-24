@@ -206,6 +206,7 @@ class CalDAVClient {
       }
       $headers[] = "Content-Length: " . strlen($this->body);
       $headers[] = "User-Agent: " . $this->user_agent;
+      $headers[] = "http" . (rcube_https_check() ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
       $headers[] = 'Connection: close';
       $this->httpRequest = join("\r\n",$headers);
     
@@ -249,6 +250,7 @@ class CalDAVClient {
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->requestMethod);
       curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
       curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
+      curl_setopt($ch, CURLOPT_REFERER, 'http' . (rcube_https_check() ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF']);
       $rsp = curl_exec($ch);
       if(curl_errno($ch)){
         if($this->debug)

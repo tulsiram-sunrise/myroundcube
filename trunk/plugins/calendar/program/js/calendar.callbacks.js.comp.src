@@ -633,6 +633,17 @@ function calendar_callbacks(){
       return;
     }
     if(event.onclick){
+      if(event.onclick.indexOf('?_task=mail&_action=compose') > -1){
+        if(typeof opencomposewindow == 'function'){
+          opencomposewindow(event.onclick);
+        }
+        else{
+          window.open(event.onclick);
+        }
+      }
+      else{
+        window.open(event.onclick);
+      }
       return;
     }
     rcmail.env.edit_event = event;

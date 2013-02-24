@@ -4,10 +4,10 @@
  | ./plugins/carddav/localization/es_ES.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 11/27/2012 16:29:53
+ | Author: Yoni - 02/19/2013 03:00:22
  +-----------------------------------------------------------------------+
 */
 
@@ -15,6 +15,17 @@ $labels = array();
 $labels['pluginname'] = 'CardDAV';
 $labels['plugindescription'] = 'Administrar contactos en servidores CardDAV.';
 $labels['settings'] = 'Configuración CardDAV';
+$labels['sharing'] = 'Compartir';
+$labels['share'] = 'Compartir';
+$labels['resource'] = 'Recurso';
+$labels['confidentialcarddavaccess'] = 'Acceso CardDAV confidencial';
+$labels['sharehint'] = 'Proporcione la información anterior (Nombre de usuario, Contraseña (Token) y URLs) para que otros puedan conectarse a sus libretas de direcciones. Esta información concede permisos de lectura y escritura. Cambie o elimine el token para cerrar el acceso.';
+$labels['sharehint_readonly'] = 'Proporcione la información anterior (Nombre de usuario, Contraseña (Token) y URLs) para que otros puedan conectarse a sus sus libretas de direcciones. <br />Esta información concede permisos de sólo lectura. Cambie o elimine el token para cerrar el acceso.';
+$labels['readwrite'] = 'lectura/escritura';
+$labels['readonly'] = 'sólo lectura';
+$labels['abooktoken'] = 'Token';
+$labels['isenabled'] = 'está habilitado';
+$labels['isdisabled'] = 'está deshabilitado';
 $labels['sync_short'] = 'Sincronizar';
 $labels['sync'] = 'Sincronizar CardDAVs';
 $labels['add'] = 'Añadir';

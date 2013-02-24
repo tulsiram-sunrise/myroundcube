@@ -159,7 +159,9 @@ $(document).ready(function(){
         $('#rcmrow'+data.uid+' > td').bind('mousedown', function(e){
           if(rcmail.dblclick_detect && new Date().getTime() - rcmail.dblclick_detect <= rcmail.message_list.dblclick_time){
             rcmail.dblclick_cancel = true;
-            composenewwindowcommandcaller('edit');
+            if(!rcmail.env.scheduled_edit){
+              composenewwindowcommandcaller('edit');
+            }
             $(document).mousemove(function(){
               $('#rcmdraglayer').css('display','none');
             });

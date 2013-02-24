@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 11.0.18- 04.02.2013
+ * @version 11.0.23- 22.02.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -80,8 +80,8 @@ class calendar extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).<br />Since v9.9 $rcmail_config[\'cal_tempdir\'] is not required anymore.<br />Remove field <i>all_day</i> from database tables (<i>events, events_cache, events_caldav</i>).<br />Note new config key "cal_short_urls".<br />Important Update Notes for Versions 9.x: <a href="http://mirror.myroundcube.com/docs/calendar.html" target="_new">Click here</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '11.0.18';
-  static private $date = '04-02-2013';
+  static private $version = '11.0.23';
+  static private $date = '22-02-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -928,6 +928,9 @@ class calendar extends rcube_plugin{
     }
     $select = '<select name="_remindermailto" id="remindermailto">' . $options . '</select>' . "\r\n";
     $p['content'] = $select;
+    if(class_exists('scheduled_sending')){
+      $rcmail->output->add_script("$('#custommail').show();", 'docready');
+    }
     return $p;
   }
   
@@ -3081,6 +3084,9 @@ class calendar extends rcube_plugin{
     $birthdays = $this->getBirthdays('all');
     $stz = date_default_timezone_get();
     $tz = get_input_value('_tzname', RCUBE_INPUT_GPC);
+    if($_SESSION['tzname']){
+      $tz = $_SESSION['tzname'];
+    }
     date_default_timezone_set($tz);
     foreach($birthdays as $birthday){
       $offset = date('O', $birthday['timestamp']);

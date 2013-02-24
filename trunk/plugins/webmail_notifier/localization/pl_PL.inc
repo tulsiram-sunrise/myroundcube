@@ -15,11 +15,14 @@
 */
 
 $labels = array();
-$labels['webmailnotifieraddon'] = 'Ściągnij %s Webmail Notifier dodatek';
-$labels['webmailnotifierscript'] = 'Ściągnij %s Webmail Notifier skrypt';
-$labels['webmailnotifierflag'] = 'Informuj o wiadomościach';
+$labels['pluginname'] = 'Powiadomienie Webmail';
+$labels['plugindescription'] = 'Dodatek informujący o nowych wiadomościach';
+$labels['webmailnotifieraddon'] = 'Ściągnij %s Powiadomienie Webmailr dodatek';
+$labels['webmailnotifierscript'] = 'Ściągnij %s Powiadomienie Webmail skrypt';
+$labels['webmailnotifierflag'] = 'Informuj przy fladze';
 $labels['webmailnotifierfolders'] = 'Sprawdź katalogi';
-$labels['recent'] = 'Nowych';
+$labels['recent'] = 'Nowy';
 $labels['unseen'] = 'Nieprzeczytanych';
+$labels['tutorial'] = 'Samouczek';
 
 ?>

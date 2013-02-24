@@ -364,6 +364,23 @@ function calendar_gui(){
     this.createOptions('#reminderdaysbefore',6,1);
     this.createOptions('#reminderweeksbefore',4,1);
     
+    // custom email
+    this.custommail = function(){
+      if($('#summary').val()){
+        var t = $('#startdate').val() + ' ' + $('#starttime').val() + ':00';
+        var regex=/^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9]) (?:([0-2][0-9]):([0-5][0-9]):([0-5][0-9]))?$/;
+        var parts = t.replace(regex,"$1 $2 $3 $4 $5 $6").split(' ');
+        var d = new Date(parts[0],parts[1]-1,parts[2],parts[3],parts[4],parts[5]).getTime() / 1000;
+        var url = './?_task=mail&_action=compose' + '&_subject=' + encodeURIComponent($('#summary').val()) + '&_date=' + (Math.round(d) - (86400 * 0));
+        if(typeof opencomposewindow == 'function'){
+          opencomposewindow(url);
+        }
+        else{
+          window.open(url);
+        }
+      }
+    }
+    
     // reminder enable/disable controls
     this.reminderControls = function(){
       var stat = true;
@@ -661,7 +678,6 @@ function calendar_gui(){
       changeYear: true,
       firstDay: response.settings['first_day'],
       maxDate: new Date(rcmail.env.caleot_unix * 1000),
-      minDate: new Date(year, month, day),
       onSelect: function(dateText, inst){
         if(($('#enddate').val() + $('#endtime').val()) <= ($('#startdate').val() + $('#starttime').val())){
           $('#startdate').val($('#enddate').val());

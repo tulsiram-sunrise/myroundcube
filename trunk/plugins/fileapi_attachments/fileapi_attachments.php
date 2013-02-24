@@ -2,7 +2,7 @@
 /**
  * fileapi_attachments
  *
- * @version 1.6.2 - 11.09.2012
+ * @version 1.6.3 - 07.02.2013
  * @author Roland 'rosali' Liebl, Matthias Krauser
  * @website http://myroundcube.googlecode.com 
  */
@@ -30,8 +30,8 @@ class fileapi_attachments extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v1.4 the plugin requires database_attachments (bundled with Roundcube). Make sure the plugin is present in plugins folder.';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.6.2';
-  static private $date = '11-09-2012';
+  static private $version = '1.6.3';
+  static private $date = '07-02-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',

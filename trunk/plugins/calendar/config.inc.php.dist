@@ -174,12 +174,15 @@ $rcmail_config['categories_preview'] = array(
 
 // public calendar categories (can't be modified by user)
 $rcmail_config['public_categories'] = array(
-  'Public' => 'ff6600',
+  'Personal' => 'ff6600',
 );
 
 // associated CalDAVs (can't be modified by user)
-/* you can use here the same placeholders as in
-   'default_caldav_backend' */
+/* You can use here the same placeholders as in
+   'default_caldav_backend'.
+   Make sure to use unique keys. This array will
+   overwrite 'public_categories'.
+*/
 $rcmail_config['public_caldavs'] = array();
 /*$rcmail_config['public_caldavs'] = array(
   'Public' => array(

@@ -1,17 +1,14 @@
 <?php
-
 /*
-+-----------------------------------------------------------------------+
-| language/ru_RU/labels.inc                                             |
-|                                                                       |
-| Language file of the RoundCube Webmail client                         |
-| Copyright (C) 2008-2012, RoundQube Dev. - Switzerland                 |
-| Licensed under the GNU GPL                                            |
-|                                                                       |
-+-----------------------------------------------------------------------+
-| Author:                                                               |
-+-----------------------------------------------------------------------+
-
+ +-----------------------------------------------------------------------+
+ | ./plugins/webmail_notifier/localization/ru_RU.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: Pavel - 02/12/2013 08:04:20
+ +-----------------------------------------------------------------------+
 */
 
 $labels = array();
@@ -23,5 +20,6 @@ $labels['webmailnotifierflag'] = 'Включить Уведомления';
 $labels['webmailnotifierfolders'] = 'Проверять Папки';
 $labels['recent'] = 'Новые';
 $labels['unseen'] = 'Непрочитанные';
+$labels['tutorial'] = 'Туториал';
 
 ?>

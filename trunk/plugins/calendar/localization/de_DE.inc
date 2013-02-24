@@ -181,6 +181,7 @@ $labels['in'] = 'im';
 $labels['export_as_file'] = 'Als Datei';
 $labels['send_invitation'] = 'Einladung versenden';
 $labels['invitation_subject'] = 'Einladung';
+$labels['custommail'] = 'Eine individuelle Nachricht versenden';
 $labels['reminder_before'] = 'Erinnerung vor Beginn';
 $labels['removereminders'] = 'Erinnerungen löschen';
 $labels['remindersloading'] = 'Erinnerungen werden geladen ...';

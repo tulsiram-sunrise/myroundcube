@@ -23,3 +23,8 @@ VERSION                COMMENT
 11.0.15 - 11.0.16      - Improved cron jobs (deny access if remote IP <> cron_ip)
 11.0.17                - Fixed buttons previous and next day
 11.0.18                - Fixed illegal string offset warning in utils.php
+11.0.19                - Fixed method detection in caldav.php
+11.0.20                - Added Happy Birthday email feature
+11.0.21                - Added 'scheduled_sending' support
+11.0.22                - Set referrer for remote requests
+11.0.23                - Fixed a bug if description contained \n

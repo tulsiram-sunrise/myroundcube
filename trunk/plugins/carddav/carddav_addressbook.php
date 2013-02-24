@@ -516,7 +516,7 @@ class carddav_addressbook extends rcube_addressbook
 			$carddav_content['etag'],
 			$carddav_content['last_modified'],
 			$carddav_content['vcard_id'],
-			$carddav_content['vcard'],
+			$this->cleanup($carddav_content['vcard']),
 			$database_column_contents['words'],
 			$database_column_contents['firstname'],
 			$database_column_contents['surname'],
@@ -535,7 +535,48 @@ class carddav_addressbook extends rcube_addressbook
 		}
 
 	}
+	
+  /**
+   * Normalize vcard data for better parsing
+   *
+   * @param string vCard block
+   * @return string Cleaned vcard block
+   */
+  private function cleanup($vcard)
+  {
+    // Convert special types (like Skype) to normal type='skype' classes with this simple regex ;)
+    $vcard = preg_replace(
+      '/item(\d+)\.(TEL|EMAIL|URL)([^:]*?):(.*?)item\1.X-ABLabel:(?:_\$!<)?([\w-() ]*)(?:>!\$_)?./s',
+      '\2;type=\5\3:\4',
+      $vcard);
 
+    // convert Apple X-ABRELATEDNAMES into X-* fields for better compatibility
+    $vcard = preg_replace_callback(
+      '/item(\d+)\.(X-ABRELATEDNAMES)([^:]*?):(.*?)item\1.X-ABLabel:(?:_\$!<)?([\w-() ]*)(?:>!\$_)?./s',
+      array('self', 'x_abrelatednames_callback'),
+      $vcard);
+
+    // Remove cruft like item1.X-AB*, item1.ADR instead of ADR, and empty lines
+    $vcard = preg_replace(array('/^item\d*\.X-AB.*$/m', '/^item\d*\./m', "/\n+/"), array('', '', "\n"), $vcard);
+
+    // convert X-WAB-GENDER to X-GENDER
+    if (preg_match('/X-WAB-GENDER:(\d)/', $vcard, $matches)) {
+      $value = $matches[1] == '2' ? 'male' : 'female';
+      $vcard = preg_replace('/X-WAB-GENDER:\d/', 'X-GENDER:' . $value, $vcard);
+    }
+
+    // if N doesn't have any semicolons, add some 
+    $vcard = preg_replace('/^(N:[^;\R]*)$/m', '\1;;;;', $vcard);
+
+    return $vcard;
+  }
+  
+  private static function x_abrelatednames_callback($matches)
+  
+  {
+    return 'X-' . strtoupper($matches[5]) . $matches[3] . ':'. $matches[4];
+  }
+	
 	/**
 	 * Updates a vCard in the CardDAV-Addressbook
 	 *
@@ -573,7 +614,7 @@ class carddav_addressbook extends rcube_addressbook
 			$query,
 			$carddav_content['etag'],
 			$carddav_content['last_modified'],
-			$carddav_content['vcard'],
+			$this->cleanup($carddav_content['vcard']),
 			$database_column_contents['words'],
 			$database_column_contents['firstname'],
 			$database_column_contents['surname'],

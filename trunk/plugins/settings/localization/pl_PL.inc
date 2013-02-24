@@ -15,11 +15,20 @@
 */
 
 $labels = array();
+$labels['pluginname'] = 'Ustawienia';
+$labels['plugindescription'] = 'To jest wtyczka pomocnicza. Jest wymagana przez inne wtyczki (np : hmail_xxx)';
 $labels['menu'] = 'Menu';
 $labels['managefolders'] = 'Zarządzanie folderami';
 $labels['account'] = 'Administracja kontem';
 $labels['classic'] = 'Domyślnie';
+$labels['groupvice4'] = 'DrugaGrupa';
 $labels['remotefolders'] = 'Foldery specjalne';
 $labels['myroundcube'] = 'MyRoundCube';
+$labels['skin_preview'] = 'Podgląd Skórki';
+$labels['meh'] = 'MEH';
+$labels['litecube-f'] = 'Lite (darmowa)';
+$labels['litecube'] = 'Lite';
+$labels['litecube_mobile'] = 'Mobilna';
+$labels['larry'] = 'Larry';
 
 ?>

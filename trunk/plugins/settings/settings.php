@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 3.9.6 - 31.01.2013
+ * @version 3.9.7 - 10.02.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -27,8 +27,8 @@ class settings extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Please adjust config key "limit_skins". "default" has to become "classic" since Roundcube 0.8.x.';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.9.6';
-  static private $date = '31-01-2013';
+  static private $version = '3.9.7';
+  static private $date = '10-02-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -145,37 +145,35 @@ class settings extends rcube_plugin
   {
     $rcmail = rcmail::get_instance();
     $skin = $rcmail->config->get('skin');
-    if(in_array('global_config', $rcmail->config->get('plugins'))){
-      $temparr = array();
-      foreach($this->sections as $key => $section){
-        $temparr[$section] = $args['list'][$section];
-        unset($args['list'][$section]);
-      }
-      $args['list']['general'] = $temparr['general'];
-      $args['list']['mailbox'] = $temparr['mailbox'];
-      $args['list']['compose'] = $temparr['compose'];
-      $args['list']['mailview'] = $temparr['mailview'];
-      $args['list']['mh_preferences'] = array();
-      $args['list']['identitieslink'] = array();
-      $args['list']['addressbook'] = $temparr['addressbook'];
-      $args['list']['addressbookcarddavs'] = array();
-      $args['list']['addressbooksharing'] = array();
-      $args['list']['folderslink'] = array();
-      $args['list']['folders'] =  $temparr['folders'];
-      if($skin != 'larry'){
-        $args['list']['folders']['section'] = $args['list']['folders']['section'];
-      }
-      $args['list']['calendarlink'] = array();
-      $args['list']['calendarcategories'] = array();
-      $args['list']['calendarfeeds'] = array();
-      $args['list']['calendarsharing'] = array();
-      $args['list']['nabblelink'] = array();
-      $args['list']['plugin_manager'] = array();
-      $args['list']['plugin_manager_update'] = array();
-      $args['list']['plugin_manager_customer'] = array();
-      $args['list']['accountslink'] = array();
-      $args['list']['server'] = $temparr['server'];
+    $temparr = array();
+    foreach($this->sections as $key => $section){
+      $temparr[$section] = $args['list'][$section];
+      unset($args['list'][$section]);
     }
+    $args['list']['general'] = $temparr['general'];
+    $args['list']['mailbox'] = $temparr['mailbox'];
+    $args['list']['compose'] = $temparr['compose'];
+    $args['list']['mailview'] = $temparr['mailview'];
+    $args['list']['mh_preferences'] = array();
+    $args['list']['identitieslink'] = array();
+    $args['list']['addressbook'] = $temparr['addressbook'];
+    $args['list']['addressbookcarddavs'] = array();
+    $args['list']['addressbooksharing'] = array();
+    $args['list']['folderslink'] = array();
+    $args['list']['folders'] =  $temparr['folders'];
+    if($skin == 'classic'){
+      $args['list']['folders']['section'] = $args['list']['folders']['section'];
+    }
+    $args['list']['calendarlink'] = array();
+    $args['list']['calendarcategories'] = array();
+    $args['list']['calendarfeeds'] = array();
+    $args['list']['calendarsharing'] = array();
+    $args['list']['nabblelink'] = array();
+    $args['list']['plugin_manager'] = array();
+    $args['list']['plugin_manager_update'] = array();
+    $args['list']['plugin_manager_customer'] = array();
+    $args['list']['accountslink'] = array();
+    $args['list']['server'] = $temparr['server'];
     $parts = $GLOBALS['settingsnav'];
     if(is_array($rcmail->config->get('settingsnav')))
       $parts = array_merge($parts, $rcmail->config->get('settingsnav'));

@@ -1,7 +1,7 @@
 <?php
 /**
 * compose_newwindow
-* @version 2.8.7 - 10.12.2012
+* @version 2.8.8 - 10.02.2013
 * @author Roland 'rosali' Liebl - myroundcube@mail4us.net
 * @url http://myroundcube.googlecode.com
 *
@@ -23,8 +23,8 @@ class compose_newwindow extends rcube_plugin
     static private $author = 'myroundcube@mail4us.net';
     static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/compose_newwindow-plugin" target="_new">Documentation</a>';
     static private $download = 'http://myroundcube.googlecode.com';
-    static private $version = '2.8.7';
-    static private $date = '10-12-2012';
+    static private $version = '2.8.8';
+    static private $date = '10-02-2013';
     static private $licence = 'GPL';
     static private $requirements = array(
       'Roundcube' => '0.8',
