@@ -3,7 +3,7 @@
  * planner
  *
  * @version 2.9.4 - 24.03.2013
- * @author Roland 'rosali' Liebl (forked see below)
+ * @author Roland 'rosali' Liebl (forked: see below)
  * @website http://myroundcube.googlecode.com
  *
  **/
