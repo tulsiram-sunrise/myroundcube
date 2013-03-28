@@ -144,6 +144,19 @@ abstract class Backend
     $uid=false,
     $client=false
   );
+  
+  /**
+   * Add a new calendar
+   *
+   * @param  array Account
+   * @param  string Displayname
+   * @param  string Color
+   */
+  abstract public function newCalendar(
+    $account,
+    $displayname,
+    $color
+  );
 
   /**
    * Edit a single event
@@ -233,6 +246,15 @@ abstract class Backend
   abstract public function removeEvent(
     $id,
     $categories=false
+  );
+  
+  /**
+   * Delete a calendar
+   *
+   * @param  array Account
+   */
+  abstract public function removeCalendar(
+    $account
   );
   
   /**

@@ -37,7 +37,8 @@ $labels['addressbook_contacts'] = 'CardDAV contacts';
 $labels['settings_empty_values'] = 'Please fill out all Label and URL';
 $labels['settings_saved'] = 'CardDAV server settings and vCards saved';
 $labels['settings_save_failed'] = 'Failed to save CardDAV server settings';
-$labels['settings_delete_loading'] = 'Delete CardDAV server settings and related local contacts';
+$labels['settings_delete_loading'] = 'Delete CardDAV server settings and related contacts';
+$labels['settings_delete_warning'] = 'Are you sure? If you proceed all contacts in this addressbook will be deleted permanently. This action can\'t be reverted! Choose CANCEL not to delete the contacts hold by this addressbook.';
 $labels['settings_deleted'] = 'CardDAV server settings deleted';
 $labels['settings_delete_failed'] = 'Failed to delete CardDAV server settings';
 $labels['settings_no_connection'] = 'Can\'t connect to the CardDAV server';
@@ -72,6 +73,7 @@ $labels['local'] = 'local';
 $labels['fe'] = 'f.e.';
 $labels['googlecaptcha'] = 'Grant access to your Google Account';
 $labels['clickhere'] = 'Click here';
+$labels['submenuprefix'] = '» ';
 $labels['blank'] = ' ';
 
 ?>

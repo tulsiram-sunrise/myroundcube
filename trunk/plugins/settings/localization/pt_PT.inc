@@ -22,7 +22,5 @@ $labels['classic'] = 'Predefinido';
 $labels['remotefolders'] = 'Pastas especiais';
 $labels['myroundcube'] = 'MyRoundCube';
 $labels['skin_preview'] = 'Pré-visualização da Skin';
-$labels['meh'] = 'MEH';
-$labels['litecube-f'] = 'Lite';
 
 ?>

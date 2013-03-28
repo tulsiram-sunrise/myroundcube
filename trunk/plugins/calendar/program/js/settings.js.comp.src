@@ -1,13 +1,45 @@
 function show_caldav_dialog(category, elem){
   var $dialogContent = $("#caldav_dialog");
-  if($dialogContent.dialog('isOpen') === true)
-    return;
+  try{
+    if($dialogContent.dialog('isOpen') === true)
+      return;
+  }
+  catch(e){
+  }
   var buttons = {};
   buttons[rcmail.gettext('cancel', 'calendar')] = function() {
     $dialogContent.dialog("close");
     elem.checked = false;
   }
+  buttons[rcmail.gettext('save', 'calendar')] = function() {
+    $('#caldav_category').val(category);
+    // post save request
+    if($('#caldav_user').val() != '' && $('#caldav_password').val() != '' && $('#caldav_url').val() != ''){
+      rcmail.http_post('plugin.calendar_saveCalDAV', $('#caldav_form').serialize());
+      $dialogContent.dialog("destroy");
+      $dialogContent.hide();
+      $('#edit_' + category).attr('style','visibility:visible');
+      $('#category_handler_' + category).attr('class', 'protected_category');
+      $('#dialog_handler_' + category).hide();
+      if(!$('#edit_' + category).get(0)){
+        window.setTimeout("document.location.href = './?_task=settings&_action=edit-prefs&_section=calendarcategories&_framed=1'", 500);
+        return;
+      }
+      $('#category_handler_' + category).attr('onclick', 'calendar_toggle_caldav(this, \'' + category + '\')');
+      $('#category_handler_' + category).attr('title', rcmail.gettext('unlink_caldav','calendar'));
+      elem.checked = false;
+    }
+    else{
+      $('#caldav_user').focus();
+    }
+  }
   buttons[rcmail.gettext('remove', 'calendar')] = function() {
+    if(confirm(rcmail.gettext('unlink_caldav_warning', 'calendar'))){
+      $('#caldav_remove').val(1);
+    }
+    else{
+      $('#caldav_remove').val(0);
+    }
     $('#caldav_category').val(category);
     // post remove request
     rcmail.http_post('plugin.calendar_removeCalDAV', $('#caldav_form').serialize());
@@ -21,32 +53,12 @@ function show_caldav_dialog(category, elem){
     $('#category_handler_' + category).attr('class', '');
     $('#category_handler_' + category).attr('onclick', 'removeRow(this.parentNode.parentNode)');
     $('#category_handler_' + category).attr('title', rcmail.gettext('remove_category','calendar'));
+    $('#dialog_handler_' + category).show();
     elem.checked = false;
   }
-  buttons[rcmail.gettext('save', 'calendar')] = function() {
-    $('#caldav_category').val(category);
-    // post save request
-    if($('#caldav_user').val() != '' && $('#caldav_password').val() != '' && $('#caldav_url').val() != ''){
-      rcmail.http_post('plugin.calendar_saveCalDAV', $('#caldav_form').serialize());
-      $dialogContent.dialog("destroy");
-      $dialogContent.hide();
-      $('#edit_' + category).attr('style','visibility:visible');
-      $('#category_handler_' + category).attr('class', 'protected_category');
-      if(!$('#edit_' + category).get(0)){
-        window.setTimeout("document.location.href = './?_task=settings&_action=edit-prefs&_section=calendarcategories&_framed=1'", 500);
-        return;
-      }
-      $('#category_handler_' + category).attr('onclick', 'calendar_toggle_caldav(this, \'' + category + '\')');
-      $('#category_handler_' + category).attr('title', rcmail.gettext('unlink_caldav','calendar'));
-      elem.checked = false;
-    }
-    else{
-      $('#caldav_user').focus();
-    }
-  }
   $dialogContent.dialog({
-       modal: false,
-       width: 600,
+       modal: true,
+       width: 700,
        position: 'center',
        title: category,
        close: function() {
@@ -101,6 +113,12 @@ function calendar_categories_gui(response){
   if(response.url){
     $('#caldav_url').val(response.url);
     rcmail.env.caldav_url = response.url;
+    if($('#caldav_url').val().indexOf('google.') > -1){
+      $('#googlecaptcha').show();
+    }
+    else{
+      $('#googlecaptcha').hide();
+    }
   }
   else{
     $('#caldav_url').val(response.cat);
@@ -217,4 +235,12 @@ function removeRow(row)
 
 $(document).ready(function() {
   rcmail.addEventListener('plugin.calendar_getCalDAVs', calendar_getCalDAVs);
+  rcmail.env.form_categories = $(document.forms.form).serialize();
+  $('.color').each(function(){
+    $(this).blur(function(){
+      if(rcmail.env.form_categories != $(document.forms.form).serialize()){
+        document.forms.form.submit();
+      }
+    });
+  });
 });

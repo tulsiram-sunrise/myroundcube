@@ -324,13 +324,18 @@ function planner_keypress(){
     }
     else if(key.charCode != 13){
       var typed = String.fromCharCode(key.charCode);
-      if($('#planner_input').dialog("isOpen") !== true){
-        if(typed){
+      try{
+        if($('#planner_input').dialog("isOpen") !== true){
           planner_dialog();
-          if(bw.mz)
-            $('#planner_raw').val(typed);
-          $('#planner_raw').focus();
         }
+      }
+      catch(e){
+        planner_dialog();
+      }
+      if(typed){
+        if(bw.mz)
+          $('#planner_raw').val(typed);
+        $('#planner_raw').focus();
       }
     }
   });

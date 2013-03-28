@@ -19,11 +19,8 @@ $labels['menu'] = 'Menù';
 $labels['managefolders'] = 'Gestisci Cartelle';
 $labels['account'] = 'Amministrazione Account';
 $labels['classic'] = 'Predefinito';
-$labels['groupvice4'] = 'Groupvice';
 $labels['remotefolders'] = 'Cartelle Speciali';
 $labels['myroundcube'] = 'MyRoundCube';
 $labels['skin_preview'] = 'Anteprima Skin';
-$labels['meh'] = 'MEH';
-$labels['litecube-f'] = 'Lite';
 
 ?>

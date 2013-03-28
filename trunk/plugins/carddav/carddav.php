@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 3.2.11 - 18.02.2013
+ * @version 5.2 - 25.03.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -40,13 +40,13 @@ class carddav extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'Since v3.x you need carddav_plus plugin to achieve advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new">IMPORTANT</a>';
+  static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.2.11';
-  static private $date = '18-02-2013';
+  static private $version = '5.2';
+  static private $date = '25-03-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
+    'Roundcube' => '0.9',
     'PHP' => '5.2.1 + cURL',
     'required_plugins' => array(
       'settings' => 'require_plugin',
@@ -64,6 +64,7 @@ class carddav extends rcube_plugin{
     'googlepass',
     'carddav_noreport',
     'carddav_done',
+    'carddavs_removed',
   );
   static private $config_dist = 'config.inc.php.dist';
 
@@ -351,7 +352,37 @@ class carddav extends rcube_plugin{
 
   public function login_after($args){
     $rcmail = rcmail::get_instance();
-    $carddavs = array_merge($rcmail->config->get('carddavs', array()), $rcmail->config->get('def_carddavs', array()));
+    $def_carddavs = $rcmail->config->get('def_carddavs', array());
+    $server = array();
+    foreach($def_carddavs as $label => $carddav){
+      if($carddav['user'] == '%u' && $carddav['pass'] == '%p'){
+        $parsed = parse_url($carddav['url']);
+        $server[$parsed['scheme'] . $parsed['host']] = $parsed['scheme'] . '://'. $parsed['host'];
+      }
+    }
+    $detected = array();
+    $carddavs_removed = $rcmail->config->get('carddavs_removed', array());
+    foreach($server as $key => $host){
+      $carddav_backend = new carddav_backend($host);
+      $carddav_backend->set_auth($rcmail->user->data['username'], $rcmail->decrypt($_SESSION['password']));
+      $collection = $carddav_backend->get_Collection();
+      if(is_array($collection)){
+        foreach($collection as $addressbook){
+          if(isset($carddavs_removed[$host . unslashify(urldecode($addressbook))])){
+            continue;
+          }
+          $addressbook = unslashify($addressbook);
+          $temp = explode('/', $addressbook);
+          $category = ucwords($temp[count($temp) - 1]);
+          $detected[$category]['user'] = '%u';
+          $detected[$category]['pass'] = '%p';
+          $detected[$category]['url'] = $host . urldecode($addressbook);
+          $detected[$category]['readonly'] = false;
+        }
+      }
+    }
+    $carddavs = array_merge($rcmail->config->get('carddavs', array()), $def_carddavs);
+    $carddavs = array_merge($detected, $carddavs);
     if($rcmail->config->get('googleuser') && $rcmail->config->get('googlepass') && $rcmail->config->get('use_google_abook')){
       $google = array('Google' => array(
           'user' => $rcmail->config->get('googleuser'),
@@ -556,7 +587,7 @@ class carddav extends rcube_plugin{
         }
         $img = $autocomplete ? 'checked.png' : 'blank.gif';
         $table->add(array('align' => 'center'), html::tag('p', array('style' => 'width: 15px; height: 15px; border: 1px solid #B2B2B2; border-radius: 4px;'), html::tag('img', array('height' => '12', 'width' => '12', 'onclick' => $onclick, 'title' => $title, 'src' => $skin_path . '/' . $img))));
-        $delete = html::tag('a', array('href' => '#del', 'class' => 'deletebutton', 'title' => $this->gettext('delete'), 'onclick' => "return rcmail.command('plugin.carddav-server-delete', '" . $server['carddav_server_id'] ."', this)"), $this->gettext('delete'));
+        $delete = html::tag('a', array('href' => '#del', 'class' => 'deletebutton', 'title' => $this->gettext('delete'), 'onclick' => "if(confirm('" . addslashes($this->gettext('settings_delete_warning')) . "')) { rcmail.command('plugin.carddav-server-remove', '" . $server['carddav_server_id'] ."', this) } else { rcmail.command('plugin.carddav-server-delete', '" . $server['carddav_server_id'] ."', this)}"), $this->gettext('delete'));
         if(isset($urls[$server['url']]) || ($this->carddav_addressbook . $server['carddav_server_id']) == $autoabook){
           unset($urls[$server['url']]);
           $delete = '&nbsp;';
@@ -588,7 +619,7 @@ class carddav extends rcube_plugin{
       $table->add(array(), '&nbsp;');
       $table->add(array(), $input_server_url->show());
       $table->add(array(), $input_username->show());
-      $table->add(array(), $input_password->show() . $append);
+      $table->add(array('nowrap' => 'nowrap'), $input_password->show() . $append);
       $table->add(array('align' => 'center'), $input_read_only->show());
       $input_autocomplete = new html_checkbox(array('name' => '_autocomplete', 'value' => 1));
       $table->add(array('align' => 'center'), $input_autocomplete->show(true));
@@ -634,13 +665,11 @@ class carddav extends rcube_plugin{
     if($rcmail->config->get('use_auto_abook', true)){
       $show = true;
       if($rcmail->config->get('automatic_addressbook', 'sql') != 'sql'){
-        if($rcmail->config->get('automatic_addressbook', 'sql') != 'sql'){
-          $query = 'SELECT user_id FROM ' . get_table_name('collected_contacts') . ' WHERE user_id=? AND del<>?';
-        }
-        $result = $rcmail->db->query($query, $rcmail->user->data['user_id'], 1);
-        if($rcmail->db->num_rows($result) == 0 && !$rcmail->config->get('show_empty_database_addressbooks', true)){
-          $show = false;
-        }
+        $query = 'SELECT user_id FROM ' . get_table_name('collected_contacts') . ' WHERE user_id=? AND del<>?';
+      }
+      $result = $rcmail->db->query($query, $rcmail->user->data['user_id'], 1);
+      if($rcmail->db->num_rows($result) == 0 && !$rcmail->config->get('show_empty_database_addressbooks', true)){
+        $show = false;
       }
       if($show){
         $args['sources'][$this->automatic_addressbook] = array('id' => $this->automatic_addressbook, 'name' => Q($this->gettext('automaticallycollected_local')), 'readonly' => false, 'groups' => false);
@@ -761,7 +790,7 @@ class carddav extends rcube_plugin{
     $password = parse_input_value(base64_decode($_POST['_password']));
     if($password == '%p'){
       if($_SESSION['default_account_password']){
-        $password = $_SESSION['default_account_password']; // accounts plugin
+        $password = $_SESSION['default_account_password'];
       }
       else{
         $password = $_SESSION['password'];
@@ -774,20 +803,14 @@ class carddav extends rcube_plugin{
     $carddav_backend = new carddav_backend($url);
     $carddav_backend->set_auth($username, $password);
     $return = $carddav_backend->check_connection();
-    if(!$return){
-      $password = $rcmail->decrypt($_SESSION['password']);
-      $carddav_backend = new carddav_backend($url);
-      $carddav_backend->set_auth($username, $password);
-      $return = $carddav_backend->check_connection();
-    }
     return $return;
   }
 
   public function carddav_link($args){
-    $args['list']['addressbookcarddavs']['section'] = "&raquo;&nbsp;" . $this->gettext('settings');
+    $args['list']['addressbookcarddavs']['section'] = $this->gettext('submenuprefix') . $this->gettext('settings');
     $args['list']['addressbookcarddavs']['id'] = 'addressbookcarddavs';
     $args['list']['addressbooksharing']['id'] = 'addressbooksharing';
-    $args['list']['addressbooksharing']['section'] = "&raquo;&nbsp;" . $this->gettext('sharing');
+    $args['list']['addressbooksharing']['section'] = $this->gettext('submenuprefix') . $this->gettext('sharing');
     return $args;
   }
 
@@ -820,6 +843,9 @@ class carddav extends rcube_plugin{
       $user_id = $rcmail->user->data['user_id'];
       //https://code.google.com/p/myroundcube/issues/detail?id=411
       $url = get_input_value('_server_url', RCUBE_INPUT_POST);
+      $parsed = parse_url($url);
+      $parsed['path'] = $this->sanitize(urldecode($parsed['path']));
+      $url = $parsed['scheme'] . '://' . $parsed['host'] . $parsed['path'] . ($parsed['query'] ? ('?' . $parsed['query']) : '');
       $username = parse_input_value(base64_decode($_POST['_username']));
       $password = parse_input_value(base64_decode($_POST['_password']));
       $label = parse_input_value(base64_decode($_POST['_label']));
@@ -831,15 +857,25 @@ class carddav extends rcube_plugin{
       $autocomplete = (int) parse_input_value(base64_decode($_POST['_autocomplete']));
       $idx = (int) parse_input_value(base64_decode($_POST['_idx']));
       $pwsync = $rcmail->config->get('carddav_synced_passwords', array());
-      $arr = parse_url($url);
-      if($password == $rcmail->decrypt($_SESSION['password'])){
+      $parsed = parse_url($url);
+      if(!$parsed['query']){
+        $host = $parsed['scheme'] . '://'. $parsed['host'];
+        if(class_exists('carddav_plus') && method_exists('carddav_plus', 'carddav_add_collection')){
+          carddav_plus::carddav_add_collection($host, $username, $password, $url, $label);
+        }
+      }
+      $default_password = $_SESSION['default_account_password'] ? $_SESSION['default_account_password'] : $_SESSION['password'];
+      if($password == $rcmail->decrypt($default_password)){
         $password = '%p';
       }
-      if(isset($arr['host']) && strpos($url, '?access=') === false){
-        if(in_array($arr['host'], $pwsync)){
+      if(isset($parsed['host']) && strpos($url, '?access=') === false){
+        if(in_array($parsed['host'], $pwsync)){
           $password = '%p';
         }
       }
+      $carddavs_removed = $rcmail->config->get('carddavs_removed', array());
+      unset($carddavs_removed[unslashify(urldecode($url))]);
+      $rcmail->user->save_prefs(array('carddavs_removed' => $carddavs_removed));
       $query = "
         INSERT INTO
           ".get_table_name('carddav_server')." (user_id, url, username, password, label, read_only, autocomplete, idx)
@@ -849,18 +885,6 @@ class carddav extends rcube_plugin{
       $rcmail->db->query($query, $user_id, $url, $username, $rcmail->encrypt($password), $label, $read_only, $autocomplete, $idx);
       if($rcmail->db->affected_rows()){
         $sync = $this->carddav_addressbook_sync($rcmail->db->insert_id(), false);
-        if(class_exists('sabredav') && method_exists('sabredav','create')){
-          $carddavs = $rcmail->config->get('default_carddavs', array());
-          foreach($carddavs as $key => $carddav){
-            $temp = explode('/', unslashify($url));
-            $sabredav = parse_url($carddav['url']);
-            $new = parse_url($url);
-            if(strtolower($sabredav['scheme'] . '://' . $sabredav['host'] . ':' . $sabredav['port']) == strtolower($new['scheme'] . '://' . $new['host'] . ':' . $new['port'])){
-              sabredav::create($temp[count($temp) - 1], 'addressbooks', $label);
-            }
-            break;
-          }
-        }
         $rcmail->output->command('plugin.carddav_server_message', array(
           'server_list' => $this->get_carddav_server_list(),
           'message' => $this->gettext('settings_saved'),
@@ -967,6 +991,7 @@ class carddav extends rcube_plugin{
   public function carddav_server_delete(){
     $rcmail = rcmail::get_instance();
     $carddav_server_id = parse_input_value(base64_decode($_POST['_carddav_server_id']));
+    $remove = get_input_value('_remove', RCUBE_INPUT_POST);
     $servers = (array) $this->get_carddav_server();
     $noreport = $rcmail->config->get('carddav_noreport', array());
     foreach($servers as $server){
@@ -977,6 +1002,39 @@ class carddav extends rcube_plugin{
     $a_prefs['carddav_noreport'] = $noreport;
     $rcmail->user->save_prefs($a_prefs);
     $user_id = $rcmail->user->data['user_id'];
+    $query = "
+      SELECT * FROM
+        ".get_table_name('carddav_server')."
+      WHERE
+        user_id = ?
+      AND
+        carddav_server_id = ?
+    ";
+    $res = $rcmail->db->query($query, $user_id, $carddav_server_id);
+    $server = $rcmail->db->fetch_assoc($res);
+    $parsed = parse_url($server['url']);
+    if(!$parsed['query']){
+      $host = $parsed['scheme'] . '://'. $parsed['host'];
+      $user = $server['username'];
+      $password = $rcmail->decrypt($server['password']);
+      if($user == '%u'){ 
+        $user = $rcmail->user->data['username'];
+      }
+      if($password == '%p'){
+        if(isset($_SESSION['default_account_password'])){
+          $password = $rcmail->decrypt($_SESSION['default_account_password']);
+        }
+        else{
+          $password = $rcmail->decrypt($_SESSION['password']);
+        }
+      }
+      if($remove && class_exists('carddav_plus') && method_exists('carddav_plus', 'carddav_delete_collection')){
+        carddav_plus::carddav_delete_collection($host, $user, $password, $server['url']);
+      }
+      $carddavs_removed = $rcmail->config->get('carddavs_removed', array());
+      $carddavs_removed[unslashify(urldecode($server['url']))] = 1;
+      $rcmail->user->save_prefs(array('carddavs_removed' => $carddavs_removed));
+    }
     $query = "
       DELETE FROM
         ".get_table_name('carddav_server')."
@@ -1019,6 +1077,26 @@ class carddav extends rcube_plugin{
     if(rcmail::get_instance()->config->get('carddav_debug', false)){
       write_log('CardDAV', 'v' . self::$version . ' | ' . $message);
     }
+  }
+  
+  private function sanitize($unformatted){
+    $url = strtolower(trim($unformatted));
+    $url = htmlentities($url, ENT_QUOTES, 'UTF-8');
+    $url = preg_replace('~&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i', '$1', $url);
+    $url = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+    $url = trim($url, ' -');
+    $search = array('À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'ÿ', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'Ð', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', '?', '?', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', '?', '?', 'L', 'l', 'N', 'n', 'N', 'n', 'N', 'n', '?', 'O', 'o', 'O', 'o', 'O', 'o', 'Œ', 'œ', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'Š', 'š', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Ÿ', 'Z', 'z', 'Z', 'z', 'Ž', 'ž', '?', 'ƒ', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', '?', '?', '?', '?', '?', '?'); 
+    $replace = array('A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'OE', 'oe', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o'); 
+    $url = str_replace($search, $replace, $url);
+    $search = array('&', '£', '$'); 
+    $replace = array('and', 'pounds', 'dollars'); 
+    $url = str_replace($search, $replace, $url);
+    $find = array(' ', '&', '\r\n', '\n', '+', ',', '//');
+    $url = str_replace($find, '-', $url);
+    $find = array('/[^a-z0-9\-<>\/@\.]/', '/[\-]+/', '/<[^>]*>/');
+    $replace = array('', '-', '');
+    $uri = preg_replace($find, $replace, $url);
+    return $uri;
   }
 }
 ?>

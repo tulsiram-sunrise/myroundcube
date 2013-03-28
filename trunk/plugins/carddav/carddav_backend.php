@@ -95,7 +95,7 @@ class carddav_backend
 	 *
 	 * @constant string
 	 */
-	const VERSION = '5.0 (Windows NT 6.1; WOW64; rv:10.0.8) Gecko/20121005 Thunderbird/10.0.8 Lightning/1.2.1';//1.0';
+	const VERSION = '5.0';
 
 	/**
 	 * User agent displayed in http requests
@@ -258,11 +258,12 @@ class carddav_backend
 	{
     $content = '<?xml version="1.0" encoding="utf-8" ?><D:sync-collection xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav"><D:sync-token></D:sync-token><D:prop><D:getcontenttype/><D:getetag/><D:allprop/><C:address-data><C:allprop/></C:address-data></D:prop><C:filter/></D:sync-collection>';
     $content_type = 'application/xml';
-    $response = $this->query($this->url, 'REPORT', $content, $content_type);
+    $this->headers = array('Depth: 1');
+    //$response = $this->query($this->url, 'REPORT', $content, $content_type);
 		
-    if(!$response){
+    //if(!$response){
       $response = $this->query($this->url, 'PROPFIND');
-    }
+    //}
 		if ($response === false || $raw === true)
 		{
 			return $response;
@@ -321,46 +322,72 @@ class carddav_backend
 	}
 	
 	/**
-	* Gets Collection (returns best estimation, not failsafe)
+	* Gets Collection
 	*
-	* @param string
 	* @return array
 	*/
-	public function get_collection($url)
+	public function get_collection()
 	{
-    $temp = parse_url($url);
-    $port = $temp['port'];
-    if(!$port){
-      $port = '';
-    }
-    else{
-      $port = ':' . $port;
-    }
-    $host = $temp['scheme'] . '://' . $temp['host'] . $port;
-    $this->headers = array('Depth: 1');
-    $response = $this->query($url, 'PROPFIND', null, null, false);
-    $temp = explode("\r\n\r\n<?xml", $response);
+    $content = '<?xml version="1.0" encoding="utf-8" ?><A:propfind xmlns:A="DAV:"><A:prop><A:current-user-principal/></A:prop></A:propfind>';
+    $content_type = 'application/xml';
+    $response = $this->query($this->url, 'PROPFIND', $content, $content_type); 
+    $temp = explode("\r\n\r\n<?xml", $response, 2);
+    if(!$temp[1]) return false;
     $xml = '<?xml' . $temp[1];
-    $p = xml_parser_create();
-    xml_parse_into_struct($p, $xml, $vals, $index);
-    xml_parser_free($p);
-    $collection = array();
-    $i = -1;
-    foreach($vals as $elem){
-      if($elem['tag'] == 'D:HREF' || $elem['tag'] == 'HREF'){
-        $i++;
-        if($i > 0 && strlen($elem['value']) > strlen($base)){
-          $e = $elem['value'];
-          if(stripos($e, '/.out') === false && stripos($e, '/calendar') === false){
-            $collection[] = $host . $e;
+    $response = $this->clean_response($xml);
+    try{
+      $xml = new SimpleXMLElement($response);
+    }
+    catch (Exception $e){
+      return false;
+    }
+    if(isset($xml->response->propstat->prop->{'current-user-principal'}->href[0])){
+      $principal = $xml->response->propstat->prop->{'current-user-principal'}->href[0];
+      $this->headers = array('Depth: 1');
+      $content = '<?xml version="1.0" encoding="utf-8" ?><A:propfind xmlns:B="urn:ietf:params:xml:ns:carddav" xmlns:A="DAV:"><A:prop><B:addressbook-home-set/></A:prop></A:propfind>';
+      $content_type = 'application/xml';
+      $response = $this->clean_response($this->query($this->url . $principal, 'PROPFIND', $content, $content_type));
+      try{
+        $xml = new SimpleXMLElement($response);
+      }
+      catch (Exception $e){
+        return false;
+      }
+      if(isset($xml->response->propstat->prop->{'caraddressbook-home-set'}->href[0])){
+        $collection = (string) $xml->response->propstat->prop->{'caraddressbook-home-set'}->href[0];
+        $this->headers = array('Depth: 1');
+        $response = $this->clean_response($this->query($this->url . $collection, 'PROPFIND', null, null));
+        try{
+          $xml = new SimpleXMLElement($response);
+        }
+        catch (Exception $e){
+          return false;
+        }
+        if(is_object($xml->response)){
+          foreach($xml->response as $addressbook){
+            $addressbook = (string) $addressbook->href[0];
+            if(urlencode(urldecode($addressbook)) != urlencode(urldecode($collection))){
+              $addressbooks[] = $addressbook;
+            }
+          }
+          if(is_array($addressbooks)){
+            return $addressbooks;
+          }
+          else{
+            return false;
           }
         }
         else{
-          $base = $elem['value'];
+          return false;
         }
       }
+      else{
+        return false;
+      }
     }
-    return $collection;
+    else{
+      return false;
+    }
 	}
 
 	/**
@@ -370,7 +397,11 @@ class carddav_backend
 	*/
 	public function check_connection()
 	{
-		return $this->query($this->url, 'OPTIONS', null, null, true);
+		$ret = $this->query($this->url, 'OPTIONS', null, null, true);
+		if(!$ret){
+		  $ret = $this->query($this->url, 'PROPFIND', null, null, true);
+		}
+	  return $ret;
 	}
 
 	/**
@@ -398,6 +429,18 @@ class carddav_backend
 	}
 
 	/**
+	 * Deletes an addressbook collection
+	 *
+	 * @param	string $url collection url
+	 * @return	boolean
+	 */
+	public function delete_collection($url)
+	{
+	  $this->headers = array('Depth: infinity');
+	  return $this->query($url, 'DELETE', null, null, true);
+	}
+
+	/**
 	 * Adds an entry to the CardDAV server
 	 *
 	 * @param	string	$vcard	vCard
@@ -410,6 +453,7 @@ class carddav_backend
 		if(stripos($vcard, "\nUID:") === false){
 		  $vcard = str_replace("\nEND:VCARD","\nUID:" . $vcard_id . "\r\nEND:VCARD", $vcard);
 		}
+		$vcard = str_replace('\,', ',', $vcard);
 		if ($this->query($this->url . $vcard_id . $this->ext, 'PUT', $vcard, 'text/vcard', true) === true)
 		{
 			return $vcard_id;
@@ -418,6 +462,30 @@ class carddav_backend
 		{
 			return false;
 		}
+	}
+
+	/**
+	 * Adds an addressbook collection
+	 *
+	 * @param	string	$url	Collection URL
+	 * @return	string  $displayname  Dislayname
+	 */
+	public function add_collection($url, $displayname)
+	{
+    $content = '<?xml version="1.0" encoding="utf-8" ?>
+<D:mkcol xmlns:D="DAV:"xmlns:C="urn:ietf:params:xml:ns:carddav">
+  <D:set>
+    <D:prop>
+      <D:resourcetype>
+        <D:collection/> 
+        <C:addressbook/>
+      </D:resourcetype>
+      <D:displayname>' . $displayname . '</D:displayname>
+    </D:prop>
+  </D:set>
+</D:mkcol>';
+    $content_type = 'application/xml';
+    return $this->query($url, 'MKCOL', $content, $content_type, true);
 	}
 
 	/**
@@ -431,7 +499,7 @@ class carddav_backend
 	{
 		$vcard_id = str_replace($this->ext, null, $vcard_id);
 		$vcard = $this->clean_vcard($vcard);
-
+    $vcard = str_replace('\,', ',', $vcard);
 		return $this->query($this->url . $vcard_id . $this->ext, 'PUT', $vcard, 'text/vcard', true);
 	}
 
@@ -613,7 +681,7 @@ class carddav_backend
       $password = $this->password;
       $sleep = $this->sleep;
       $current_id = $this->current_id;
-      return carddav_plus::carddav_put(
+      $ret = carddav_plus::carddav_put(
         $protocol,
         $host,
         $port,
@@ -629,6 +697,9 @@ class carddav_backend
         $sleep,
         $current_id
       );
+      if($ret){
+        return $ret;
+      }
 		}
 		else{
 		  $header = false;
@@ -679,7 +750,6 @@ class carddav_backend
     }
     
 		$http_code = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
-
 		if (in_array($http_code, array(200, 207)))
 		{
 			return ($return_boolean === true ? true : $return);

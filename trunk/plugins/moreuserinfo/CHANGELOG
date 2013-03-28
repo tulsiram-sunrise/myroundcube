@@ -4,4 +4,5 @@ VERSION                COMMENT
 3.0.1                  - Fixed navigation issue
 4.0                    - Copy and feature
 4.0.1                  - HTML fix (renamed duplicate id 'summarylink')
-4.0.1 - 4.0.4          - Skin improvements
+4.0.1 - 4.0.5          - Skin improvements
+4.0.6                  - Applied https://code.google.com/p/myroundcube/issues/detail?id=491

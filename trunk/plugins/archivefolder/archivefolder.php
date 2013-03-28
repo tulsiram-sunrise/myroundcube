@@ -7,7 +7,7 @@
  * To move messages to a special archive folder.
  * Based on Mark As Junk sample plugin.
  *
- * @version 2.8.4 - 31.08.2012
+ * @version 2.8.5 - 20.03.2013
  * @author Andre Rodier, Thomas Bruederli, Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com 
  */
@@ -29,8 +29,8 @@ class archivefolder extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.8.4';
-  static private $date = '31-08-2012';
+  static private $version = '2.8.5';
+  static private $date = '20-03-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -167,7 +167,7 @@ class archivefolder extends rcube_plugin
   function archivefoldersection($args)
   {
     $skin = rcmail::get_instance()->config->get('skin');
-    if($skin == 'classic' || $skin == 'litecube-f' || $skin == 'meh' || $skin == 'groupvice4'){
+    if($skin != 'larry'){
       $this->add_texts('localization');  
       $args['list']['folderslink']['id'] = 'folderslink';
       $args['list']['folderslink']['section'] = $this->gettext('archivefolder.folders');

@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 3.9.7 - 10.02.2013
+ * @version 4.0 - 17.03.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -25,13 +25,13 @@ class settings extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'settings';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'Please adjust config key "limit_skins". "default" has to become "classic" since Roundcube 0.8.x.';
+  static private $authors_comments = '';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.9.7';
-  static private $date = '10-02-2013';
+  static private $version = '4.0';
+  static private $date = '17-03-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
+    'Roundcube' => '0.9',
     'PHP' => '5.2.1'
   );
   static private $prefs = null;
@@ -269,17 +269,9 @@ element.qtip({
       if(count($limit_skins) > 0){
         foreach($skins as $key => $val){
           if(!isset($limit_skins[$val])){
-            $temparr[$i] = str_replace("<option value=\"$val\">$val</option>\n","",$temparr[$i]);
+            $rcmail->output->add_script('$("#rcmfd_skin' . $val . '").parent().parent().parent().hide();', 'docready');
           }
-          else{
-            $temparr[$i] = str_replace("<option value=\"$val\">$val</option>\n","<option value=\"$val\">" . rcube_label($val,'settings') . "</option>\n",$temparr[$i]);            
-          }
-          if(strtolower($val) == $selected_skin)
-            $selected = "selected=\"selected\"";
-          else
-            $selected = "";
-          $temparr[$i] = str_replace("<option value=\"$val\" selected=\"selected\">$val</option>\n","<option value=\"$val\" $selected>" . rcube_label($val,'settings') . "</option>\n",$temparr[$i]);
-        }         
+        }
       }
       $temparr[$i] = "<div class=\"settingsplugin\" id=\"" . $parts[$i-1] . "\"><fieldset>" . str_replace("</fieldset>","</fieldset></div>",$temparr[$i]);
       if($_GET['_section'] == "folders" || $_POST['_section'] == "folders"){
@@ -291,19 +283,13 @@ element.qtip({
     
     $p['content'] = implode($temparr);
     if($_GET['_section'] == "general" || $_POST['_section'] == "general"){
-      $p['content'] .= 
-'<br /><fieldset><legend>' . $this->gettext('skin_preview') . '</legend><br /><div id="skin_preview" align="center">
-<iframe border="0" frameborder="0" id="skin_preview_frame" src="./plugins/settings/skins/' . $rcmail->config->get('skin','classic') . '/images/' . $rcmail->config->get('skin','classic') . '.png" width="540px" height="280px"></iframe>
-</div></fieldset>
-<script type="text/javascript">
-/* <![CDATA[ */
-$("select").change(function () {
-  var skin = document.getElementById("rcmfd_skin").value;
-  document.getElementById("skin_preview_frame").src = "./plugins/settings/skins/" + skin + "/images/" + skin + ".png";  
-});
-/* ]]> */
-</script>';
-    }    
+      $p['content'] .= html::tag('br') . 
+        html::tag('fieldset', null, html::tag('legend', null, $this->gettext('skin_preview')) . 
+          html::tag('div', array('id' => 'skin_preview', 'align' => 'center'),
+            html::tag('img', array('id' => 'skin_preview_img', 'src' => './plugins/settings/skins/' . $rcmail->config->get('skin','classic') . '/images/' . $rcmail->config->get('skin','classic') . '.png'))
+          )
+        ) . html::tag('script', array('type' => 'text/javascript'), '$(document).ready(function(){$(".skinitem").click(function(){ $("#skin_preview_img").attr("src", "./plugins/settings/skins/" + $(this).children().val() + "/images/" + $(this).children().val() + ".png"); }); });');
+    }
     return $p;
 
   }

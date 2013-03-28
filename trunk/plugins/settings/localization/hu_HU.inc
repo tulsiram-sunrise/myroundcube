@@ -19,7 +19,6 @@ $labels['menu'] = 'Menü';
 $labels['managefolders'] = 'Mappák kezelése';
 $labels['account'] = 'Fiók kezelése';
 $labels['classic'] = 'Alapértelmezett';
-$labels['groupvice4'] = 'Groupvice';
 $labels['remotefolders'] = 'Speciális mappák';
 $labels['myroundcube'] = 'MyRoundCube';
 $labels['skin_preview'] = 'Téma előnézet';

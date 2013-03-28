@@ -18,14 +18,9 @@ $labels['menu'] = 'Меню';
 $labels['managefolders'] = 'Управление папками';
 $labels['account'] = 'Управление аккаунтом';
 $labels['classic'] = 'Настройки по умолчанию';
-$labels['groupvice4'] = 'ГруппВайс';
 $labels['remotefolders'] = 'Особые папки';
 $labels['myroundcube'] = 'Мой Roundcube';
 $labels['skin_preview'] = 'Предпросмотр Скина';
-$labels['meh'] = 'МЕХ';
-$labels['litecube-f'] = 'Легкий (бесплатный)';
-$labels['litecube'] = 'Легкий';
-$labels['litecube_mobile'] = 'Мобильный';
 $labels['larry'] = 'Ларри';
 
 ?>

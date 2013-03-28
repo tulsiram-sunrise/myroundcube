@@ -28,3 +28,7 @@ VERSION                COMMENT
 11.0.21                - Added 'scheduled_sending' support
 11.0.22                - Set referrer for remote requests
 11.0.23                - Fixed a bug if description contained \n
+11.0.24 - 11.0.26      - Shorten ICS vcard valarm properties
+11.0.27                - Use $rcmail->user->data instead of $_SESSION
+11.0.28                - Some more comments in config.inc.php.dist
+11.0.29 - 11.0.30      - Bug fix if savepassword plugin is not installed

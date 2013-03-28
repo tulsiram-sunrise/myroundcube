@@ -51,14 +51,25 @@ $rcmail_config['cal_short_urls'] = false;
    %gp will be replaced by google calendar password (requires google_contacts or carddav plugin)
    %c  will be replaced by the category a CalDAV is associated with
 */
-   
+/* Google example */
+/*
 $rcmail_config['default_caldav_backend'] = array(
   'user' => '%gu',
   'pass' => '%gp',
   'url' => 'https://www.google.com/calendar/dav/%gu/events',
   'cat' => 'https://www.google.com/calendar/dav/%gu/%c',
+  'auth' => 'basic', //basic or detect
+  'extr' => true, // external reminder service (Google calendar reminders)
+);
+*/
+/* SabreDAV example
+$rcmail_config['default_caldav_backend'] = array(
+  'user' => '%u',
+  'pass' => '%p',
+  'url' => 'http://dav.domain.ltd/calendars/%u/events',
+  'cat' => 'http://dav.domain.ltd/calendars/%u/%c',
   'auth' => 'detect', //basic or detect
-  'extr' => false, // external reminder service (f.e. google calendar reminders)
+  'extr' => false,
 );
 
 /* CalDAV Replication

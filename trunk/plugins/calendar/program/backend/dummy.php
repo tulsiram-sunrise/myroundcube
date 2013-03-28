@@ -8,6 +8,19 @@ final class calendar_dummy extends Backend
   
   public function searchEvents($str) {
   }
+  
+  public function newCalendar(
+    $account,
+    $displayname,
+    $color
+  ) {
+  }
+  
+  public function removeCalendar(
+    $account
+  ) {
+  
+  }
    
   public function newEvent(
     $start,

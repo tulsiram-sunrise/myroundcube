@@ -21,11 +21,6 @@ class carddav_addressbook extends rcube_addressbook
   protected $db_groups = 'carddav_contactgroups';
   protected $db_groupmembers = 'carddav_contactgroupmembers';
 
-	public $primary_key = 'carddav_contact_id';
-	public $readonly = false;
-	public $addressbook = false;
-	public $groups = true;
-	public $group_id = 0;
 	private $filter;
 	private $result;
 	private $name;
@@ -36,10 +31,13 @@ class carddav_addressbook extends rcube_addressbook
 		  'jobtitle', 'organization', 'department', 'maidenname', 'email', 'phone',
 		  'address', 'street', 'locality', 'zipcode', 'region', 'country', 'website', 'im', 'notes');
 	private $cache;
-	public $coltypes = array('name', 'firstname', 'surname', 'middlename', 'prefix', 'suffix', 'nickname',
-		  'jobtitle', 'organization', 'department', 'assistant', 'manager',
-		  'gender', 'maidenname', 'spouse', 'email', 'phone', 'address',
-		  'birthday', 'anniversary', 'website', 'im', 'notes', 'photo');
+	
+	public $primary_key = 'carddav_contact_id';
+	public $readonly = false;
+	public $addressbook = false;
+	public $groups = true;
+	public $group_id = 0;
+	public $coltypes = array('name', 'firstname', 'surname', 'middlename', 'email', 'photo');
 
 	const SEPARATOR = ',';
 
@@ -52,20 +50,18 @@ class carddav_addressbook extends rcube_addressbook
 	 */
 	public function __construct($carddav_server_id, $name, $readonly, $addressbook)
 	{
-		$this->ready = true;
-		$this->name = $name;
-		$this->carddav_server_id = $carddav_server_id;
-		$this->readonly = $readonly;
-		$this->db = rcmail::get_instance()->db;
-		$this->user_id = rcmail::get_instance()->user->data['user_id'];
-		if($_SESSION['default_account_password']){
-		  $password = $_SESSION['default_account_password']; // accounts plugin
-		}
-		else{
-		  $password = $_SESSION['password'];
-		}
-		$this->rcpassword = $password;
-		$this->addressbook = $addressbook;
+    $this->ready = true;
+    $this->name = $name;
+    $this->carddav_server_id = $carddav_server_id;
+    $this->readonly = $readonly;
+    $this->db = rcmail::get_instance()->db;
+    $this->user_id = rcmail::get_instance()->user->data['user_id'];
+    $password = $_SESSION['default_account_password'] ? $_SESSION['default_account_password'] : $_SESSION['password'];
+    $this->rcpassword = $password;
+    $this->addressbook = $addressbook;
+    if(class_exists('carddav_plus')){
+      $this->coltypes = carddav_plus::carddav_coltypes();
+    }
 	}
 
 	/**
@@ -110,13 +106,9 @@ class carddav_addressbook extends rcube_addressbook
 		{
 			$result = $rcmail->db->limitquery($query, $limit['start'], $limit['length'], $rcmail->user->data['user_id'], $this->carddav_server_id);
 		}
-
-		if ($rcmail->db->num_rows($result))
+  	while ($contact = $rcmail->db->fetch_assoc($result))
 		{
-			while ($contact = $rcmail->db->fetch_assoc($result))
-			{
-				$carddav_addressbook_contacts[$contact['vcard_id']] = $contact;
-			}
+			$carddav_addressbook_contacts[$contact['vcard_id']] = $contact;
 		}
 		return $carddav_addressbook_contacts;
 	}
@@ -144,12 +136,7 @@ class carddav_addressbook extends rcube_addressbook
 
 		$result = $rcmail->db->query($query, $rcmail->user->data['user_id'], $carddav_contact_id);
 
-		if ($rcmail->db->num_rows($result))
-		{
-			return $rcmail->db->fetch_assoc($result);
-		}
-
-		return false;
+		return $rcmail->db->fetch_assoc($result);
 	}
 
 	/**
@@ -334,7 +321,6 @@ class carddav_addressbook extends rcube_addressbook
 	{
 		$rcmail = rcmail::get_instance();
 		$any_data_synced = false;
-
 		self::write_log('Starting CardDAV-Addressbook synchronization');
 
 		$carddav_backend = new carddav_backend($server['url']);
@@ -345,7 +331,6 @@ class carddav_addressbook extends rcube_addressbook
       $server['password'] = $rcmail->config->get('googlepass');
     }
 		$carddav_backend->set_auth($server['username'], $rcmail->decrypt($server['password']));
-		
 		if ($carddav_backend->check_connection())
 		{
 			self::write_log('Connected to the CardDAV-Server ' . $server['url']);
@@ -353,7 +338,7 @@ class carddav_addressbook extends rcube_addressbook
 			{
 				// server does not support REPORT request
 				$noreport = $rcmail->config->get('carddav_noreport', array());
-				if(!$noreport[$server['url']]){
+				if($noreport[$server['url']]){
 				  $elements = $carddav_backend->get_xml_vcard($vcard_id);
 				}
 				else{
@@ -498,16 +483,17 @@ class carddav_addressbook extends rcube_addressbook
 		if(stripos($carddav_content['vcard'], "\nUID:") === false){
 		  $carddav_content['vcard'] = str_replace("\nEND:VCARD","\nUID:" . $carddav_content['vcard_id'] . "\r\nEND:VCARD", $carddav_content['vcard']);
 		}
-		$vcard = new rcube_vcard($carddav_content['vcard']);
-
+		$vcard = new rcube_vcard();
+    $vcard->extend_fieldmap(array('categories' => 'CATEGORIES'));
+    $vcard->load($carddav_content['vcard']);
 		$query = "
 			INSERT INTO
 				".get_table_name('carddav_contacts')." (carddav_server_id, user_id, etag, last_modified, vcard_id, vcard, words, firstname, surname, name, email)
 			VALUES
 				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		";
-
-		$database_column_contents = $this->get_database_column_contents($vcard->get_assoc());
+		$save_data = $vcard->get_assoc();
+		$database_column_contents = $this->get_database_column_contents($save_data);
 
 		$result = $rcmail->db->query(
 			$query,
@@ -516,7 +502,7 @@ class carddav_addressbook extends rcube_addressbook
 			$carddav_content['etag'],
 			$carddav_content['last_modified'],
 			$carddav_content['vcard_id'],
-			$this->cleanup($carddav_content['vcard']),
+			$vcard->cleanup($carddav_content['vcard']),
 			$database_column_contents['words'],
 			$database_column_contents['firstname'],
 			$database_column_contents['surname'],
@@ -526,6 +512,7 @@ class carddav_addressbook extends rcube_addressbook
 		if ($rcmail->db->affected_rows($result))
 		{
 			self::write_log('Added CardDAV-Contact to the local database with the vCard id ' . $carddav_content['vcard_id']);
+			$this->carddav_categories_sync($save_data, $carddav_content);
 			return true;
 		}
 		else
@@ -533,49 +520,7 @@ class carddav_addressbook extends rcube_addressbook
 			self::write_log('Couldn\'t add CardDAV-Contact to the local database with the vCard id ' . $carddav_content['vcard_id']);
 			return false;
 		}
-
 	}
-	
-  /**
-   * Normalize vcard data for better parsing
-   *
-   * @param string vCard block
-   * @return string Cleaned vcard block
-   */
-  private function cleanup($vcard)
-  {
-    // Convert special types (like Skype) to normal type='skype' classes with this simple regex ;)
-    $vcard = preg_replace(
-      '/item(\d+)\.(TEL|EMAIL|URL)([^:]*?):(.*?)item\1.X-ABLabel:(?:_\$!<)?([\w-() ]*)(?:>!\$_)?./s',
-      '\2;type=\5\3:\4',
-      $vcard);
-
-    // convert Apple X-ABRELATEDNAMES into X-* fields for better compatibility
-    $vcard = preg_replace_callback(
-      '/item(\d+)\.(X-ABRELATEDNAMES)([^:]*?):(.*?)item\1.X-ABLabel:(?:_\$!<)?([\w-() ]*)(?:>!\$_)?./s',
-      array('self', 'x_abrelatednames_callback'),
-      $vcard);
-
-    // Remove cruft like item1.X-AB*, item1.ADR instead of ADR, and empty lines
-    $vcard = preg_replace(array('/^item\d*\.X-AB.*$/m', '/^item\d*\./m', "/\n+/"), array('', '', "\n"), $vcard);
-
-    // convert X-WAB-GENDER to X-GENDER
-    if (preg_match('/X-WAB-GENDER:(\d)/', $vcard, $matches)) {
-      $value = $matches[1] == '2' ? 'male' : 'female';
-      $vcard = preg_replace('/X-WAB-GENDER:\d/', 'X-GENDER:' . $value, $vcard);
-    }
-
-    // if N doesn't have any semicolons, add some 
-    $vcard = preg_replace('/^(N:[^;\R]*)$/m', '\1;;;;', $vcard);
-
-    return $vcard;
-  }
-  
-  private static function x_abrelatednames_callback($matches)
-  
-  {
-    return 'X-' . strtoupper($matches[5]) . $matches[3] . ':'. $matches[4];
-  }
 	
 	/**
 	 * Updates a vCard in the CardDAV-Addressbook
@@ -586,9 +531,11 @@ class carddav_addressbook extends rcube_addressbook
 	private function carddav_addressbook_update($carddav_content)
 	{
 		$rcmail = rcmail::get_instance();
-		$vcard = new rcube_vcard($carddav_content['vcard']);
-
-		$database_column_contents = $this->get_database_column_contents($vcard->get_assoc());
+		$vcard = new rcube_vcard();
+    $vcard->extend_fieldmap(array('categories' => 'CATEGORIES'));
+    $vcard->load($carddav_content['vcard']);
+		$save_data = $vcard->get_assoc();
+		$database_column_contents = $this->get_database_column_contents($save_data);
 
 		$query = "
 			UPDATE
@@ -614,7 +561,7 @@ class carddav_addressbook extends rcube_addressbook
 			$query,
 			$carddav_content['etag'],
 			$carddav_content['last_modified'],
-			$this->cleanup($carddav_content['vcard']),
+			$vcard->cleanup($carddav_content['vcard']),
 			$database_column_contents['words'],
 			$database_column_contents['firstname'],
 			$database_column_contents['surname'],
@@ -622,12 +569,12 @@ class carddav_addressbook extends rcube_addressbook
 			$database_column_contents['email'],
 			$carddav_content['vcard_id'],
 			$this->carddav_server_id,
-			$rcmail->user->data['user_id']
+			$rcmail->user->ID
 		);
-
 		if ($rcmail->db->affected_rows($result))
 		{
 			self::write_log('CardDAV-Contact updated in the local database with the vCard id ' . $carddav_content['vcard_id']);
+			$this->carddav_categories_sync($save_data, $carddav_content);
 			return true;
 		}
 		else
@@ -636,7 +583,57 @@ class carddav_addressbook extends rcube_addressbook
 			return false;
 		}
 	}
-
+	
+	/**
+	 * Sync Categories
+	 *
+	 * @param array $save_data
+	 * @param array $carddav_content
+	 */
+	private function carddav_categories_sync($save_data, $carddav_content)
+	{
+		if(isset($save_data['categories']) && is_array($save_data['categories'])){
+		  $rcmail = rcmail::get_instance();
+		  $categories = explode(',', $save_data['categories'][0]);
+      $sql = 'SELECT * FROM ' . get_table_name('carddav_contacts') . ' WHERE user_id=? AND vcard_id=?';
+      $res = $rcmail->db->query($sql, $rcmail->user->ID, $carddav_content['vcard_id']);
+      $tmp = $rcmail->db->fetch_assoc($res);
+      $carddav_contact_id = $tmp['carddav_contact_id'];
+      foreach($categories as $category){
+        $sql = 'SELECT * FROM ' . get_table_name('carddav_contactgroups') . ' WHERE user_id=? AND name=?';
+		    $res = $rcmail->db->query($sql, $rcmail->user->ID, $category, 1);
+		    $exists = $rcmail->db->fetch_assoc($res);
+		    if(!is_array($exists)){
+          $sql = 'INSERT INTO ' . get_table_name('carddav_contactgroups') . ' (user_id, changed, del, name, addressbook) VALUES (?, ?, ?, ?, ?)';
+          $rcmail->db->query($sql, $rcmail->user->ID, date('Y-m-d H:i:s'), 0, $category, 'carddav_addressbook' . $this->carddav_server_id);
+          $contactgroup_id = $rcmail->db->insert_id(get_table_name('carddav_contactgroups'));
+          $sql = 'INSERT INTO ' . get_table_name('carddav_contactgroupmembers') . ' (contactgroup_id, contact_id, created) VALUES (?, ?, ?)';
+          $rcmail->db->query($sql, $contactgroup_id, $carddav_contact_id, date('Y-m-d H:i:s'));
+        }
+        else if($exists['del'] == 0){
+          $sql = 'SELECT * FROM ' . get_table_name('carddav_contactgroups') . ' WHERE user_id=? AND name=?';
+          $res = $rcmail->db->query($sql, $rcmail->user->ID, $category);
+          $tmp = $rcmail->db->fetch_assoc($res);
+          $contactgroup_id = $tmp['contactgroup_id'];
+          $sql = 'SELECT * FROM ' . get_table_name('carddav_contactgroupmembers') . ' WHERE contactgroup_id=? AND contact_id=?';
+          $res = $rcmail->db->query($sql, $contactgroup_id, $carddav_contact_id);
+          if(!$rcmail->db->fetch_assoc($res)){
+            $sql = 'INSERT INTO ' . get_table_name('carddav_contactgroupmembers') . ' (contactgroup_id, contact_id, created) VALUES (?, ?, ?)';
+            $rcmail->db->query($sql, $contactgroup_id, $carddav_contact_id, date('Y-m-d H:i:s'));
+          }
+        }
+        else if($exists['del'] == 1){
+          $save_data['categories'][0] = str_replace($category, '', $save_data['categories'][0]);
+          $save_data['categories'][0] = str_replace(',,', '', $save_data['categories'][0]);
+          if(substr($save_data['categories'][0], strlen($save_data['categories'][0]) - 1, 1) == ','){
+            $save_data['categories'][0] = substr($save_data['categories'][0], 0, strlen($save_data['categories'][0]) - 1);
+          }
+          $this->update($carddav_contact_id, $save_data);
+        }
+		  }
+		}
+	}
+	
 	/**
 	 * Deletes a vCard from the CardDAV addressbook
 	 *
@@ -738,7 +735,8 @@ class carddav_addressbook extends rcube_addressbook
           $vcard_id = false;
         }
 			  $this->carddav_addressbook_sync($server, false, $vcard_id);
-			  return $rcmail->db->insert_id(get_table_name('carddav_contacts'));
+			  $cid = $rcmail->db->insert_id(get_table_name('carddav_contacts'));
+			  return $cid;
 			}
 			else{
 			  return true;
@@ -921,6 +919,10 @@ class carddav_addressbook extends rcube_addressbook
 				{
 					$record['name'] = $contact['name'];
 					$record['email'] = explode(', ', $contact['email']);
+					if($contact['firstname'])
+					  $record['firstname'] = $contact['firstname'];
+					if($contact['surname'])
+					  $record['surname'] = $contact['surname'];
 				}
         if($this->group_id != 0){
           $query = "
@@ -970,36 +972,33 @@ class carddav_addressbook extends rcube_addressbook
 
 		$result = $this->db->query($query, $this->user_id);
 
-		if ($this->db->num_rows($result))
+		while ($contact = $this->db->fetch_assoc($result))
 		{
-			while ($contact = $this->db->fetch_assoc($result))
-			{
-				$record['name'] = $contact['name'];
-				$record['email'] = explode(', ', $contact['email']);
-				$record['ID'] = $contact['carddav_contact_id'];
-				$record['vcard'] = $contact['vcard'];
-        if($rcmail->action == 'autocomplete'){
-          $query = "
-            SELECT
-              *
-            FROM
-              ".get_table_name('carddav_server')."
-            WHERE
-              carddav_server_id = ?
+			$record['name'] = $contact['name'];
+			$record['email'] = explode(', ', $contact['email']);
+			$record['ID'] = $contact['carddav_contact_id'];
+			$record['vcard'] = $contact['vcard'];
+      if($rcmail->action == 'autocomplete'){
+        $query = "
+          SELECT
+            *
+          FROM
+            ".get_table_name('carddav_server')."
+          WHERE
+            carddav_server_id = ?
             AND
               autocomplete = ?
-            AND
-              user_id = ?
-          ";
-          $autocomplete = $this->db->query($query, $contact['carddav_server_id'], 1, $this->user_id);
-          if($this->db->num_rows($autocomplete)){
-            $this->result->add($record);
-          }
-        }
-        else{
+          AND
+            user_id = ?
+        ";
+        $autocomplete = $this->db->query($query, $contact['carddav_server_id'], 1, $this->user_id);
+        if($this->db->num_rows($autocomplete)){
           $this->result->add($record);
         }
-			}
+      }
+      else{
+        $this->result->add($record);
+      }
 
 		}
 		return $this->result;
@@ -1068,6 +1067,11 @@ class carddav_addressbook extends rcube_addressbook
     // make sure we have a unique name
     $name = $this->unique_groupname($name);
     $this->db->query(
+      "DELETE FROM ".get_table_name($this->db_groups).
+      " WHERE ".
+      " del=? AND name=? AND user_id=?", 1, $name, $this->user_id
+    );
+    $this->db->query(
       "INSERT INTO ".get_table_name($this->db_groups).
       " (user_id, changed, name, addressbook)".
       " VALUES (".intval($this->user_id).", ".$this->db->now().", ".$this->db->quote($name).", ".$this->db->quote($this->addressbook) .")"
@@ -1094,10 +1098,12 @@ class carddav_addressbook extends rcube_addressbook
       " AND user_id=?",
       $gid, $this->user_id
     );
-
     $this->cache = null;
-
-    return $this->db->affected_rows();
+    $ret = $this->db->affected_rows();
+    if($ret){
+      $this->group_membership_sync($gid);
+    }
+    return $ret;
 	}
 
 	/**
@@ -1108,6 +1114,7 @@ class carddav_addressbook extends rcube_addressbook
 	 */
 	public function rename_group($gid, $newname, &$new_gid)
 	{
+    $rcmail = rcmail::get_instance();
     // make sure we have a unique name
     $name = $this->unique_groupname($newname);
 
@@ -1118,7 +1125,56 @@ class carddav_addressbook extends rcube_addressbook
       " AND user_id=?",
       $name, $gid, $this->user_id
     );
-    return $this->db->affected_rows() ? $name : false;
+    $ret = $this->db->affected_rows() ? $name : false;
+    if($ret){
+      $this->group_membership_sync($gid);
+    }
+    return $ret;
+	}
+	
+	/**
+	 * sync categories
+	 * @ param integer $gid (group id)
+	 */
+	public function group_membership_sync($gid)
+	{
+    $rcmail = rcmail::get_instance();
+    $sql = 'SELECT * FROM ' . get_table_name('carddav_contactgroupmembers') . ' WHERE contactgroup_id=?';
+    $res = $this->db->query($sql, $gid);
+    while($member = $this->db->fetch_assoc($res)){
+      $members[] = $member;
+    }
+    if(is_array($members)){
+      foreach($members as $member){
+        $sql = 'SELECT * FROM ' . get_table_name('carddav_contacts') . ' WHERE user_id=? AND carddav_contact_id=?';
+        $res = $this->db->query($sql, $rcmail->user->ID, $member['contact_id']);
+        $contact = $this->db->fetch_assoc($res);
+        $vcard = new rcube_vcard();
+        $vcard->extend_fieldmap(array('categories' => 'CATEGORIES'));
+        $vcard->load($contact['vcard']);
+        $save_data = $vcard->get_assoc();
+        $save_data['categories'][0] = array();
+        $sql = 'SELECT contactgroup_id FROM ' . get_table_name('carddav_contactgroupmembers') . ' WHERE contact_id=?';
+        $res = $this->db->query($sql, $member['contact_id']);
+        while($group_id = $rcmail->db->fetch_assoc($res)){
+          $group_ids[] = $group_id;
+        }
+        if(count($group_ids) > 0){
+          $categories = '';
+          foreach($group_ids as $group_id){
+            $sql = 'SELECT name FROM ' . get_table_name('carddav_contactgroups') . ' WHERE contactgroup_id=? AND del=?';
+            $res = $this->db->query($sql, $group_id['contactgroup_id'], 0);
+            if($category = $rcmail->db->fetch_assoc($res)){
+              $categories .= $category['name'] .',';
+            }
+          }
+          if($categories){
+            $save_data['categories'] = substr($categories, 0, strlen($categories) - 1);
+          }
+        }
+        $this->update($member['contact_id'], $save_data);
+      }
+    }
 	}
 
 	/**
@@ -1129,6 +1185,12 @@ class carddav_addressbook extends rcube_addressbook
 	 */
 	public function add_to_group($group_id, $ids)
 	{
+    if(!$group_id){
+      $group_id = get_input_value('_gid', RCUBE_INPUT_POST);
+      if(!$group_id){
+        return 0;
+      }
+    }
     if (!is_array($ids))
       $ids = explode(self::SEPARATOR, $ids);
 
@@ -1161,6 +1223,7 @@ class carddav_addressbook extends rcube_addressbook
         $this->set_error(self::ERROR_SAVING, $this->db->db_error_msg);
       else
         $added++;
+        $this->update($contact_id);
       }
 
     return $added;
@@ -1185,8 +1248,12 @@ class carddav_addressbook extends rcube_addressbook
       " AND contact_id IN ($ids)",
       $group_id
     );
-
-    return $this->db->affected_rows();
+    $rows = $this->db->affected_rows();
+    $ids = explode(',', $ids);
+    foreach ($ids as $contact_id) {
+      $this->update($contact_id);
+    }
+    return $rows;
 	}
 
   /**
@@ -1248,7 +1315,13 @@ class carddav_addressbook extends rcube_addressbook
 				}
 			}
 		}
-
+		$group_id = get_input_value('_gid', RCUBE_INPUT_POST);
+		if($group_id){
+      $sql = 'SELECT * FROM ' . get_table_name('carddav_contactgroups') . ' WHERE contactgroup_id=? AND user_id=? AND del=?';
+      $res = $rcmail->db->query($sql, $group_id, $rcmail->user->ID, 0);
+      $tmp = $rcmail->db->fetch_assoc($res);
+      $save_data['categories'] = $tmp['name'];
+    }
 		$database_column_contents = $this->get_database_column_contents($save_data);
 		return $this->carddav_add($database_column_contents['vcard']);
 	}
@@ -1260,9 +1333,31 @@ class carddav_addressbook extends rcube_addressbook
 	 * @param	array		$save_data				vCard parameters
 	 * @return	boolean
 	 */
-	public function update($carddav_contact_id, $save_data)
+	public function update($carddav_contact_id, $save_data = false)
 	{
+		$rcmail = rcmail::get_instance();
 		$record = $this->get_record($carddav_contact_id, true);
+		if(!$save_data){
+		  $save_data = $record;
+		}
+		$sql = 'SELECT contactgroup_id FROM ' . get_table_name('carddav_contactgroupmembers') . ' WHERE contact_id=?';
+		$res = $rcmail->db->query($sql, $carddav_contact_id);
+		while($group_id = $rcmail->db->fetch_assoc($res)){
+		  $group_ids[] = $group_id;
+		}
+		if(count($group_ids) > 0){
+		  $categories = '';
+      foreach($group_ids as $group_id){
+		    $sql = 'SELECT name FROM ' . get_table_name('carddav_contactgroups') . ' WHERE contactgroup_id=? AND del=?';
+		    $res = $rcmail->db->query($sql, $group_id['contactgroup_id'], 0);
+		    if($category = $rcmail->db->fetch_assoc($res)){
+		      $categories .= $category['name'] .',';
+		    }
+      }
+      if($categories){
+        $save_data['categories'] = substr($categories, 0, strlen($categories) - 1);
+      }
+    }
 		$database_column_contents = $this->get_database_column_contents($save_data, $record);
 		return $this->carddav_update($carddav_contact_id, $database_column_contents['vcard']);
 	}
@@ -1294,8 +1389,8 @@ class carddav_addressbook extends rcube_addressbook
 	{
 		$words = '';
 		$database_column_contents = array();
-
 		$vcard = new rcube_vcard($record['vcard'] ? $record['vcard'] : $save_data['vcard']);
+		$vcard->extend_fieldmap(array('categories' => 'CATEGORIES'));
 		$vcard->reset();
 
 		foreach ($save_data as $key => $values)
@@ -1322,7 +1417,7 @@ class carddav_addressbook extends rcube_addressbook
 		}
 
 		$database_column_contents['vcard'] = $vcard->export(false);
-
+		
 		foreach ($this->table_cols as $column)
 		{
 			$key = $column;

@@ -16,6 +16,17 @@ $(document).ready(function() {
   // Background of toolbar button
   if(rcmail.env.skin == 'larry'){
     $('#planner_button').children().css('color','#3cf');
+    if(rcmail.get_cookie('minimalmode') == 1){
+      $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
+    }
+    $(window).resize(function(){
+      if(rcmail.get_cookie('minimalmode') == 1){
+        $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
+      }
+      else{
+        $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -45px no-repeat');
+      }
+    });
   }
   
   // add event listeners

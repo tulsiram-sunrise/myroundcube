@@ -4,11 +4,7 @@ function calendar_gui(){
     rcmail.env.calendar_gui_initialized = false;
     
   this.init = function(response){
-    // compatibility check
-    if(!document.getElementById('event-1')){
-      document.writeln('Update to Roundcube v.0.5 or modify ./program/include/rcube_template.php <a href="http://trac.roundcube.net/ticket/1487133">Show the hack</a>');
-    }
-    if(rcmail.env.calsearch_id){
+     if(rcmail.env.calsearch_id){
       var search_event = $('#calendar').fullCalendar('clientEvents', rcmail.env.calsearch_id);
       if(search_event && search_event[0]){
         rcmail.env.calsearch_id = false;

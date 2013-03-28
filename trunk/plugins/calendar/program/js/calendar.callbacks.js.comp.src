@@ -364,8 +364,12 @@ function calendar_callbacks(){
     }
     $('#catprotected').remove();
     var $dialogContent = $("#event");
-    if($dialogContent.dialog('isOpen') === true)
-      return;
+    try{
+      if($dialogContent.dialog('isOpen') === true)
+        return;
+    }
+    catch(e){
+    }
     if(!date){
       var date = new Date(date.getTime()/1000);
     }
@@ -613,7 +617,7 @@ function calendar_callbacks(){
       $dialogContent.dialog("close");
     };
     $dialogContent.dialog({
-       modal: false,
+       modal: true,
        // find me: autodetect
        width: 630,
        position: 'center',

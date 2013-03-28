@@ -6,5 +6,33 @@ $(document).ready(function() {
     catch(e){
     }
     $('#planner_button').show();
+    if(rcmail.env.skin == 'larry'){
+      if(rcmail.get_cookie('minimalmode') == 1){
+        $('#taskbar a.button-planner').hover(function(){
+          $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
+        });
+        $('#taskbar a.button-planner').live('mouseleave', function(){
+          $('#taskbar a.button-planner span.button-inner').css('background', 'none');
+        });
+      }
+      $(window).resize(function(){
+        if(rcmail.get_cookie('minimalmode') == 1){
+          $('#taskbar a.button-planner').hover(function(){
+            $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
+          });
+          $('#taskbar a.button-planner').live('mouseleave', function(){
+            $('#taskbar a.button-planner span.button-inner').css('background', 'none');
+          });
+        }
+        else{
+          $('#taskbar a.button-planner').hover(function(){
+            $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -45px no-repeat');
+          });
+          $('#taskbar a.button-planner').live('mouseleave', function(){
+            $('#taskbar a.button-planner span.button-inner').css('background', 'none');
+          });
+        }
+      });
+    }
   });
 });

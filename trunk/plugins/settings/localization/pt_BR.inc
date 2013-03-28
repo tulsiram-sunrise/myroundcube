@@ -17,14 +17,9 @@ $labels['menu'] = 'Menu';
 $labels['managefolders'] = 'Gerenciar pastas';
 $labels['account'] = 'Administração da Conta';
 $labels['classic'] = 'Padrão';
-$labels['groupvice4'] = 'Groupvice';
 $labels['remotefolders'] = 'Pastas Especiais';
 $labels['myroundcube'] = 'MyRoundCube';
 $labels['skin_preview'] = 'Visualizar Tema';
-$labels['meh'] = 'MEH';
-$labels['litecube-f'] = 'Lite (gratuito)';
-$labels['litecube'] = 'Lite';
-$labels['litecube_mobile'] = 'Mobile';
 $labels['larry'] = 'Larry';
 
 ?>

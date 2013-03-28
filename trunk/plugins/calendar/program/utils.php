@@ -636,19 +636,64 @@ class Utils
               $ical .= 'DESCRIPTION:' . $event['description'] . "\n";
             }
             $ical .= 'ATTENDEE:mailto:' . $event['remindermailto'] . "\n";
-            $ical .= 'TRIGGER:-P0DT' . $event['reminder'] . 'S' . "\n";
+            $unit = 'S';
+            $t = 'T';
+            $temp = $event['reminder'];
+            if(($temp / 60)  == round($temp / 60)){
+              $temp = $temp / 60;
+              $unit = 'M';
+            }
+            if(($temp / 60)  == round($temp / 60)){
+              $temp = $temp / 60;
+              $unit = 'H';
+            }
+            if(($temp / 24)  == round($temp / 24)){
+              $temp = $temp / 24;
+              $unit = 'D';
+              $t = '';
+            }
+            if(($temp / 7)  == round($temp / 7)){
+              $temp = $temp / 7;
+              $unit = 'W';
+              $t = '';
+            }
+            $ical .= 'TRIGGER;VALUE=DURATION:-P' . $t . $temp . $unit . "\n";
             $ical .= 'END:VALARM' . "\n";
           }
           else if($event['reminderservice'] == 'popup'){
             $ical .= 'BEGIN:VALARM' . "\n";
             $ical .= 'ACTION:DISPLAY' . "\n";
             if($event['summary']) {
-              $ical .= 'SUMMARY:' . $event['summary'] . "\n";
+              $ical .= 'DESCRITION:' . $event['summary'] . "\n";
             }
-            if($event['description']){
+            else if($event['description']){
               $ical .= 'DESCRIPTION:' . $event['description'] . "\n";
             }
-            $ical .= 'TRIGGER:-P0DT' . $event['reminder'] . 'S' . "\n";
+            else{
+              $ical .= 'DESCRIPTION:MyRoundcube Standard ' . "\n";
+            }
+            $unit = 'S';
+            $t = 'T';
+            $temp = $event['reminder'];
+            if(($temp / 60)  == round($temp / 60)){
+              $temp = $temp / 60;
+              $unit = 'M';
+            }
+            if(($temp / 60)  == round($temp / 60)){
+              $temp = $temp / 60;
+              $unit = 'H';
+            }
+            if(($temp / 24)  == round($temp / 24)){
+              $temp = $temp / 24;
+              $unit = 'D';
+              $t = '';
+            }
+            if(($temp / 7)  == round($temp / 7)){
+              $temp = $temp / 7;
+              $unit = 'W';
+              $t = '';
+            }
+            $ical .= 'TRIGGER;VALUE=DURATION:-P' . $t . $temp . $unit . "\n";
             $ical .= 'END:VALARM' . "\n";
           }
           $ical .= "END:VEVENT\n";

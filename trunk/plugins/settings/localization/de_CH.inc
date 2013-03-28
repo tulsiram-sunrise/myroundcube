@@ -17,11 +17,8 @@ $labels['menu'] = 'Menue';
 $labels['managefolders'] = 'Ordner verwalten';
 $labels['account'] = 'Konto-Einstellungen';
 $labels['classic'] = 'Standard';
-$labels['groupvice4'] = 'Groupvice';
 $labels['remotefolders'] = 'Spezialordner';
 $labels['myroundcube'] = 'MyRoundCube';
 $labels['skin_preview'] = 'Vorschau Benutzerobfläche';
-$labels['meh'] = 'MEH';
-$labels['litecube-f'] = 'Lite';
 
 ?>

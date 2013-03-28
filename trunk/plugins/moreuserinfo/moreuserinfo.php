@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.4 - 21.02.2013
+ * @version 4.0.6 - 28.03.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,8 +26,8 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0.4';
-  static private $date = '21-02-2013';
+  static private $version = '4.0.6';
+  static private $date = '28-03-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -158,7 +158,7 @@ class moreuserinfo extends rcube_plugin
       $user = substr($user,0,20) . "...";
 
     $skin = $rcmail->config->get('skin', 'classic');
-    if(!class_exists('accounts') && ($skin == 'classic' || $skin == 'groupvice4' || $skin == 'meh' || $skin == 'litecube-f'))
+    if(!class_exists('accounts') && $skin != 'larry')
       $rcmail->output->add_footer('<div id="showusername"><a title="' . $this->gettext('userinfo', 'moreuserinfo') . '" href="./?_task=settings&_action=plugin.moreuserinfo_show">' . $user . '&nbsp;</a></div>');
 
     return $p;
@@ -196,6 +196,8 @@ class moreuserinfo extends rcube_plugin
     foreach($conf as $service => $domains){
       $table->add('title', html::tag('b', null, '&raquo;&nbsp;' . Q($service . ':')));
       $table->add('', '&nbsp;');
+      $domainpart = $temp[1];
+      $domainpart = (!$domains[ $domainpart ] ? 'all' : $temp[1]);
       foreach($domains as $domain => $details){
         $i = 0;
         if($domainpart == $domain){
@@ -205,10 +207,12 @@ class moreuserinfo extends rcube_plugin
             if(substr($label, 0, 1) == '['){
               $label = $detail;
             }
-            $table->add('title', Q('&nbsp;&raquo;&nbsp;' . $label . ':'));
+            $table->add('title', '&nbsp;&raquo;&nbsp;' . $label . ':');
             $label = $this->gettext($setting);
             if(substr($label, 0, 1) == '['){
               $label = $setting;
+              $label = str_replace("{DOMAIN.TLD}", $temp[1], $label);
+              $label = str_replace("{DOMAIN}", substr($temp[1], 0, strrpos($temp[1],".")), $label);
             }
             $table->add('', html::tag('span', null, Q($label)) . (($i ==2 || $i ==3) ? $icon : ''));
           }
@@ -232,7 +236,7 @@ class moreuserinfo extends rcube_plugin
       $table->add('title', '&raquo; ' . $this->gettext('default'));
       $temp = explode('?', $default, 2);
       $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
-      $table->add('', html::tag('span', null, Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url)))) . $icon);
+      $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
     }
     if(count($cals) > 0){
       ksort($cals);
@@ -240,7 +244,7 @@ class moreuserinfo extends rcube_plugin
         $temp = explode('?', $caldav['url'], 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
         $table->add('title', '&raquo; ' . $key);
-        $table->add('', html::tag('span', null, Q(str_replace('@', urlencode('@'), str_replace('%u', $user, $url)))) . $icon);
+        $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
           $user = $caldav['user'];
           $access = $this->gettext('calendar.readwrite');
@@ -276,7 +280,7 @@ class moreuserinfo extends rcube_plugin
       ksort($addressbooks);
       foreach($addressbooks as $key => $addressbook){
         $temp = explode('?', $addressbook['url'], 2);
-        $url = str_replace('@', urlencode('@'), slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : ''));
+        $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
         $table->add('title', '&raquo; ' . $key);
         $table->add('', html::tag('span', null, Q(str_replace('%u', $user, $url))) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
@@ -311,11 +315,6 @@ class moreuserinfo extends rcube_plugin
       $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_new'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial')));
     }
     $out  = $out .= html::tag('fieldset', null, html::tag('legend',  null, $this->gettext('userinfo') . ' ::: ' . $_SESSION['username']) . $table->show() . $clients);
-    /*$out .= html::tag('br') . html::tag('div', array('id' => 'formfooter'),
-      html::tag('div', array('class' => 'footerleft formbuttons'),
-        html::tag('input', array('type' => 'button',  'onclick' => 'document.location.href=\'./?_task=settings&_action=edit-prefs&_section=accountlink&_framed=1\'', 'class' => 'button mainaction',  'value' => Q($this->gettext('back'))))
-      )
-    );*/
     return $out;
   }
 
