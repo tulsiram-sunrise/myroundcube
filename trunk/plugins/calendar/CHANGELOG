@@ -32,3 +32,12 @@ VERSION                COMMENT
 11.0.27                - Use $rcmail->user->data instead of $_SESSION
 11.0.28                - Some more comments in config.inc.php.dist
 11.0.29 - 11.0.30      - Bug fix if savepassword plugin is not installed
+12.0                   - Roundcube 0.9 compatibility
+12.0.1 - 12.0.2        - Roundcube 0.9 toggle minimalmode implemenation
+12.0.3 - 12.0.4        - Fix a bug in public_caldavs handling
+13.0                   - v13.x is now Roundcube 0.9 branch, v12.0 is reserved for Roundcube 0.8 branch
+13.0.1                 - Fix category display for public calendarfeeds
+14.0                   - Compatibility with 0.8 and 0.9 branch
+14.0.1                 - Fixed upload directory bug
+14.0.2                 - Added compose new window support (Roundcube 0.9 branch)
+14.0.3                 - Don't lowercase default CalDAV URL

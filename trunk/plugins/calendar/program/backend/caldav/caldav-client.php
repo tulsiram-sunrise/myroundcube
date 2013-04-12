@@ -66,7 +66,6 @@ class CalDAVClient {
     $this->auth = $auth;
     $this->headers = array();
     $this->debug = $debug;
-    
     if ( preg_match( '#^(https?)://([a-z0-9.-]+)(:([0-9]+))?(/.*)$#', $base_url, $matches ) ) {
       $this->server = $matches[2];
       $this->base_url = $matches[5];
@@ -442,9 +441,14 @@ EOXML;
     catch (Exception $e){
       return false;
     }
-    if(isset($xml->response->propstat->prop->{'current-user-principal'}->href[0])){
+    if(!isset($xml->response[0])){
+      $xml->response[0] = $xml->response;
+    }
+    if(isset($xml->response[0]->propstat->prop->{'current-user-principal'}->href[0])){
       $principal = (string) $xml->response->propstat->prop->{'current-user-principal'}->href[0];
       $xml = '<?xml version="1.0" encoding="utf-8" ?><A:propfind xmlns:B="urn:ietf:params:xml:ns:caldav" xmlns:A="DAV:"><A:prop><B:calendar-home-set/></A:prop></A:propfind>';
+      $this->SetDepth(1);
+      $this->base_url = '';
       $response = $this->DoXMLRequest('PROPFIND', $xml, $principal);
       $temp = explode("\r\n\r\n<?xml", $response, 2);
       if(!$temp[1]) return false;
@@ -456,8 +460,9 @@ EOXML;
       catch (Exception $e){
         return false;
       }
-      if(isset($xml->response->propstat->prop->{'calendar-home-set'}->href[0])){
+      if(isset($xml->response[0]->propstat->prop->{'calendar-home-set'}->href[0])){
         $collection = (string) $xml->response->propstat->prop->{'calendar-home-set'}->href[0];
+        $this->SetDepth(1);
         $response = $this->DoXMLRequest('PROPFIND', null, $collection);
         $temp = explode("\r\n\r\n<?xml", $response, 2);
         if(!$temp[1]) return false;

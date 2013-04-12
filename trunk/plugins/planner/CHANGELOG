@@ -3,3 +3,4 @@ VERSION                COMMENT
 2.9.2                  - Separated jQuery timpicker code
 2.9.3                  - Code improvement
 2.9.4                  - Roundcube 0.9 compatibility
+2.9.5                  - Roundcube 0.9 minimalmode implementation

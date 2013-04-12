@@ -62,14 +62,29 @@ $rcmail_config['default_caldav_backend'] = array(
   'extr' => true, // external reminder service (Google calendar reminders)
 );
 */
-/* SabreDAV example
+/* SabreDAV example */
 $rcmail_config['default_caldav_backend'] = array(
   'user' => '%u',
   'pass' => '%p',
-  'url' => 'http://dav.domain.ltd/calendars/%u/events',
-  'cat' => 'http://dav.domain.ltd/calendars/%u/%c',
+  'principals' => '',
+  'home' => 'http://dav.domain.tld',
+  'url' => 'http://dav.domain.tld/calendars/%u/events',
+  'cat' => 'http://dav.domain.tld/calendars/%u/%c',
   'auth' => 'detect', //basic or detect
   'extr' => false,
+);
+
+/* Caldav calendar auto-detection is executed on login.
+   Do not run auto-detection if last login is younger than ... (seconds)
+*/
+$rcmail_config['sync_collections'] = 3600; // 0 = always on login
+
+/* Do not autodetect the following collections.
+   If your collection resides on https://dav.mydomain.tld/calendars/users/roundcube/tasks/
+   then add to the array '/calendars/tasks'.
+*/
+$rcmail_config['caldav_hidden_collections'] = array(
+  '/calendars/tasks',
 );
 
 /* CalDAV Replication

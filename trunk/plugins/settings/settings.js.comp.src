@@ -1,4 +1,19 @@
 $(document).ready(function(){
+  if(rcmail.env.skin == 'larry'){
+    if($('.minmodetoggle').get(0)){
+      if(rcmail.get_cookie('minimalmode') == 1){
+        $('#mainscreen').css('top', '55px');
+      }
+      $(window).resize(function(){
+        if(rcmail.get_cookie('minimalmode') == 1){
+          $('#mainscreen').css('top', '55px');
+        }
+        else{
+          $('#mainscreen').css('top', '82px');
+        }
+      });
+    }
+  }
   if(parent.location.href != document.location.href){
     if(rcmail.env.skin == 'larry'){
       $('.formbuttons').hide();

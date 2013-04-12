@@ -1,1 +1,1 @@
-$(document).ready(function(){parent.location.href!=document.location.href&&("larry"==rcmail.env.skin?$(".formbuttons").hide():$("#formfooter").hide())});
+$(document).ready(function(){"larry"==rcmail.env.skin&&$(".minmodetoggle").get(0)&&(1==rcmail.get_cookie("minimalmode")&&$("#mainscreen").css("top","55px"),$(window).resize(function(){1==rcmail.get_cookie("minimalmode")?$("#mainscreen").css("top","55px"):$("#mainscreen").css("top","82px")}));parent.location.href!=document.location.href&&("larry"==rcmail.env.skin?$(".formbuttons").hide():$("#formfooter").hide())});

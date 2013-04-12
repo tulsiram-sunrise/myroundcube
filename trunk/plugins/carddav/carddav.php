@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 5.2 - 25.03.2013
+ * @version 5.3.2 - 11.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -42,8 +42,8 @@ class carddav extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '5.2';
-  static private $date = '25-03-2013';
+  static private $version = '5.3.2';
+  static private $date = '11-04-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',
@@ -269,7 +269,6 @@ class carddav extends rcube_plugin{
         die($error);
       }
       $rcmail = rcmail::get_instance();
-      $rcmail->output->set_env('source', $rcmail->config->get('default_addressbook', 0));
     }
     else if($p['template'] == 'contactedit'){
       $rcmail = rcmail::get_instance();

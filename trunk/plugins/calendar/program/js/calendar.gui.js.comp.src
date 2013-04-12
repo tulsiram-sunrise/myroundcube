@@ -1,10 +1,33 @@
 /* GUI */
 function calendar_gui(){
-  if(window.rcmail)
+  if(window.rcmail){
     rcmail.env.calendar_gui_initialized = false;
+  }
+  
+  this.minimalmode = function(){
+    if(rcmail.env.skin == 'larry'){
+      if(typeof rcmail.get_cookie != 'undefined' && rcmail.get_cookie('minimalmode') == 1){
+        $('#mainscreen').css('top', '85px');
+        $('#calendaroverlay').css('top', '85px');
+        $('#calendar-header').css('top', '85px');
+        $('#messagetoolbar').css('top', '45px');
+        $('#todaybutton').css('top', '55px');
+        $('#calquicksearchbar').css('top', '55px');
+      }
+      else{
+        $('#mainscreen').css('top', '110px');
+        $('#calendaroverlay').css('top', '110px');
+        $('#calendar-header').css('top', '110px');
+        $('#messagetoolbar').css('top', '69px');
+        $('#todaybutton').css('top', '80px');
+        $('#calquicksearchbar').css('top', '75px');
+      }
+      //$('#calendar').fullCalendar('render');
+    }
+  }
     
   this.init = function(response){
-     if(rcmail.env.calsearch_id){
+    if(rcmail.env.calsearch_id){
       var search_event = $('#calendar').fullCalendar('clientEvents', rcmail.env.calsearch_id);
       if(search_event && search_event[0]){
         rcmail.env.calsearch_id = false;
@@ -15,14 +38,14 @@ function calendar_gui(){
       rcmail.env.calsearch_id = false;
     }
     
-    // initialize GUI only once
+    /* initialize GUI only once */
     if(rcmail.env.calendar_gui_initialized){
       $('#upcoming').fullCalendar('removeEvents');
       //$('#upcoming').fullCalendar('addEventSource',$('#calendar').fullCalendar('clientEvents'));
       return;
     }
     rcmail.env.calendar_gui_initialized = true;
- 
+
     /* change date/view if passed by URL */
     if(queryString('_view') != 'false'){
       $('#calendar').fullCalendar( 'changeView', queryString('_view'));
@@ -49,6 +72,26 @@ function calendar_gui(){
         $('#calendar').fullCalendar('gotoDate', $.fullCalendar.parseDate(new Date(queryString('_date') * 1000)));
       }
     }
+    
+    /* subscription */
+    $('.subscriptionchbox').click(function(){
+      var ido = this.id.replace('chbox_', 'option_');
+      var idf = this.id.replace('chbox_', 'filter_');
+      var idu = this.id.replace('chbox_', 'user_');
+      if($(this).prop('checked')){
+        $('#' + ido).show();
+        $('#' + idf).show();
+        $('#' + idu).show();
+      }
+      else{
+        $('#' + ido).hide();
+        $('#' + idf).hide();
+        $('#' + idu).hide();
+      }
+      var data = $('#subscription_form').serialize();
+      $('#calendaroverlay').show();
+      rcmail.http_post('plugin.calendar_subscribe', data);
+    });
     
     // initialize upcoming events
     this.upcoming(response);

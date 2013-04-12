@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.6 - 28.03.2013
+ * @version 4.0.9 - 11.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,8 +26,8 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0.6';
-  static private $date = '28-03-2013';
+  static private $version = '4.0.9';
+  static private $date = '11-04-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -219,41 +219,54 @@ class moreuserinfo extends rcube_plugin
         }
       } 
     }
-
-    $cals = $rcmail->config->get('caldavs', array());
-    $clients = '';
-    $user = $username;
-    if(isset($_SESSION['global_alias'])){
-      $user = $_SESSION['global_alias'];
-    }
-    $i = 0;
-    if($rcmail->config->get('backend') == 'caldav'){
-      $i = 1;
-      $table->add('title', html::tag('h3', null, $this->gettext('calendars') . '&nbsp;(CalDAV-URLs)&sup' . $i . ';:'));
-      $table->add('', '');
-      $default = $rcmail->config->get('default_caldav_backend');
-      $default = $default['url'];
-      $table->add('title', '&raquo; ' . $this->gettext('default'));
-      $temp = explode('?', $default, 2);
-      $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
-      $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
-    }
-    if(count($cals) > 0){
-      ksort($cals);
-      foreach($cals as $key => $caldav){
-        $temp = explode('?', $caldav['url'], 2);
+    $cals = array();
+    if(class_exists('calendar_plus')){
+      $cals = $rcmail->config->get('caldavs', array());
+      $clients = '';
+      $user = $username;
+      if(isset($_SESSION['global_alias'])){
+        $user = $_SESSION['global_alias'];
+      }
+      $i = 0;
+      if($rcmail->config->get('backend') == 'caldav'){
+        $i = 1;
+        $table->add('title', html::tag('h3', null, $this->gettext('calendars') . '&nbsp;(CalDAV-URLs)&sup' . $i . ';:'));
+        $table->add('', '');
+        $default = $rcmail->config->get('default_caldav_backend');
+        $default = $default['url'];
+        $table->add('title', '&raquo; ' . $this->gettext('default'));
+        $temp = explode('?', $default, 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
-        $table->add('title', '&raquo; ' . $key);
-        $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
-        if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
-          $user = $caldav['user'];
-          $access = $this->gettext('calendar.readwrite');
-          if(strpos($temp[1], 'access=2') !== false){
-            $access = $this->gettext('calendar.readonly');
+        $repl = $rcmail->config->get('caldav_url_replace', false);
+        if(is_array($repl)){
+          foreach($repl as $key => $val){
+            $url = str_replace($key, $val, $url);
           }
-          $temp = parse_url($url);
-          $table->add('', '');
-          $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . html::tag('span', null, $user) . $icon . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . html::tag('span', null, $rcmail->decrypt($caldav['pass'])) . $icon . '&nbsp;|&nbsp;' . $access));
+        }
+        $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
+      }
+      if(count($cals) > 0){
+        ksort($cals);
+        foreach($cals as $key => $caldav){
+          $temp = explode('?', $caldav['url'], 2);
+          $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
+          if(is_array($repl)){
+            foreach($repl as $key => $val){
+              $url = str_replace($key, $val, $url);
+            }
+          }
+          $table->add('title', '&raquo; ' . $key);
+          $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
+          if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
+            $user = $caldav['user'];
+            $access = $this->gettext('calendar.readwrite');
+            if(strpos($temp[1], 'access=2') !== false){
+              $access = $this->gettext('calendar.readonly');
+            }
+            $temp = parse_url($url);
+            $table->add('', '');
+            $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . html::tag('span', null, $user) . $icon . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . html::tag('span', null, $rcmail->decrypt($caldav['pass'])) . $icon . '&nbsp;|&nbsp;' . $access));
+          }
         }
       }
       $clients .= html::tag('hr') . '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CalDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/organizations/all-esr.html', 'target' => '_new'), 'Thunderbird ESR');
@@ -268,19 +281,27 @@ class moreuserinfo extends rcube_plugin
       $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_new'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial'))) . html::tag('br');
     }
     $addressbooks = array();
-    $query = "SELECT user_id, password, url, label from " . get_table_name('carddav_server') . " WHERE user_id=?";
-    $sql_result = $rcmail->db->query($query, $rcmail->user->ID);
-    while ($sql_result && ($sql_arr = $rcmail->db->fetch_assoc($sql_result))) {
-      $addressbooks[$sql_arr['label']] = $sql_arr;
+    if(class_exists('carddav')){
+      $query = "SELECT user_id, password, url, label from " . get_table_name('carddav_server') . " WHERE user_id=?";
+      $sql_result = $rcmail->db->query($query, $rcmail->user->ID);
+      while ($sql_result && ($sql_arr = $rcmail->db->fetch_assoc($sql_result))) {
+        $addressbooks[$sql_arr['label']] = $sql_arr;
+      }
     }
     if(count($addressbooks) > 0){
       $i ++;
       $table->add('title', html::tag('h3', null, $this->gettext('addressbooks') . '&nbsp;(CardDAV-URLs)&sup' . $i . ';:'));
       $table->add('', '');
       ksort($addressbooks);
+      $repl = $rcmail->config->get('carddav_url_replace', false);
       foreach($addressbooks as $key => $addressbook){
         $temp = explode('?', $addressbook['url'], 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
+        if(is_array($repl)){
+          foreach($repl as $key => $val){
+            $url = str_replace($key, $val, $url);
+          }
+        }
         $table->add('title', '&raquo; ' . $key);
         $table->add('', html::tag('span', null, Q(str_replace('%u', $user, $url))) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){

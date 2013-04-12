@@ -131,10 +131,10 @@ function calendar_categories_gui(response){
     }
   }
   if(response.saved){
-    $('#edit_' + response.category).attr('style','visibility:visible');
+    $('#edit_' + response.category_disp).attr('style','visibility:visible');
   }
   else{
-    $('#edit_' + response.category).attr('style','visibility:hidden');
+    $('#edit_' + response.category_disp).attr('style','visibility:hidden');
   }
   if(response.cal_dont_save_passwords){
     $('#caldav_password').attr('readonly', true);

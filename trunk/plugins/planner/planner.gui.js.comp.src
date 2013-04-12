@@ -8,6 +8,29 @@ $(document).ready(function() {
   // disable taskbar button
   $('#planner_button').attr('href', '#');
   
+  // Larry minimalmode
+  if(rcmail.env.skin == 'larry'){
+    if(rcmail.get_cookie('minimalmode') == 1){
+      $('#planner_controls_container').css('top', '62px');
+      $('#control_bar').css('top', '92px');
+      $('#planner_items').css('top', '112px');
+    }
+    $('.minmodetoggle').click(function(){
+      if(rcmail.get_cookie('minimalmode') == 0){
+        $('#planner_controls_container').css('top', '62px');
+        $('#control_bar').css('top', '92px');
+        $('#planner_items').css('top', '112px');
+        $('#filter_bar').attr('style', 'top:' + (parseInt($('#filter_bar').css('top')) - 25) + 'px');
+      }
+      else{
+        $('#planner_controls_container').css('top', '85px');
+        $('#control_bar').css('top', '115px');
+        $('#planner_items').css('top', '135px');
+        $('#filter_bar').attr('style', 'top:' + (parseInt($('#filter_bar').css('top')) + 25) + 'px');
+      }
+    });
+  }
+  
   // disable right click
   $(document).bind('contextmenu', function(){
     //return false;

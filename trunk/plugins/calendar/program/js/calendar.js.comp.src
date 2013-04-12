@@ -6,8 +6,22 @@ $(document).ready(function() {
     $('#calendar_button').children().attr('style', 'color: #3CF; background-color: #2c2c2c;');
   }
   
+  /* minimalmode */
+  calendar_gui.minimalmode();
+  //$(window).resize(function(){
+    //calendar_gui.minimalmode();
+  //});
+  $('.minmodetoggle').click(function(){
+    rcmail.env.cal_date = Math.round($('#calendar').fullCalendar('getDate').getTime() / 1000);
+    $('#calendaroverlay').show();
+    $(window).unbind('beforeunload');
+    window.setTimeout("calendar_gui.minimalmode();document.location.href = './?_task=dummy&_action=plugin.calendar&_date=' + rcmail.env.cal_date;", 200);
+  });
+  
   /* reload calendar */
   rcmail.addEventListener('plugin.reloadCalendar', reloadCalendar);
+  
+  rcmail.addEventListener('plugin.syncCalendar', calendar_commands.reload);
   
   /* unlock GUI */
   rcmail.addEventListener('plugin.calendar_unlockGUI', unlockGUI);
@@ -78,7 +92,7 @@ $(document).ready(function() {
       if(rcmail.env.skin == 'larry'){
         fudge = 85;
       }
-      var approxheight = Math.max(50 + ((i+1) * tr), fudge);
+      var approxheight = Math.max(75 + ((i+1) * tr), fudge);
       $("#calsearchdialog").dialog('option','height',Math.min(maxheigth,approxheight));
       if(response.filters.length > 0){
         $('#cal_search_field_categories').attr('checked',false);

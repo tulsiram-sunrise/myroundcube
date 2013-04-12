@@ -95,7 +95,7 @@ class carddav_backend
 	 *
 	 * @constant string
 	 */
-	const VERSION = '5.0';
+	const VERSION = '5.0 (iPad; CPU OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3';//5.0';
 
 	/**
 	 * User agent displayed in http requests
@@ -256,11 +256,11 @@ class carddav_backend
 	 */
 	public function get($include_vcards = true, $raw = false)
 	{
-    $content = '<?xml version="1.0" encoding="utf-8" ?><D:sync-collection xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav"><D:sync-token></D:sync-token><D:prop><D:getcontenttype/><D:getetag/><D:allprop/><C:address-data><C:allprop/></C:address-data></D:prop><C:filter/></D:sync-collection>';
+    //Davical ??? https://github.com/graviox/Roundcube-CardDAV/issues/29
+    /*$content = '<?xml version="1.0" encoding="utf-8" ?><D:sync-collection xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav"><D:sync-token></D:sync-token><D:prop><D:getcontenttype/><D:getetag/><D:allprop/><C:address-data><C:allprop/></C:address-data></D:prop><C:filter/></D:sync-collection>';
     $content_type = 'application/xml';
     $this->headers = array('Depth: 1');
-    //$response = $this->query($this->url, 'REPORT', $content, $content_type);
-		
+    $response = $this->query($this->url, 'REPORT', $content, $content_type);*/
     //if(!$response){
       $response = $this->query($this->url, 'PROPFIND');
     //}

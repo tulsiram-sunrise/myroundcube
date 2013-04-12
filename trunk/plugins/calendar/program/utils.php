@@ -793,11 +793,14 @@ class Utils
   public function arrayEvents($start, $end, $category=false, $edit=true, $links=false, $returndel=false, $events=false, $client=false) {
     $rcmail = $this->rcmail;
     $public_caldavs = $rcmail->config->get('public_caldavs', array());
-    foreach($public_caldavs as $category => $caldav){
+    foreach($public_caldavs as $cat => $caldav){
       $public_caldavs[$category]['pass'] = $rcmail->encrypt($caldav['pass']);
     }
     $protected = false;
     $read = false;
+    if(isset($public_caldavs[$category]) && strtolower($public_caldavs[$category]['user']) != strtolower($rcmail->user->data['username'])){
+      $protected = true;
+    }
     $caldavs = array_merge($rcmail->config->get('caldavs', array()), $public_caldavs);
     if($url = $caldavs[$category]['url']){
       $url = explode('?', $url, 2);
@@ -907,14 +910,15 @@ class Utils
       $fontcolor = substr(dechex(~hexdec($color)),-6);
     }
     else{
-      $r = substr($color,0,2);
-      $g = substr($color,3,2);
-      $b = substr($color,5,2);
-      if ( $r <= "99" && $g <= "99" && $b <= "99"){
-        $fontcolor='FFFFFF';
+      $c_r = hexdec(substr($color, 0, 2));
+      $c_g = hexdec(substr($color, 2, 2));
+      $c_b = hexdec(substr($color, 4, 2));
+      $brightness = (($c_r * 299) + ($c_g * 587) + ($c_b * 114)) / 1000;
+      if($brightness > 130){
+        $fontcolor = '000000';
       }
-      else {
-        $fontcolor='000000';
+      else{
+        $fontcolor = 'FFFFFF';
       }
     }
     return $fontcolor;

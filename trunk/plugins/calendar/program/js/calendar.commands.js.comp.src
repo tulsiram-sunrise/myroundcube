@@ -3,7 +3,6 @@ function calendar_commands(){
   this.init = function(){
     rcmail.register_command('plugin.calendar_newevent', calendar_commands.newevent, true);
     rcmail.register_command('plugin.calendar_reload', calendar_commands.reload, true); 
-    rcmail.register_command('plugin.calendar_runTests', calendar_commands.runTests, true); 
     rcmail.register_command('plugin.calendar_switchCalendar', calendar_commands.switchCalendar, true);
     rcmail.register_command('plugin.exportEventsZip', calendar_commands.exportEventsZip, true);
     rcmail.register_command('plugin.importEvents', calendar_commands.importEvents, true);
@@ -45,6 +44,9 @@ function calendar_commands(){
     if(rcmail.env.compose_newwindow){
       opencomposewindowcaller(url);
     }
+    else if(rcmail.env.compose_extwin){
+      rcmail.open_compose_step(url);
+    }
     else{
       document.location.href = url;
     }
@@ -81,7 +83,10 @@ function calendar_commands(){
   
   /* reload the calendar */
   this.reload = function() {
-    rcmail.http_request('plugin.calendar_renew');
+    $('#calendaroverlay').hide();
+    var d = $('#calendar').fullCalendar('getDate');
+    d = Math.round(d.getTime()/1000, 0);
+    rcmail.http_request('plugin.calendar_renew', '_date=' + d);
   }
   
   /* schedule sync calendar */
@@ -95,11 +100,6 @@ function calendar_commands(){
     window.setTimeout('calendar_commands.syncCalendar()', 1000 * 60);
   }
 
-  /* run tests */
-  this.runTests = function() {
-    return true;
-  }
-  
   /* trigger search */
   this.triggerSearch = function() {
     var str = $("#calsearchfilter").val();

@@ -37,16 +37,16 @@ final class calendar_caldav extends Backend
     $pass = $this->rcmail->config->get('caldav_password',$this->rcmail->encrypt('pass'));
     $auth = $this->rcmail->config->get('caldav_auth','basic');
     $extr = $this->rcmail->config->get('caldav_extr','1');
-    
     $account = array(
       'user' => $user,
       'pass' => $pass,
-      'url'  => strtolower(unslashify($url)),
+      'url'  => unslashify($url),
       'auth' => $auth,
       'extr' => $extr,
     );
     $this->account = $account;
-    if(is_array($_SESSION['detected_caldavs'])){
+    $lastdetection = time() - $rcmail->config->get('collections_sync', 0);
+    if(is_array($_SESSION['detected_caldavs']) || $lastdetection < $rcmail->config->get('sync_collections', 0)){
       $this->connect($account['url'], $account['user'], $account['pass'], $account['auth']);
       $public_caldavs = $rcmail->config->get('public_caldavs', array());
       foreach($public_caldavs as $category => $caldav){
@@ -58,16 +58,25 @@ final class calendar_caldav extends Backend
     }
     $parsed = parse_url($account['url']);
     $home = $parsed['scheme'] . '://' . $parsed['host'];
-    $this->connect($home, $account['user'], $account['pass'], $account['auth']);
-    $calendars = $this->caldav->GetCollection();
-    $caldavs = array();
-    $colors =array();
-    $account_url = urldecode($this->account['url']);
+    $account_url = unslashify(urldecode($this->account['url']));
     list($u, $d) = explode('@', $rcmail->user->data['username']);
     $account_url = str_replace('%su', $u, $account_url);
     $account_url = str_replace('%u', $rcmail->user->data['username'], $account_url);
     $googleuser = $rcmail->config->get('googleuser', 'john.doh@gmail.com');
     $account_url = str_replace('%gu', $googleuser, $account_url);
+    $principal = $rcmail->config->get('caldav_principals', '/principals/users/%u');
+    $principal = str_replace('%su', $u, $principal);
+    $principal = str_replace('%u', $rcmail->user->data['username'], $principal);
+    $principal = str_replace('%gu', $googleuser, $principal);
+    $home = $rcmail->config->get('caldav_home', $home);
+    $this->connect($home . $principal, $account['user'], $account['pass'], $account['auth']);
+    $calendars = $this->caldav->GetCollection();
+    if(!$calendars){
+      $this->connect($home, $account['user'], $account['pass'], $account['auth']);
+      $calendars = $this->caldav->GetCollection();
+    }
+    $caldavs = array();
+    $colors =array();
     $deleted = $rcmail->config->get('caldavs_removed', array());
     if(is_array($calendars)){
       foreach($calendars as $key => $calendar){
@@ -75,7 +84,23 @@ final class calendar_caldav extends Backend
         if(isset($deleted[$calendar['url']])){
           continue;
         }
-        if($calendar['url'] != $account_url){
+        $comp1 = str_replace($home, '', $calendar['url']);
+        $comp2 = str_replace($home, '', $account_url);
+        $comp1 = explode('/', $comp1);
+        $comp2 = explode('/', $comp2);
+        if(isset($comp1[4])){
+          unset($comp1[2]);
+          unset($comp1[3]);
+          unset($comp2[2]);
+          unset($comp2[3]);
+        }
+        $comp1 = implode('/', $comp1);
+        $comp2 = implode('/', $comp2);
+        $hidden = $rcmail->config->get('caldav_hidden_collections', array());
+        if(in_array($comp1, $hidden)){
+          continue;
+        }
+        if($calendar['url'] != $account_url && $comp1 != $comp2){
           if($calendar['displayname']){
             $category = $calendar['displayname'];
           }
@@ -97,6 +122,7 @@ final class calendar_caldav extends Backend
       }
     }
     $_SESSION['detected_caldavs'] = $caldavs;
+    $detected_caldavs = $caldavs;
     $conf = $rcmail->config->get('caldavs', array());
     foreach($conf as $key1 => $caldav1){
       foreach($caldavs as $key2 => $caldav2){
@@ -114,7 +140,7 @@ final class calendar_caldav extends Backend
     $caldavs = array_merge($conf, $caldavs);
     if($_SESSION['user_id']){
       $categories = array_merge($rcmail->config->get('categories', array()), $colors);
-      $rcmail->user->save_prefs(array('caldavs' => $caldavs, 'categories' => $categories));
+      $rcmail->user->save_prefs(array('caldavs' => $caldavs, 'categories' => $categories, 'detected_caldavs' => $detected_caldavs, 'collections_sync' => time()));
     }
     $public_caldavs = $rcmail->config->get('public_caldavs', array());
     foreach($public_caldavs as $category => $caldav){
@@ -172,6 +198,10 @@ final class calendar_caldav extends Backend
         $url = str_replace('%gu', $googleuser, $url);
       if(strpos($url,'%u'))
         $url = str_replace('%u', $_SESSION['username'], $url);
+      if(strpos($url,'%su')){
+        list($u, $d) = explode('@', $_SESSION['username']);
+        $url = str_replace('%su', $u, $url);
+      }
       if(strpos($url, '?') === false)
         $url = slashify($url);
       if($url == "/"){
@@ -179,7 +209,7 @@ final class calendar_caldav extends Backend
       }
       if(!$auth)
         $auth = 'detect';
-      if($user != '%u' && $user != '%gu' && strpos($user, '%su') === false && $pass !='%p' && $pass != '%gp' && strpos($url, '%u') === false && strpos($url, '%gu') === false)
+      if($user != '%u' && $user != '%gu' && $user != '%su' && $pass !='%p' && $pass != '%gp' && strpos($url, '%u') === false && strpos($url, '%gu') === false)
         $ret = $this->caldav = new CalDAVClient(trim($url), trim($user), trim($pass), trim($auth), $rcmail->config->get('caldav_debug', false));
       if(!$ret){
         if(!$user)

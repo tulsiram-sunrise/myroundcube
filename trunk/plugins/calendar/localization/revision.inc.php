@@ -2,9 +2,9 @@
 
 $ps_localization_update = serialize(
   array(
-    'translator' => 'Yoni',
-    'language ' => 'es_ES',
-    'date' => '02/19/2013 02:47:30'
+    'translator' => 'myroundcube@mail4us.net',
+    'language ' => 'de_DE',
+    'date' => '04/07/2013 20:33:00'
   )
 );
 

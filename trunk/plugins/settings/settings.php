@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 4.0 - 17.03.2013
+ * @version 4.2 - 01.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -27,11 +27,11 @@ class settings extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0';
-  static private $date = '17-03-2013';
+  static private $version = '4.2';
+  static private $date = '01-04-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
-    'Roundcube' => '0.9',
+    'Roundcube' => '0.8',
     'PHP' => '5.2.1'
   );
   static private $prefs = null;
@@ -264,7 +264,7 @@ element.qtip({
         }     
       }
       $skins = rcmail_get_skins();
-      $selected_skin = strtolower($rcmail->config->get('skin','classic'));  
+      $selected_skin = strtolower($rcmail->config->get('skin','classic'));
       $limit_skins = array_flip($rcmail->config->get('limit_skins',array()));
       if(count($limit_skins) > 0){
         foreach($skins as $key => $val){
@@ -273,7 +273,7 @@ element.qtip({
           }
         }
       }
-      $temparr[$i] = "<div class=\"settingsplugin\" id=\"" . $parts[$i-1] . "\"><fieldset>" . str_replace("</fieldset>","</fieldset></div>",$temparr[$i]);
+      $temparr[$i] = "<div class=\"settingsplugin\"><fieldset>" . str_replace("</fieldset>","</fieldset></div>",$temparr[$i]);
       if($_GET['_section'] == "folders" || $_POST['_section'] == "folders"){
         $user = $_SESSION['username'];
         $temparr[$i] = str_replace("</legend>"," ::: " . $user . "</legend>",$temparr[$i]);
@@ -281,7 +281,7 @@ element.qtip({
       }
     }
     
-    $p['content'] = implode($temparr);
+    $p['content'] = implode('', $temparr);
     if($_GET['_section'] == "general" || $_POST['_section'] == "general"){
       $p['content'] .= html::tag('br') . 
         html::tag('fieldset', null, html::tag('legend', null, $this->gettext('skin_preview')) . 

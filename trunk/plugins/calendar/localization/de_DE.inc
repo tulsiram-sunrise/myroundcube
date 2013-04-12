@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 01/02/2013 07:42:28
+ | Author: myroundcube@mail4us.net - 04/07/2013 20:33:00
  +-----------------------------------------------------------------------+
 */
 
@@ -109,7 +109,7 @@ $labels['import_short'] = 'Importieren';
 $labels['category'] = 'Kategorie';
 $labels['preview'] = 'Vorschau';
 $labels['location'] = 'Ort';
-$labels['default'] = 'Keine';
+$labels['default'] = 'Standard';
 $labels['date'] = 'Datum';
 $labels['start'] = 'Beginn';
 $labels['end'] = 'Ende';
@@ -197,8 +197,11 @@ $labels['importconfirmation'] = 'Möchten Sie diese(n) Termin(e) in Ihren Kalend
 $labels['item'] = 'Ereignis';
 $labels['errorsaving'] = 'Beim Speichern ist ein Fehler aufgetreten';
 $labels['calreadonly'] = 'Sie haben nur Lesezugriff';
-$labels['mycalendar'] = 'mein Kalender';
+$labels['mycalendar'] = 'meine Kalender';
 $labels['allcalendars'] = 'alle Kalender';
+$labels['subscriptions'] = 'Abonnements';
+$labels['feed'] = 'Feed';
+$labels['caldav'] = 'CalDAV';
 $labels['protected'] = 'geschützt';
 $labels['calsearch'] = 'Suchergebnisse';
 $labels['calsearchnomatches'] = 'Keine Übereinstimmung';

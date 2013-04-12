@@ -17,6 +17,12 @@ $rcmail_config['carddav_android_app'] = 'https://play.google.com/store/apps/deta
 $rcmail_config['carddav_android_app_editor'] = 'https://play.google.com/store/apps/details?id=org.dmfs.android.contacts&hl=en'; // false, if your recommendation does not need a separate editor
 $rcmail_config['carddav_iphone'] = 'http://myroundcube.com/myroundcube-plugins/iphone-carddav';
 
+// URL replacements (https://code.google.com/p/myroundcube/issues/detail?id=506)
+/* CalDAV */
+$rcmail_config['caldav_url_replace'] = array('http://localhost:570' => 'https://dav.mydomain.tld');
+/* CardDAV */
+$rcmail_config['carddav_url_replace'] = array('http://localhost:570' => 'https://dav.mydomain.tld');
+
 /* Multiple domain config example
    See https://code.google.com/p/myroundcube/issues/detail?id=491 */
 /*
