@@ -74,6 +74,44 @@ $rcmail_config['default_caldav_backend'] = array(
   'extr' => false,
 );
 
+/* Associate default CaldDAV calendars */
+/*
+$rcmail_config['caldavs'] = array(
+  'Work' => array(
+                   'user' => '%u',
+                   'pass' => '%p',
+                   'url' => 'http://dav.mydomain.tld/calendars/%u/work',
+                   'auth' => 'detect',
+                   'readonly' => false,
+                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                 ),
+  'Holidays' => array(
+                   'user' => '%u',
+                   'pass' => '%p',
+                   'url' => 'http://dav.mydomain.tld/calendars/%u/holidays',
+                   'auth' => 'detect',
+                   'readonly' => false,
+                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                 ),
+  'Personal' => array(
+                   'user' => '%u',
+                   'pass' => '%p',
+                   'url' => 'http://dav.mydomain.tld/calendars/%u/personal',
+                   'auth' => 'detect',
+                   'readonly' => false,
+                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                 ),
+  'Family' => array(
+                   'user' => '%u',
+                   'pass' => '%p',
+                   'url' => 'http://dav.mydomain.tld/calendars/%u/family',
+                   'auth' => 'detect',
+                   'readonly' => false,
+                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                 ),
+);
+*/
+
 /* Caldav calendar auto-detection is executed on login.
    Do not run auto-detection if last login is younger than ... (seconds)
 */
@@ -155,10 +193,6 @@ $rcmail_config['rgblinkcolor'] = 'rgb(33, 33, 33)';
 // use jqueryui theme
 $rcmail_config['ui_theme_main_cal'] = true; // true is recommended
 $rcmail_config['ui_theme_upcoming_cal'] = false; // false is recommended
-
-// possible values: 'mycalendar'   show only the user's calendar as default
-//                  'allcalendars' show all layers as default
-$rcmail_config['default_calendar'] = 'mycalendar';
 
 // default calendar view (agendaDay, agendaWeek, month)
 $rcmail_config['default_view'] = "agendaWeek";

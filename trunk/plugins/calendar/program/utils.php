@@ -8,7 +8,7 @@ class Utils
   public function __construct($rcmail, $backend='dummy') {
     $this->rcmail = $rcmail;
     $this->backend = $backend;
-    $this->categories = array_merge((array)$rcmail->config->get('public_categories',array()),(array)$rcmail->config->get('categories',array()));
+    $this->categories = array_merge((array)$rcmail->config->get('categories',array()), (array)$rcmail->config->get('public_categories',array()));
   }
   /**
    * Flatten an array
@@ -40,7 +40,7 @@ class Utils
    * @return array
    * @access public
    */
-  public function eventArrayMap($event,$category=false){
+  public function eventArrayMap($event, $category=false){
     if(!$ctz = get_input_value('_tz', RCUBE_INPUT_GET)){
       $ctz = calendar::getClientTimezoneName($this->rcmail->config->get('timezone', 'auto'));
     }
@@ -63,15 +63,17 @@ class Utils
       $event['end'] = $event['end'] + $offset;
     if($event['clone'])
       $event['clone'] = $event['clone'] + $cloneoffset;
-
     if(isset($_GET['_from'])){
       $user = $this->getUser(get_input_value('_from', RCUBE_INPUT_GPC));
       $prefs = unserialize($user['preferences']);
-      if(isset($prefs['categories'])){
-        $this->categories = $prefs['categories'];
+      if(!is_array($prefs['categories'])){
+        $prefs['categories'] = $this->rcmail->config->get('categories', array());
       }
+      if(!is_array($prefs['public_categories'])){
+        $prefs['public_categories'] = $this->rcmail->config->get('public_categories', array());
+      }
+      $this->categories = array_merge($prefs['categories'], $prefs['public_categories']);
     }
-    $this->categories = array_merge($this->rcmail->config->get('public_categories',array()),$this->categories);
     if(!$category)
       $category = $event['categories'];
     $colors = $this->categories[$category];
@@ -798,7 +800,7 @@ class Utils
     }
     $protected = false;
     $read = false;
-    if(isset($public_caldavs[$category]) && strtolower($public_caldavs[$category]['user']) != strtolower($rcmail->user->data['username'])){
+    if(isset($public_caldavs[$category]['user']) && strtolower($public_caldavs[$category]['user']) != strtolower($rcmail->user->data['username'])){
       $protected = true;
     }
     $caldavs = array_merge($rcmail->config->get('caldavs', array()), $public_caldavs);

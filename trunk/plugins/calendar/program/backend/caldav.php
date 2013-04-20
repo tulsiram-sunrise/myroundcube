@@ -104,7 +104,7 @@ final class calendar_caldav extends Backend
           if($calendar['displayname']){
             $category = $calendar['displayname'];
           }
-          else{
+          else if($calendars[$key]){
             $temp = explode('/', $calendars[$key]);
             $category = ucwords($temp[count($temp) - 1]);
           }
@@ -286,7 +286,7 @@ final class calendar_caldav extends Backend
         if($ret){
           if(stripos($ret, 'HTTP/1.1') !== false){
             $code = $this->caldav->resultcode;
-            if($code == 403 || $code == 412){
+            if($code == 403 || $code == 404 || $code == 412){
               return false;
             }
             if($code == 201 || $code == 204 || $caldav_props[2] == '*'){
@@ -512,60 +512,58 @@ PROPP;
           $key = md5(serialize($key));
           $results[$key] = $sql_arr;
         }
-        if(!$_SESSION['removelayers']){
-          $events_table = $this->rcmail->config->get('db_table_events', 'events');
-          $this->rcmail->config->set('db_table_events',$this->rcmail->config->get('db_table_events_cache', 'events_cache'));
-          $sql_result = $this->rcmail->db->query(
-            "SELECT * FROM ".$this->table('events').
-            " WHERE " . $this->q('del') . "<>1".
-            " AND " . $this->q('user_id') . "=?".
-            $sql_filter.
-            " ORDER BY " . $this->q('summary'),
-            $this->rcmail->user->ID);
-          while ($sql_result && ($sql_arr = $this->rcmail->db->fetch_assoc($sql_result))) {
-            $key = $sql_arr;
-            unset($key['event_id']);
-            $key = md5(serialize($key));
-            $results[$key] = $sql_arr;
-          }
-          $feeds = array_merge((array)$this->rcmail->config->get('public_calendarfeeds',array()),(array)$this->rcmail->config->get('calendarfeeds',array()));
-          foreach($feeds as $url => $category){
+        $events_table = $this->rcmail->config->get('db_table_events', 'events');
+        $this->rcmail->config->set('db_table_events',$this->rcmail->config->get('db_table_events_cache', 'events_cache'));
+        $sql_result = $this->rcmail->db->query(
+          "SELECT * FROM ".$this->table('events').
+          " WHERE " . $this->q('del') . "<>1".
+          " AND " . $this->q('user_id') . "=?".
+          $sql_filter.
+          " ORDER BY " . $this->q('summary'),
+          $this->rcmail->user->ID);
+        while ($sql_result && ($sql_arr = $this->rcmail->db->fetch_assoc($sql_result))) {
+          $key = $sql_arr;
+          unset($key['event_id']);
+          $key = md5(serialize($key));
+          $results[$key] = $sql_arr;
+        }
+        $feeds = (array)$this->rcmail->config->get('feeds_subscribed',array());
+        foreach($feeds as $url => $category){
+          $arr = parse_url($url);
+          if($arr['path'] == './'){
+            if($_SERVER['HTTPS'])
+              $https = 's';
+            else
+              $https = '';
+            $url = 'http' . $https . "://" . $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] . substr($url,1);
             $arr = parse_url($url);
-            if($arr['path'] == './'){
-              if($_SERVER['HTTPS'])
-                $https = 's';
-              else
-                $https = '';
-              $url = 'http' . $https . "://" . $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] . substr($url,1);
-              $arr = parse_url($url);
-            }
-            $con = '?';
-            if(strstr($url,'?'))
-              $con = '&';
-            if(stripos($arr['query'],'plugin.calendar_showlayer') && strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
-              $user_id = $this->rcmail->user->ID;
-              $temparr = explode('&',$arr['query']);
-              foreach($temparr as $key => $val){
-                if(strpos($val,'_userid=') === 0){
-                  $temp = explode("=",$val);
-                  $remote_user = $temp[1];
-                  $this->rcmail->user->ID = $remote_user;
-                  $sql_result = $this->rcmail->db->query(
-                    "SELECT * FROM ".$this->table('events').
-                    " WHERE " . $this->q('del') . "<>1".
-                    " AND " . $this->q('user_id') . "=?".
-                    $sql_filter.
-                    " ORDER BY " . $this->q('summary'),
-                    $this->rcmail->user->ID);
-                  while ($sql_result && ($sql_arr = $this->rcmail->db->fetch_assoc($sql_result))) {
-                    $key = $sql_arr;
-                    unset($key['event_id']);
-                    $key = md5(serialize($key));
-                    $results[$key] = $sql_arr;
-                  }
-                  $this->rcmail->user->ID = $user_id;
-                  break;
+          }
+          $con = '?';
+          if(strstr($url,'?'))
+            $con = '&';
+          if(stripos($arr['query'],'plugin.calendar_showlayer') && strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
+            $user_id = $this->rcmail->user->ID;
+            $temparr = explode('&',$arr['query']);
+            foreach($temparr as $key => $val){
+              if(strpos($val,'_userid=') === 0){
+                $temp = explode("=",$val);
+                $remote_user = $temp[1];
+                $this->rcmail->user->ID = $remote_user;
+                $sql_result = $this->rcmail->db->query(
+                  "SELECT * FROM ".$this->table('events').
+                  " WHERE " . $this->q('del') . "<>1".
+                  " AND " . $this->q('user_id') . "=?".
+                  $sql_filter.
+                  " ORDER BY " . $this->q('summary'),
+                  $this->rcmail->user->ID);
+                while ($sql_result && ($sql_arr = $this->rcmail->db->fetch_assoc($sql_result))) {
+                  $key = $sql_arr;
+                  unset($key['event_id']);
+                  $key = md5(serialize($key));
+                  $results[$key] = $sql_arr;
                 }
+                $this->rcmail->user->ID = $user_id;
+                break;
               }
             }
           }

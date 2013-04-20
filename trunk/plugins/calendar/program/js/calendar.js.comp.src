@@ -137,7 +137,6 @@ $(document).ready(function() {
     /* Template objects */
     $('#cal_boxtitle').html(response.settings['boxtitle'].content);
     $('#calusers').html(response.settings['usersselector'].content);
-    $('#calfilterscontainer').html(response.settings['filtersselector'].content);
     $('#categories_html').html(response.settings['categorieshtml']);
 
     /* init Navigation Datepicker */

@@ -239,7 +239,11 @@ $(document).ready(function() {
   $('.color').each(function(){
     $(this).blur(function(){
       if(rcmail.env.form_categories != $(document.forms.form).serialize()){
-        document.forms.form.submit();
+        if($(jscolor.picker.boxB)){
+          $(jscolor.picker.boxB).mouseleave(function(){
+            document.forms.form.submit();
+          });
+        }
       }
     });
   });

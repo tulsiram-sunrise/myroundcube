@@ -41,3 +41,13 @@ VERSION                COMMENT
 14.0.1                 - Fixed upload directory bug
 14.0.2                 - Added compose new window support (Roundcube 0.9 branch)
 14.0.3                 - Don't lowercase default CalDAV URL
+14.0.4                 - Fixed loading message bug in print view
+                       - default category background color is now changeable by user
+14.0.5                 - Added default CalDAVs configuration example to config.inc.php.dist
+14.0.6                 - Disallow adding events to public categories
+14.0.7                 - calendar_plus related changes
+14.0.8                 - Display layers by default (config 'default_calendar' -> 'allcalendars')
+14.0.9                 - Color of public caldavs is now customizable on a per user level
+                         (import if different skins are available)
+14.0.10                - Subscribe/unsubscribe public caldavs
+14.1                   - Complete subscription implementation

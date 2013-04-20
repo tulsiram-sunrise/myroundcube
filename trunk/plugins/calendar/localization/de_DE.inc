@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 04/07/2013 20:33:00
+ | Author: myroundcube@mail4us.net - 04/13/2013 06:18:17
  +-----------------------------------------------------------------------+
 */
 
@@ -138,11 +138,14 @@ $labels['switch_calendar'] = 'Kalender wechseln';
 $labels['user'] = 'Benutzer';
 $labels['cal_user'] = 'Kalenderbenutzer';
 $labels['submit'] = 'Abschicken';
-$labels['filter_events'] = 'Einträge filtern';
+$labels['filter_events'] = 'Ereignisse filtern';
 $labels['filter'] = 'Filter';
-$labels['allevents'] = 'alle Einträge';
+$labels['checkall'] = 'check all';
+$labels['uncheckall'] = 'uncheck all';
+$labels['allevents'] = 'alle Ereignisse';
 $labels['removefilters'] = 'Filter entfernen';
-$labels['defaultcategory'] = 'Standardkategorie';
+$labels['defaultcategory'] = 'Standard';
+$labels['backgroundcolor'] = 'Hintergrundfarbe';
 $labels['general'] = 'Ereignis';
 $labels['schedule'] = 'Wiederholung';
 $labels['every'] = 'Jede(n/s)';
@@ -246,6 +249,7 @@ $labels['editfuture'] = 'diesen und die folgenden Einträge';
 $labels['applyrecurring'] = 'Änderungen anwenden auf ...';
 $labels['birthday'] = 'Geburtstag';
 $labels['happybirthday'] = 'Herzliche Glückwünsche zum Geburtstag!';
+$labels['submenuprefix'] = '» ';
 $labels['undefined'] = '---';
 
 ?>

@@ -4,10 +4,10 @@
  | ./plugins/calendar/localization/fr_FR.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Thomas Parvais - 12/11/2012 11:37:02
+ | Author: hugues@mail4us.net - 04/17/2013 15:11:09
  +-----------------------------------------------------------------------+
 */
 
@@ -17,7 +17,9 @@ $labels['plugindescription'] = 'Gérer vos évenements avec ce calendrier Web. V
 $labels['calendarprovider'] = 'Fournisseur';
 $labels['forinstance'] = 'par ex.';
 $labels['caldavserver'] = 'Server CalDAV';
+$labels['caldavsettings'] = 'Paramètres CalDAV';
 $labels['unlink_caldav'] = 'Pour supprimer cette catégorie, veuillez supprimer le lien avec le server CalDAV en premier';
+$labels['unlink_caldav_warning'] = 'Etes-vous certain ? Si vous confirmez, les évènements de ce calendrier seront effacés. Cette action ne pourra être annulée.Pressez CANCEL poru ne pas effacer les évènements de ce calendrier';
 $labels['caldavurl'] = 'CalDAV URL';
 $labels['passwordisset'] = 'Le mot de passe est défini';
 $labels['passwordisnotset'] = 'Le mot de passe n\'est pas défini';
@@ -28,17 +30,35 @@ $labels['workdays'] = 'Jours Ouvrables';
 $labels['first_day'] = 'Premier jour de la semaine';
 $labels['categories'] = 'Catégories';
 $labels['add_category'] = 'Ajouter une Catégorie';
+$labels['add_caldav'] = 'Lier une resource CalDAV';
 $labels['remove_category'] = 'Supprimer la Catégorie';
 $labels['calendar_feeds'] = 'Flux des calendrier';
 $labels['feeds'] = 'Sources du calendrier';
 $labels['add_feed'] = 'Ajouter un flux';
 $labels['remove_feed'] = 'Supprimer un flux';
+$labels['sharing'] = 'Partager';
+$labels['share'] = 'Partager';
+$labels['resource'] = 'Resource';
 $labels['caltoken'] = 'Jeton';
+$labels['confidentialcaldavaccess'] = 'Access confidentiel au CalDAV [%s]';
+$labels['readwrite'] = 'lecture/écriture';
 $labels['calconfidentialurl'] = 'Accès confidentiel au flux [%s]';
 $labels['readonly'] = 'lecture seule';
 $labels['calicsurl'] = 'ICS URL';
 $labels['calfeedurl'] = 'URL du flux';
 $labels['icsaccesshint'] = 'Utilisez l\'URL ci-dessus pour accéder à votre calendrier depuis Thunderbird ou un autre client de messagerie. Changez ou supprimez le jeton pour en interdire l\'accès.';
+$labels['isenabled'] = 'est activé';
+$labels['isdisabled'] = 'est désactivé';
+$labels['sharehint'] = 'Introduisez les informations demandées (nom d\'utilisateur, mot de passe et URL) pour que les autres personnes puissent se connecter à votre calendrier partagé. Ceci active un accès en lecture et écriture. Veuillez changer le mot de passe pour fermer l\'accès';
+$labels['sharehint_readonly'] = 'Introduisez les informations demandées (nom d\'utilisateur, mot de passe et URL) pour que les autres personnes puissent se connecter à votre calendrier partagé. Ceci active un accès en lecture uniquement. Veuillez changer le mot de passe pour fermer l\'accès';
+$labels['calendar_modified'] = 'Le calendrier a été modifié';
+$labels['notify_header'] = 'Bonjour %s';
+$labels['event_modified'] = 'Des modifications à votre calendrier (% s) ont été réalisés. Et des événements ont été ajoutés ou modifiés. Vous avez demandé à être notifié lorsque de tels changements ont lieu.  Examiner les changements:';
+$labels['event_deleted'] = 'Des modifications à votre calendrier (% s) ont été réalisés. Et des événements ont été supprimés. Vous avez demandé à être notifié lorsque de tels changements ont lieu.  Examiner les changements:';
+$labels['regards'] = 'Bien à vous,';
+$labels['administrator'] = 'Administrateur';
+$labels['notify_footer'] = 'Vous avez reçu cet email parce que vous avez choisi de recevoir une notification quand un participant modifie un évènement dans votre calendrier. Ne répondez pas à ce message. En cas d\'accès non autorisé ou d\'abus, veuillez fermer l\'accès à ce calendrier partagé et informez vos participants';
+$labels['notify_details'] = 'Détails de l\'évènement';
 $labels['minutes'] = 'minutes';
 $labels['replicateautomatically'] = 'Répliquer la base de donnée CalDAV tous les';
 $labels['caldavreplicationrange'] = 'Répliquer la base de donnée CalDAV pour les années';
@@ -46,6 +66,7 @@ $labels['caldavauthentication'] = 'Méthode d\'authentification';
 $labels['basic'] = 'BASIC';
 $labels['detect'] = 'détecter automatiquement';
 $labels['cal_notify'] = 'Notifier par courriel';
+$labels['caldav_notify'] = 'Envoyer un email quand l\'évènement est changé par un participant';
 $labels['cal_notify_to'] = 'Destinataire';
 $labels['showbirthdays'] = 'Afficher les anniversaires';
 $labels['googlecaptcha'] = 'Donner l\'accès à votre compte google';
@@ -122,6 +143,7 @@ $labels['filter'] = 'Filtres';
 $labels['allevents'] = 'tous les événements';
 $labels['removefilters'] = 'Supprimer les filtres';
 $labels['defaultcategory'] = 'Défaut';
+$labels['backgroundcolor'] = 'Couleur de fond';
 $labels['general'] = 'Général';
 $labels['schedule'] = 'Horaire';
 $labels['every'] = 'Tous les';
@@ -164,6 +186,7 @@ $labels['in'] = 'dans';
 $labels['export_as_file'] = 'En tant que fichier';
 $labels['send_invitation'] = 'Envoyer une invitation';
 $labels['invitation_subject'] = 'Invitation à l\'événements';
+$labels['custommail'] = 'Planifier un email spécifique';
 $labels['reminder_before'] = 'Me rappeler avant le début de l\'événement';
 $labels['removereminders'] = 'Supprimer les rappels';
 $labels['remindersloading'] = 'Chargement des rappels';
@@ -177,6 +200,9 @@ $labels['errorsaving'] = 'Une erreur est survenue pendant l\'enregistrement';
 $labels['calreadonly'] = 'Ce calendrier est en lecture seule';
 $labels['mycalendar'] = 'mon Calendrier';
 $labels['allcalendars'] = 'tous les Calendriers';
+$labels['subscriptions'] = 'Souscriptions';
+$labels['feed'] = 'Flux';
+$labels['caldav'] = 'CalDAV';
 $labels['protected'] = 'protégé';
 $labels['calsearch'] = 'Résultats de la recherche';
 $labels['calsearchnomatches'] = 'Aucun résultat';
@@ -221,6 +247,7 @@ $labels['editfuture'] = 'seulement celui-ci et tous les évènements à venir';
 $labels['applyrecurring'] = 'Appliquer les changements à...';
 $labels['birthday'] = 'Anniversaire';
 $labels['happybirthday'] = 'Joyeux anniversaire!';
+$labels['submenuprefix'] = '>>';
 $labels['undefined'] = '---';
 
 ?>
