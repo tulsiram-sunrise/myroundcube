@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 14.1 - 19.04.2013
+ * @version 14.1.2 - 21.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -80,8 +80,8 @@ class calendar extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).<br />Since v9.9 $rcmail_config[\'cal_tempdir\'] is not required anymore.<br />Remove field <i>all_day</i> from database tables (<i>events, events_cache, events_caldav</i>).<br />Note new config key "cal_short_urls".<br />Important Update Notes for Versions 9.x: <a href="http://mirror.myroundcube.com/docs/calendar.html" target="_new">Click here</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '14.1';
-  static private $date = '19-04-2013';
+  static private $version = '14.1.2';
+  static private $date = '21-04-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.6',

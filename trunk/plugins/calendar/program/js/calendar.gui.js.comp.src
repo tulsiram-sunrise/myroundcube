@@ -255,12 +255,15 @@ function calendar_gui(){
     });
     $('#daybut').click(function() {
       $('#calendar').fullCalendar('changeView','agendaDay');
+      calendar_gui.adjustRight();
     });
     $('#weekbut').click(function() {
       $('#calendar').fullCalendar('changeView','agendaWeek');
+      calendar_gui.adjustRight();
     });
     $('#monthbut').click(function() {
       $('#calendar').fullCalendar('changeView','month');
+      calendar_gui.adjustRight();
     });
     $('#jqdatepicker').mousedown(function(){
       rcmail.env.onChangeMonthYear = true;
@@ -630,7 +633,7 @@ function calendar_gui(){
       $('#subscription-table-content').css('max-height', (226 - fudge) + 'px');
       $('#filters-table-content').css('max-height', (226 - fudge) + 'px');
       calendar_gui.adjustLeft();
-      calendar_gui.adjustRight();
+      window.setTimeout("calendar_gui.adjustRight();", 200);
     });
   }
   
@@ -651,9 +654,17 @@ function calendar_gui(){
   
   /* adjust right pane */
   this.adjustRight = function(){
-    if(rcmail.skin != 'classic'){
-      window.setTimeout("$('.fc-agenda-divider').next().height($('.calstatusbar').position().top - $('.fc-agenda-divider').position().top - 45);", 200);
+    try{
+      $('.fc-agenda-divider').next().height($('.calstatusbar').position().top - $('.fc-agenda-divider').position().top - 45);
     }
+    catch(e){
+      $('.fc-agenda-divider').next().height(Math.round($('#calendar').height() - $('.fc-agenda-divider').position().top - 17));
+    }
+    $('.fc-content').height($('#calendar').height());
+    $('.fc-view-' + $('#calendar').fullCalendar("getView").name).height($('#calendar').height());
+    $('.fc-view-' + $('#calendar').fullCalendar("getView").name + ' table:first-child').attr('style', 'width: 100%; height: 100%;');
+    $('hr.timeline').remove();
+    calendar_callbacks.setTimeline();
   }
   
   /* init Tabs widget */

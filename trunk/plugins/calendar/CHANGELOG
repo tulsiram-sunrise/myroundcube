@@ -51,3 +51,5 @@ VERSION                COMMENT
                          (import if different skins are available)
 14.0.10                - Subscribe/unsubscribe public caldavs
 14.1                   - Complete subscription implementation
+14.1.1                 - Render calendar properly on window resize
+14.1.2                 - Include blank.gif

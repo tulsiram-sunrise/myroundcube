@@ -29,7 +29,7 @@ function calendar_callbacks(){
       var left = 0;
       var width, dayCol;
       if(curCalView.name == "agendaWeek"){
-        dayCol = $(".fc-today:visible");
+        dayCol = $("#calendar .fc-today:visible");
         try{
           left = dayCol.position().left;
           width = dayCol.width() + 'px';
