@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 02/19/2013 03:00:22
+ | Author: Yoni - 04/23/2013 08:42:56
  +-----------------------------------------------------------------------+
 */
 
@@ -38,6 +38,7 @@ $labels['settings_empty_values'] = 'Por favor complete todos los campos y URL';
 $labels['settings_saved'] = 'Configuración del servidor CardDAV y vCards guardados';
 $labels['settings_save_failed'] = 'No se pudo guardar la configuración del servidor CardDAV';
 $labels['settings_delete_loading'] = 'Eliminar la configuración del servidor CardDAV y los contactos locales relacionados';
+$labels['settings_delete_warning'] = '¿Está seguro? Si continúa todos los contactos en el libro de direcciones se eliminarán de forma permanente. Esta acción no puede ser revertida! Elija CANCELAR para no borrar los contactos presentes en este libro de direcciones.';
 $labels['settings_deleted'] = 'Configuración de servidor CardDAV eliminada';
 $labels['settings_delete_failed'] = 'No se pudo eliminar la configuración del servidor CardDAV';
 $labels['settings_no_connection'] = 'No se puede conectar al servidor CardDAV';
@@ -72,6 +73,7 @@ $labels['local'] = 'local';
 $labels['fe'] = 'p.e.';
 $labels['googlecaptcha'] = 'Permitir acceso a tu cuenta de Google';
 $labels['clickhere'] = 'Haga clic aquí';
+$labels['submenuprefix'] = '» ';
 $labels['blank'] = ' ';
 
 ?>

@@ -2,7 +2,7 @@
 /**
  * message_highlight
  *
- * @version 1.1 - 20.08.2012
+ * @version 1.1.1 - 13.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -36,8 +36,8 @@ class message_highlight extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.1';
-  static private $date = '20-08-2012';
+  static private $version = '1.1.1';
+  static private $date = '13-04-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',

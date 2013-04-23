@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 4.2 - 01.04.2013
+ * @version 4.2.2 - 23.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -27,8 +27,8 @@ class settings extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.2';
-  static private $date = '01-04-2013';
+  static private $version = '4.2.2';
+  static private $date = '23-04-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
     'Roundcube' => '0.8',
@@ -213,7 +213,7 @@ class settings extends rcube_plugin
 <script>
 var element = $("#accountsblock_' . $i . '");
 element.qtip({
-  content: {title:\'' . $this->gettext($part['descr'] . '.' . $part['label']) . '\', text: \'' . $this->gettext($part['descr'] . '.description') . '\'},
+  content: {title:\'' . addslashes($this->gettext($part['descr'] . '.' . $part['label'])) . '\', text: \'' . addslashes($this->gettext($part['descr'] . '.description')) . '\'},
   position: {
     my: "top left",
     at: "left bottom",

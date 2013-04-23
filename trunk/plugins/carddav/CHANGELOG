@@ -26,3 +26,6 @@ VERSION                COMMENT
 5.3                    - Fixed sort order bug
 5.3.1                  - Fixed "SERVICE CURRENTLY NOT AVAILABLE! Addressbook source (null) not found!" bug
 5.3.2                  - Disallow creating contacts without email address (same behavior as default addressbooks)
+5.3.3                  - DAViCal needs header Depth: 1 for PROPFIND requests to return addresses
+5.3.4                  - Don't try to write into automatic addressbook if $CONTACTS is no object of
+                         method 'insert' does not exist

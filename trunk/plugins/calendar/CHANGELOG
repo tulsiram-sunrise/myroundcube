@@ -53,3 +53,6 @@ VERSION                COMMENT
 14.1                   - Complete subscription implementation
 14.1.1                 - Render calendar properly on window resize
 14.1.2                 - Include blank.gif
+14.1.3                 - Fixed javascript bugs if calendar_plus is not installed
+14.1.4                 - Fixed overlap issue of calendar filters/subscriptions
+14.1.5                 - Bug fix related to 0.8.6 compatibilty

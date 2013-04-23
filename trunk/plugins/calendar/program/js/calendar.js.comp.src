@@ -7,15 +7,8 @@ $(document).ready(function() {
   }
   
   /* minimalmode */
-  calendar_gui.minimalmode();
-  //$(window).resize(function(){
-    //calendar_gui.minimalmode();
-  //});
-  $('.minmodetoggle').click(function(){
-    rcmail.env.cal_date = Math.round($('#calendar').fullCalendar('getDate').getTime() / 1000);
-    $('#calendaroverlay').show();
-    $(window).unbind('beforeunload');
-    window.setTimeout("calendar_gui.minimalmode();document.location.href = './?_task=dummy&_action=plugin.calendar&_date=' + rcmail.env.cal_date;", 200);
+  $(window).resize(function(){
+    calendar_gui.minimalmode();
   });
   
   /* reload calendar */
@@ -168,6 +161,7 @@ $(document).ready(function() {
         $('#jqdatepicker').datepicker('setDate', $('#calendar').fullCalendar('getDate'));
         $('#upcoming').fullCalendar('addEventSource',$('#calendar').fullCalendar('clientEvents'));
         $('#upcoming').fullCalendar('gotoDate', $('#calendar').fullCalendar('getDate'));
+        calendar_gui.minimalmode();
       },
       header: {
         left: '',

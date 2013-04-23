@@ -261,6 +261,7 @@ class carddav_backend
     $content_type = 'application/xml';
     $this->headers = array('Depth: 1');
     $response = $this->query($this->url, 'REPORT', $content, $content_type);*/
+    $this->headers = array('Depth: 1');
     //if(!$response){
       $response = $this->query($this->url, 'PROPFIND');
     //}

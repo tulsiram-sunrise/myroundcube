@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.9 - 11.04.2013
+ * @version 4.0.11 - 23.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,8 +26,8 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0.9';
-  static private $date = '11-04-2013';
+  static private $version = '4.0.11';
+  static private $date = '23-04-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -251,8 +251,8 @@ class moreuserinfo extends rcube_plugin
           $temp = explode('?', $caldav['url'], 2);
           $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
           if(is_array($repl)){
-            foreach($repl as $key => $val){
-              $url = str_replace($key, $val, $url);
+            foreach($repl as $key1 => $val){
+              $url = str_replace($key1, $val, $url);
             }
           }
           $table->add('title', '&raquo; ' . $key);
@@ -298,8 +298,8 @@ class moreuserinfo extends rcube_plugin
         $temp = explode('?', $addressbook['url'], 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
         if(is_array($repl)){
-          foreach($repl as $key => $val){
-            $url = str_replace($key, $val, $url);
+          foreach($repl as $key1 => $val){
+            $url = str_replace($key1, $val, $url);
           }
         }
         $table->add('title', '&raquo; ' . $key);

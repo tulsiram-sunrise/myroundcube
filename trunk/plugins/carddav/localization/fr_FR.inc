@@ -4,10 +4,10 @@
  | ./plugins/carddav/localization/fr_FR.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Thomas Parvais - 12/11/2012 11:47:18
+ | Author: hugues@mail4us.net - 04/17/2013 15:24:54
  +-----------------------------------------------------------------------+
 */
 
@@ -15,6 +15,14 @@ $labels = array();
 $labels['pluginname'] = 'CardDAV';
 $labels['plugindescription'] = 'Gêrer vos contacts sur un serveur CardDAV';
 $labels['settings'] = 'Paramètres CardDAV';
+$labels['sharing'] = 'Partager';
+$labels['share'] = 'Partage';
+$labels['resource'] = 'Ressource';
+$labels['confidentialcarddavaccess'] = 'Accès CardDAV confidentiel [%s]';
+$labels['readwrite'] = 'lecture/écriture';
+$labels['readonly'] = 'lecture seule';
+$labels['isenabled'] = 'est activé';
+$labels['isdisabled'] = 'est désactivé';
 $labels['sync_short'] = 'Synchroniser';
 $labels['sync'] = 'Synchroniser les CardDAVs';
 $labels['add'] = 'ajouter';
@@ -61,6 +69,7 @@ $labels['local'] = 'local';
 $labels['fe'] = 'f.e.';
 $labels['googlecaptcha'] = 'Donner l\'accès à votre compte google';
 $labels['clickhere'] = 'Cliquer ici';
+$labels['submenuprefix'] = '>>';
 $labels['blank'] = 'vide';
 
 ?>

@@ -5,8 +5,9 @@ function calendar_gui(){
   }
   
   this.minimalmode = function(){
-    if(rcmail.env.skin == 'larry'){
-      if(typeof rcmail.get_cookie != 'undefined' && rcmail.get_cookie('minimalmode') == 1){
+    if(typeof rcmail.get_cookie != 'undefined' && rcmail.env.skin == 'larry'){
+      var minmode = rcmail.get_cookie('minimalmode');
+      if(typeof rcmail.get_cookie != 'undefined' && (parseInt(minmode) || (minmode === null && $(window).height() < 850))){
         $('#mainscreen').css('top', '85px');
         $('#calendaroverlay').css('top', '85px');
         $('#calendar-header').css('top', '85px');
@@ -22,7 +23,7 @@ function calendar_gui(){
         $('#todaybutton').css('top', '80px');
         $('#calquicksearchbar').css('top', '75px');
       }
-      //$('#calendar').fullCalendar('render');
+      calendar_gui.adjustRight();
     }
   }
     
@@ -154,6 +155,7 @@ function calendar_gui(){
       $(this).addClass('subscriptionlink-selected');
       $('#filters-table-content').hide();
       $('#subscription-table-content').show();
+      calendar_gui.adjustLeft();
       rcmail.http_post('plugin.calendar_subscription_view', '_view=subscriptions');
     });
     
@@ -163,6 +165,7 @@ function calendar_gui(){
       $(this).addClass('subscriptionlink-selected');
       $('#subscription-table-content').hide();
       $('#filters-table-content').show();
+      calendar_gui.adjustLeft();
       rcmail.http_post('plugin.calendar_subscription_view', '_view=filters');
     });
     
@@ -640,12 +643,17 @@ function calendar_gui(){
   /* adjust left pane */
   this.adjustLeft = function(){
     if(rcmail.env.skin != 'classic'){
-      var availh = $('#sectionslist').height() - $('#sectionslist').position().top - $('#subscriptions-table').position().top - 150;
-      if(availh > $('#subscriptions-table').height()){
-        var fudge = (Math.max($('#filters-table-content').position().top - $('#subscriptions-table').position().top, $('#subscription-table-content').position().top - $('#subscriptions-table').position().top)) + 1;
-        $('#subscriptions-table').css('max-height', availh + 'px');
-        $('#subscription-table-content').css('max-height', (availh - fudge) + 'px');
-        $('#filters-table-content').css('max-height', (availh - fudge) + 'px');
+      if($('#filters-table-content').get(0)){
+        var availh = $('#sectionslist').height() - $('#sectionslist').position().top - $('#subscriptions-table').position().top - 150;
+        if(availh > $('#subscriptions-table').height()){
+          var fudge = (Math.max($('#filters-table-content').position().top - $('#subscriptions-table').position().top, $('#subscription-table-content').position().top - $('#subscriptions-table').position().top)) + 1;
+          $('#subscriptions-table').css('max-height', availh + 'px');
+          $('#subscription-table-content').css('max-height', (availh - fudge) + 'px');
+          $('#filters-table-content').css('max-height', (availh - fudge) + 'px');
+        }
+      }
+      else{
+        $('#subscriptions-table').hide();
       }
       $('#upcoming').css('top', $('#upcoming-maincontainer').position().top + 'px');
       $('.fc-view-basicDay').height($('#upcoming').height());

@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 5.3.2 - 11.04.2013
+ * @version 5.3.4 - 21.04.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -42,8 +42,8 @@ class carddav extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '5.3.2';
-  static private $date = '11-04-2013';
+  static private $version = '5.3.4';
+  static private $date = '21-04-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',
@@ -306,43 +306,47 @@ class carddav extends rcube_plugin{
   
   public function register_recipients($p){
     $rcmail = rcmail::get_instance();
-    $headers = $p['headers'];
-    $all_recipients = array_merge(
-      rcube_mime::decode_address_list($headers['To'], null, true, $headers['charset']),
-      rcube_mime::decode_address_list($headers['Cc'], null, true, $headers['charset']),
-      rcube_mime::decode_address_list($headers['Bcc'], null, true, $headers['charset'])
-    );
-    if($rcmail->config->get('automatic_addressbook', 'sql') == 'sql'){
-      $CONTACTS = new carddav_automatic_addressbook_backend($rcmail->db, $rcmail->user->ID);
-    }
-    else if($rcmail->config->get('automatic_addressbook', 'sql') == 'default'){
-      $CONTACTS = new rcube_contacts($rcmail->db, $rcmail->user->ID);
-    }
-    else{
-      $CONTACTS = $this->get_carddav_addressbook(array('id' => $rcmail->config->get('automatic_addressbook', 'sql')));
-      $CONTACTS = $CONTACTS['instance'];
-    }
-    foreach($all_recipients as $recipient){
-      if($recipient['mailto'] != ''){
-        $contact = array(
-          'email' => $recipient['mailto'],
-          'name' => $recipient['name']
-        );
-        if(empty($contact['name']) || $contact['name'] == $contact['email']){
-          $contact['name'] = ucfirst(preg_replace('/[\.\-]/', ' ', substr($contact['email'], 0, strpos($contact['email'], '@'))));
-        }
-        $book_types = (array)$rcmail->config->get('autocomplete_addressbooks', 'sql');
-        foreach($book_types as $id){
-          $abook = $rcmail->get_address_book($id);
-          $previous_entries = $abook->search('email', $contact['email'], false, false);
-          if($previous_entries->count){
-            break;
-          }
-        }
-        if(!$previous_entries->count){
-          $plugin = $rcmail->plugins->exec_hook('contact_create', array('record' => $contact, 'source' => $this->abook_id));
-          if(!$plugin['abort']){
-            $CONTACTS->insert($contact, false);
+    if($rcmail->config->get('use_auto_abook', true)){
+      $headers = $p['headers'];
+      $all_recipients = array_merge(
+        rcube_mime::decode_address_list($headers['To'], null, true, $headers['charset']),
+        rcube_mime::decode_address_list($headers['Cc'], null, true, $headers['charset']),
+        rcube_mime::decode_address_list($headers['Bcc'], null, true, $headers['charset'])
+      );
+      if($rcmail->config->get('automatic_addressbook', 'sql') == 'sql'){
+        $CONTACTS = new carddav_automatic_addressbook_backend($rcmail->db, $rcmail->user->ID);
+      }
+      else if($rcmail->config->get('automatic_addressbook', 'sql') == 'default'){
+        $CONTACTS = new rcube_contacts($rcmail->db, $rcmail->user->ID);
+      }
+      else{
+        $CONTACTS = $this->get_carddav_addressbook(array('id' => $rcmail->config->get('automatic_addressbook', 'sql')));
+        $CONTACTS = $CONTACTS['instance'];
+      }
+      if(is_object($CONTACTS) && method_exists($CONTACTS, 'insert')){
+        foreach($all_recipients as $recipient){
+          if($recipient['mailto'] != ''){
+            $contact = array(
+              'email' => $recipient['mailto'],
+              'name' => $recipient['name']
+            );
+            if(empty($contact['name']) || $contact['name'] == $contact['email']){
+              $contact['name'] = ucfirst(preg_replace('/[\.\-]/', ' ', substr($contact['email'], 0, strpos($contact['email'], '@'))));
+            }
+            $book_types = (array)$rcmail->config->get('autocomplete_addressbooks', 'sql');
+            foreach($book_types as $id){
+              $abook = $rcmail->get_address_book($id);
+              $previous_entries = $abook->search('email', $contact['email'], false, false);
+              if($previous_entries->count){
+                break;
+              }
+            }
+            if(!$previous_entries->count){
+              $plugin = $rcmail->plugins->exec_hook('contact_create', array('record' => $contact, 'source' => $this->abook_id));
+              if(!$plugin['abort']){
+                $CONTACTS->insert($contact, false);
+              }
+            }
           }
         }
       }

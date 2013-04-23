@@ -4,7 +4,7 @@ $ps_localization_update = serialize(
   array(
     'translator' => 'Yoni',
     'language ' => 'es_ES',
-    'date' => '02/19/2013 03:00:23'
+    'date' => '04/23/2013 08:42:56'
   )
 );
 
