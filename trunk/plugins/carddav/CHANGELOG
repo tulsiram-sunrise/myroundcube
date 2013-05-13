@@ -29,3 +29,11 @@ VERSION                COMMENT
 5.3.3                  - DAViCal needs header Depth: 1 for PROPFIND requests to return addresses
 5.3.4                  - Don't try to write into automatic addressbook if $CONTACTS is no object of
                          method 'insert' does not exist
+5.3.5                  - Support for carddav_plus advanced search
+5.3.6                  - Bug fix: some fields for advanced search didn't work
+5.3.7                  - Advanced search contact sort order according to settings
+5.3.8                  - Implemented 'addressbook_search_mode' for quick/advanced search
+                         (still missing for autocomplete - that's next)
+5.3.9                  - Implemented 'addressbook_search_mode' for autocompletion
+5.3.10                 - Fixed bug: PHP Fatal error:  Cannot access protected property rcube_db_mysql::$db_error
+                         in ./plugins/carddav/carddav_addressbook.php on line 1408

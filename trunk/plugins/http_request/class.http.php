@@ -708,7 +708,9 @@ class MyRCHttp
             
             curl_setopt($ch, CURLOPT_VERBOSE,        FALSE);                // Minimize logs
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);                // No certificate
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->redirect);      // Follow redirects
+            if(!ini_get('safe_mode') && !ini_get('open_basedir')){
+              curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->redirect);    // Follow redirects
+            }
             curl_setopt($ch, CURLOPT_MAXREDIRS,      $this->maxRedirect);   // Limit redirections to four
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);                 // Return in string
             
@@ -734,7 +736,7 @@ class MyRCHttp
         else
         {
             // Get a file pointer
-            $filePointer = @fsockopen($this->host, $this->port, $errorNumber, $errorString, $this->timeout);
+            $filePointer = fsockopen($this->host, $this->port, $errorNumber, $errorString, $this->timeout);
        
             // We have an error if pointer is not there
             if (!$filePointer)

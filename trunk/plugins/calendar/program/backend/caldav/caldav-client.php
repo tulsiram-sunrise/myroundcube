@@ -396,13 +396,23 @@ class CalDAVClient {
 $filter
 </C:calendar-query>
 EOXML;
-    $this->DoXMLRequest( 'REPORT', $xml, $relative_url );
+    $response = $this->DoXMLRequest( 'REPORT', $xml, $relative_url );
+    // Workaroud for servers which do not add xml tag at the begin of the body (Calypso)
+    if(!$this->xmlResponse){
+      $temp = explode("\r\n\r\n", $response);
+      if(count($temp) > 1){
+        $this->httpResponse = trim($temp[count($temp) - 2]);
+        $this->xmlResponse =  '<?xml version="1.0"?>' . trim($temp[count($temp) - 1]);
+      }
+      else{
+        $this->httpResponse = trim($response);
+      }
+    }
     $xml_parser = xml_parser_create_ns('UTF-8');
     $this->xml_tags = array();
     xml_parser_set_option ( $xml_parser, XML_OPTION_SKIP_WHITE, 0 );
     xml_parse_into_struct( $xml_parser, $this->xmlResponse, $this->xml_tags );
     xml_parser_free($xml_parser);
-
     $report = array();
     foreach( $this->xml_tags as $k => $v ) {
       switch( $v['tag'] ) {
@@ -410,7 +420,7 @@ EOXML;
           if ( $v['type'] == 'open' ) {
             $response = array();
           }
-          elseif ( $v['type'] == 'close' ) {
+          elseif ( $v['type'] == 'close') {
             $report[] = $response;
           }
           break;
@@ -547,7 +557,6 @@ EOXML;
     </C:comp-filter>
   </C:filter>
 EOFILTER;
-
     return $this->DoCalendarQuery($filter, $relative_url);
   }
   

@@ -631,10 +631,12 @@ function calendar_gui(){
     });
     this.adjustLeft();
     $(window).resize(function(){
-      var fudge = (Math.max($('#filters-table-content').position().top - $('#subscriptions-table').position().top, $('#subscription-table-content').position().top - $('#subscriptions-table').position().top)) + 1;
-      $('#subscriptions-table').css('max-height', '226px');
-      $('#subscription-table-content').css('max-height', (226 - fudge) + 'px');
-      $('#filters-table-content').css('max-height', (226 - fudge) + 'px');
+      if($('#filters-table-content').get(0)){
+        var fudge = (Math.max($('#filters-table-content').position().top - $('#subscriptions-table').position().top, $('#subscription-table-content').position().top - $('#subscriptions-table').position().top)) + 1;
+        $('#subscriptions-table').css('max-height', '226px');
+        $('#subscription-table-content').css('max-height', (226 - fudge) + 'px');
+        $('#filters-table-content').css('max-height', (226 - fudge) + 'px');
+      }
       calendar_gui.adjustLeft();
       window.setTimeout("calendar_gui.adjustRight();", 200);
     });
@@ -663,10 +665,14 @@ function calendar_gui(){
   /* adjust right pane */
   this.adjustRight = function(){
     try{
-      $('.fc-agenda-divider').next().height($('.calstatusbar').position().top - $('.fc-agenda-divider').position().top - 45);
+      if($('.fc-agenda-divider').position()){
+        $('.fc-agenda-divider').next().height($('.calstatusbar').position().top - $('.fc-agenda-divider').position().top - 45);
+      }
     }
     catch(e){
-      $('.fc-agenda-divider').next().height(Math.round($('#calendar').height() - $('.fc-agenda-divider').position().top - 17));
+      if($('.fc-agenda-divider').position()){
+        $('.fc-agenda-divider').next().height(Math.round($('#calendar').height() - $('.fc-agenda-divider').position().top - 17));
+      }
     }
     $('.fc-content').height($('#calendar').height());
     $('.fc-view-' + $('#calendar').fullCalendar("getView").name).height($('#calendar').height());

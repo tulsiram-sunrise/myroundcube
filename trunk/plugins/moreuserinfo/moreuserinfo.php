@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.11 - 23.04.2013
+ * @version 4.0.13 - 04.05.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,8 +26,8 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0.11';
-  static private $date = '23-04-2013';
+  static private $version = '4.0.12';
+  static private $date = '04-05-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -234,7 +234,7 @@ class moreuserinfo extends rcube_plugin
         $table->add('', '');
         $default = $rcmail->config->get('default_caldav_backend');
         $default = $default['url'];
-        $table->add('title', '&raquo; ' . $this->gettext('default'));
+        $table->add('title', '&raquo; ' . $rcmail->config->get('default_category_label', $this->gettext('calendar.defaultcategory')));
         $temp = explode('?', $default, 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
         $repl = $rcmail->config->get('caldav_url_replace', false);
@@ -282,7 +282,7 @@ class moreuserinfo extends rcube_plugin
     }
     $addressbooks = array();
     if(class_exists('carddav')){
-      $query = "SELECT user_id, password, url, label from " . get_table_name('carddav_server') . " WHERE user_id=?";
+      $query = "SELECT user_id, username, password, url, label from " . get_table_name('carddav_server') . " WHERE user_id=?";
       $sql_result = $rcmail->db->query($query, $rcmail->user->ID);
       while ($sql_result && ($sql_arr = $rcmail->db->fetch_assoc($sql_result))) {
         $addressbooks[$sql_arr['label']] = $sql_arr;
@@ -295,7 +295,7 @@ class moreuserinfo extends rcube_plugin
       ksort($addressbooks);
       $repl = $rcmail->config->get('carddav_url_replace', false);
       foreach($addressbooks as $key => $addressbook){
-        $temp = explode('?', $addressbook['url'], 2);
+          $temp = explode('?', $addressbook['url'], 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
         if(is_array($repl)){
           foreach($repl as $key1 => $val){
@@ -305,10 +305,7 @@ class moreuserinfo extends rcube_plugin
         $table->add('title', '&raquo; ' . $key);
         $table->add('', html::tag('span', null, Q(str_replace('%u', $user, $url))) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
-          $sql = 'SELECT username from ' . get_table_name('users') . ' WHERE user_id=?';
-          $res = $rcmail->db->query($sql, $addressbook['user_id']);
-          $user = $rcmail->db->fetch_assoc($res);
-          $user = $user['username'];
+          $user = $addressbook['username'];
           $access = $this->gettext('carddav.readwrite');
           if(strpos($temp[1], 'access=2') !== false){
             $access = $this->gettext('carddav.readonly');

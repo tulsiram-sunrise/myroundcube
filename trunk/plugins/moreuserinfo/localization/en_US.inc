@@ -4,10 +4,10 @@
  | ./plugins/moreuserinfo/localization/en_US.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 12/10/2012 10:00:47
+ | Author: Yoni - 05/08/2013 03:47:20
  +-----------------------------------------------------------------------+
 */
 
@@ -25,7 +25,7 @@ $labels['lastlogin'] = 'Last Login';
 $labels['defaultidentity'] = 'Default Identity';
 $labels['back'] = 'Back';
 $labels['userinfo'] = 'User Info';
-$labels['description'] = 'Get detailed information about your Account.';
+$labels['description'] = 'Get detailed information about your account.';
 $labels['default'] = 'Default';
 $labels['clients'] = 'Recommended clients which support %s protocol';
 $labels['tutorial'] = 'Tutorial';

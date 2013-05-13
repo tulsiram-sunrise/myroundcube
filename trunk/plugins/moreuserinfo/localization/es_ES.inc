@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 02/19/2013 03:16:00
+ | Author: Yoni - 05/08/2013 04:01:46
  +-----------------------------------------------------------------------+
 */
 
@@ -25,7 +25,7 @@ $labels['lastlogin'] = 'Último acceso';
 $labels['defaultidentity'] = 'Identidad por omisión';
 $labels['back'] = 'Atrás';
 $labels['userinfo'] = 'Información de usuario';
-$labels['description'] = 'Obtén información detallada de tu Cuenta.';
+$labels['description'] = 'Obtener información detallada de su cuenta.';
 $labels['default'] = 'Predeterminado';
 $labels['clients'] = 'Clientes recomendados que soportan protocolo %s';
 $labels['tutorial'] = 'Tutorial';

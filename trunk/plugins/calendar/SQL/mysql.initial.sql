@@ -32,10 +32,6 @@ CREATE TABLE IF NOT EXISTS `events` (
   KEY `user_id_fk_events` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-
-ALTER TABLE `events`
-  ADD CONSTRAINT `events_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
 CREATE TABLE IF NOT EXISTS `events_cache` (
   `event_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `uid` text CHARACTER SET utf8,
@@ -69,9 +65,6 @@ CREATE TABLE IF NOT EXISTS `events_cache` (
   PRIMARY KEY (`event_id`),
   KEY `user_id_fk_events_cache` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
-ALTER TABLE `events_cache`
-  ADD CONSTRAINT `events_cache_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 CREATE TABLE IF NOT EXISTS `events_caldav` (
   `event_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -107,9 +100,6 @@ CREATE TABLE IF NOT EXISTS `events_caldav` (
   KEY `user_id_fk_events_caldav` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `events_caldav`
-  ADD CONSTRAINT `events_caldav_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
 CREATE TABLE IF NOT EXISTS `reminders` (
   `reminder_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
@@ -122,6 +112,15 @@ CREATE TABLE IF NOT EXISTS `reminders` (
   PRIMARY KEY (`reminder_id`),
   KEY `reminders_ibfk_1` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2299 ;
+
+ALTER TABLE `events`
+  ADD CONSTRAINT `events_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
+ALTER TABLE `events_cache`
+  ADD CONSTRAINT `events_cache_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
+ALTER TABLE `events_caldav`
+  ADD CONSTRAINT `events_caldav_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `reminders`
   ADD CONSTRAINT `reminders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;

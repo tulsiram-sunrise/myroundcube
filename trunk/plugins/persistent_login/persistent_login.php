@@ -2,7 +2,7 @@
 /**
  * persistent_login (based on code by Manuel Freiholz)
  *
- * @version 1.2 - 21.10.2012
+ * @version 1.2.2 - 03.05.2013
  * @author Roland 'rosali' Liebl, Matthias Krauser
  * @website http://myroundcube.googlecode.com 
  */
@@ -33,8 +33,8 @@ class persistent_login extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.2';
-  static private $date = '21-10-2012';
+  static private $version = '1.2.2';
+  static private $date = '03-05-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -142,7 +142,7 @@ class persistent_login extends rcube_plugin
 		if ($this->use_auth_tokens) {
 		
 			// remove all expired tokens from database.
-			$rcmail->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE `expires` < NOW()");
+			$rcmail->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE expires < NOW()");
 		
 			// 0 - user-id
 			// 1 - auth-token
@@ -157,14 +157,14 @@ class persistent_login extends rcube_plugin
 			}
 			
 			// get auth_token data from db.
-			$sql = "SELECT * FROM " . get_table_name('auth_tokens') . " WHERE `token`=? AND `user_id`=?";
+			$sql = "SELECT * FROM " . get_table_name('auth_tokens') . " WHERE token=? AND user_id=?";
 			$res = $rcmail->get_dbh()->query($sql, $token_parts[1], $token_parts[0]);
 			
 			if ($data = $rcmail->get_dbh()->fetch_assoc($res)) {
 				// has the token been expired?
 				/*if (false) {
 					self::unset_persistent_cookie();
-					$rcmail->get_dbh()->query("delete from " . get_table_name('auth_tokens') . " where `token`=? and `user_id`=?", $token_parts[1], $token_parts[0]);
+					$rcmail->get_dbh()->query("delete from " . get_table_name('auth_tokens') . " where token=? and user_id=?", $token_parts[1], $token_parts[0]);
 					error_log('persistent-login expired, of user ' . $token_parts[0]);
 					return $args;
 				}*/
@@ -176,14 +176,14 @@ class persistent_login extends rcube_plugin
 				$args['valid'] = true;
 				
 				// remove token from db.
-				$rcmail->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE `token`=? AND `user_id`=?", $token_parts[1], $token_parts[0]);
+				$rcmail->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE token=? AND user_id=?", $token_parts[1], $token_parts[0]);
 			}
 			else {
 				// seems like the token is invalid.
 				// this case can only happen if the token is used a 2nd time -> got hacked?!
 				// for security reason we invalidate all persistent-auth cookies of the user and log the wrong users IP!
 				self::unset_persistent_cookie();
-				$rcmail->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE `user_id`=?", $token_parts[0]);
+				$rcmail->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE user_id=?", $token_parts[0]);
 				//error_log('seems like a persistent login cookie has been stolen. invalidated all auth-tokens of user ' . $token_parts[0]);
 			}
 			
@@ -249,7 +249,7 @@ class persistent_login extends rcube_plugin
 				&& count($token_parts) == 2
 			) {
 				// remove token from db.
-				rcmail::get_instance()->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE `token`=? AND `user_id`=?", $token_parts[1], $token_parts[0]);
+				rcmail::get_instance()->get_dbh()->query("DELETE FROM " . get_table_name('auth_tokens') . " WHERE token=? AND user_id=?", $token_parts[1], $token_parts[0]);
 			}
 		}
 		
@@ -312,7 +312,7 @@ class persistent_login extends rcube_plugin
 			$sql_expires = date("Y-m-d H:i:s", $ts_expires);
 			
 			// insert token to database.
-			$sql = 'INSERT INTO '.get_table_name('auth_tokens').' (`token`, `expires`, `user_id`, `user_name`, `user_pass`) VALUES (?, ?, ?, ?, ?)';
+			$sql = 'INSERT INTO '.get_table_name('auth_tokens').' (token, expires, user_id, user_name, user_pass) VALUES (?, ?, ?, ?, ?)';
 			$rcmail->get_dbh()->query($sql, $auth_token, $sql_expires, $rcmail->user->ID, $rcmail->user->data['username'], $_SESSION['password']);
 
 			// set token as cookie.

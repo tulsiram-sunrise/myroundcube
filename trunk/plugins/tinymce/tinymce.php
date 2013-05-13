@@ -2,7 +2,7 @@
 /**
  * tinymce
  *
- * @version 2.0.3 - 07.01.2013
+ * @version 2.0.4 - 08.05.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -28,8 +28,8 @@ class tinymce extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.0.3';
-  static private $date = '07-01-2013';
+  static private $version = '2.0.4';
+  static private $date = '08-01-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.7.1',
@@ -40,7 +40,7 @@ class tinymce extends rcube_plugin
   
   function init(){
     $rcmail = rcmail::get_instance();
-    if($rcmail->action == 'compose' || $rcmail->action == 'edit-identity' || $rcmail->action == 'plugin.hmail_signature'){
+    if($rcmail->action == 'compose' || $rcmail->action == 'edit-identity' || $rcmail->action == 'plugin.hmail_signature' || $rcmail->action == 'plugin.hmail_signature-save'){
       if(!in_array('global_config', $rcmail->config->get('plugins'))){
         $this->load_config();
       }

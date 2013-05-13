@@ -274,8 +274,8 @@ class Utils
     $vcalendar->parse($cal);
     $stz = date_default_timezone_get();
     $ctz = calendar::getClientTimezoneName($this->rcmail->config->get('timezone', 'auto'));
-    date_default_timezone_set($ctz);
     while($vevent = $vcalendar->getComponent("vevent")){
+      date_default_timezone_set($ctz);
       $items ++;
       if($item){
         if($item != $items){
@@ -286,6 +286,9 @@ class Utils
       if(is_array($vevent->dtstart)){
         if($vevent->dtstart['params']['VALUE'] == 'DATE'){
           $xevent['ALLDAY'] = true;
+        }
+        if($vevent->dtstart['params']['TZID']){
+          date_default_timezone_set($vevent->dtstart['params']['TZID']);
         }
         $val = implode('', $vevent->dtstart['value']);
         if($ts = strtotime($val)){
@@ -301,6 +304,9 @@ class Utils
             $remindermailto = false;
             $reminderbefore = 0;
             if(is_array($vevent->dtend)){
+              if($vevent->dtend['params']['TZID']){
+                date_default_timezone_set($vevent->dtend['params']['TZID']);
+              }
               $val = implode('', $vevent->dtend['value']);
               $xevent['DTEND'] = strtotime($val);
             }
@@ -319,10 +325,15 @@ class Utils
             if(is_array($vevent->categories)){
               $xevent['CATEGORIES'] = $vevent->categories[0]['value'];
             }
-            if(!$className)
+            if($className === '0'){
+              $dbClassName = null;
+            }
+            else if(!$className){
               $dbclassName = $xevent['CATEGORIES'];
-            else
+            }
+            else{
               $dbclassName = $className;
+            }
             if(is_array($vevent->uid)){
               $xevent['UID'] = $vevent->uid['value'];
             }
@@ -462,7 +473,8 @@ class Utils
                 $remindertype,
                 $remindermailto,
                 array('uid' => $xevent['UID'], 'href' => $href, 'etag' => $etag),
-                $client
+                $client,
+                false
               );
             }
             else{
@@ -531,10 +543,6 @@ class Utils
           }
         }
       }
-      $ical = "BEGIN:VCALENDAR\n";
-      $ical .= "VERSION:2.0\n";
-      $ical .= "PRODID:-//" . $rcmail->config->get('product_name') . "//NONSGML Calendar//EN\n";
-      $ical .= "X-WR-Timezone: Europe/London\n";
       $stz = date_default_timezone_get();
       if($_SESSION['tzname'])
         $tz = $_SESSION['tzname'];
@@ -544,7 +552,17 @@ class Utils
         $tz = get_input_value('_tz', RCUBE_INPUT_GPC);
       else
         $tz = $stz;
-      date_default_timezone_set($tz);
+      if($rcmail->config->get('timezone') != 'auto'){
+        $ctz = $rcmail->config->get('timezone');
+      }
+      else{
+        $ctz = $tz;
+      }
+      date_default_timezone_set($ctz);
+      $ical = "BEGIN:VCALENDAR\n";
+      $ical .= "VERSION:2.0\n";
+      $ical .= "PRODID:-//" . $rcmail->config->get('product_name') . "//NONSGML Calendar//EN\n";
+      $ical .= "X-WR-Timezone: $ctz\n";
       foreach ($events as $event) {
         if(($event['del'] != 1 || $showdel) && (!$event['clone'] || $showclone)){
           $ical .= "BEGIN:VEVENT\n";
@@ -563,15 +581,15 @@ class Utils
             }
           }
           else if($event['clone']){
-            $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['clone']) . "\n";
+            $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['clone']) . "\n";
             if($event['clone'] != $event['clone_end']) {
-              $ical .= "DTEND:" . gmdate('Ymd\THis\Z',$event['clone_end']) . "\n";
+              $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['clone_end']) . "\n";
             }
           }
           else{
-            $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['start']) . "\n";
+            $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['start']) . "\n";
             if($event['start'] != $event['end']) {
-              $ical .= "DTEND:" . gmdate('Ymd\THis\Z',$event['end']) . "\n";
+              $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['end']) . "\n";
             }
           }
           $freq = $this->rrule($event);

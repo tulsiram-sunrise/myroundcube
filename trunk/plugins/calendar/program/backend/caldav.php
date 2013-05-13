@@ -20,6 +20,9 @@ final class calendar_caldav extends Backend
   
   public function __construct($rcmail, $type) {
     $this->rcmail = $rcmail;
+    if(!class_exists('calendar_plus')){
+      $type = 'database';
+    }
     $this->type = $type;
     if ($rcmail->config->get('timezone') === "auto") {
       $tz = isset($_SESSION['timezone']) ? $_SESSION['timezone'] : date('Z')/3600;
@@ -469,7 +472,6 @@ PROPP;
       else{
         $account['pass'] = $this->rcmail->encrypt($account['pass']);
       }
-      write_log('a', $account);
       $this->connect($account['url'], $account['user'], $account['pass'], $account['auth'], false);
       $code = $this->caldav->DoDELETERequest('');
       $this->connect($this->account['url'], $this->account['user'], $this->account['pass'], $this->account['auth'], true);
@@ -482,7 +484,7 @@ PROPP;
     }
   }
   
-  public function searchEvents($str) {
+  public function searchEvents($str, $label) {
     if(!empty($this->rcmail->user->ID)) {
       $cal_searchset = $this->rcmail->config->get('cal_searchset', array('summary'));
       $str = str_replace(array('\\'),array(''),$str);
@@ -494,8 +496,12 @@ PROPP;
         $sql_filter = " AND (" . $this->rcmail->db->ilike($cal_searchset[0], $wildcard.$str.$wildcard);
         if(count($cal_searchset) > 1){
           for($i=1;$i<count($cal_searchset);$i++){
-            if($cal_searchset[$i] != 'all_day')
+            if($cal_searchset[$i] != 'all_day'){
               $sql_filter .= " OR " . $this->rcmail->db->ilike($cal_searchset[$i], $wildcard.$str.$wildcard);
+              if($cal_searchset[$i] == 'categories' && stripos($this->rcmail->config->get('default_category_label', $label), $str) !== false){
+                $sql_filter .= " OR " . $this->q('categories') . "=''";
+              }
+            }
           }
           $sql_filter .= ")";
         }
@@ -758,7 +764,8 @@ PROPP;
     $remindertype=false,
     $remindermailto=false,
     $uid=false,
-    $client=false
+    $client=false,
+    $adjust = true
   ) {
     if (!empty($this->rcmail->user->ID)) {
       $srecur = (string) $recur;
@@ -798,7 +805,14 @@ PROPP;
       if(!$uid){
         $uid = $this->generateId();
       }
-      /* $uid = substr($uid, 0, 96); */ // find me: Why?
+      if($adjust){
+        $offset = $this->offset($start);
+        $start = $start + $offset;
+        $offset = $this->offset($end);
+        $end = $end + $offset;
+        $offset = $this->offset($expires);
+        $expires = $expires + $offset;
+      }
       $exists = $this->getEventByUID($uid, $recurrence_id);
       if(is_array($exists)){
         if($exists['del'] != '0'){
@@ -852,7 +866,8 @@ PROPP;
             $remindermailto,
             $allDay,
             false,
-            serialize(array(0 => $href, 1 => $etag, 2 => $uid))
+            serialize(array(0 => $href, 1 => $etag, 2 => $uid)),
+            $adjust
           );
         }
         else{
@@ -955,7 +970,8 @@ PROPP;
     $remindermailto=false,
     $allDay=false,
     $old_categories=false,
-    $caldav=false
+    $caldav=false,
+    $adjust = true
   ) {
     if (!empty($this->rcmail->user->ID)) {
       $srecur = $recur;
@@ -984,6 +1000,14 @@ PROPP;
         else{
           $this->url = $this->rcmail->config->get('caldav_url');
         }
+      }
+      if($adjust){
+        $offset = $this->offset($start);
+        $start = $start + $offset;
+        $offset = $this->offset($end);
+        $end = $end + $offset;
+        $offset = $this->offset($expires);
+        $expires = $expires + $offset;
       }
       $event = $this->getEvent($id);
       if(!$caldav){
@@ -1086,6 +1110,10 @@ PROPP;
     $reminder
   ) {
     if (!empty($this->rcmail->user->ID)) {
+      $offset = $this->offset($start);
+      $start = $start + $offset;
+      $offset = $this->offset($end);
+      $end = $end + $offset;
       $query = $this->rcmail->db->query(
         "UPDATE " . $this->table('events') . " 
          SET ".$this->q('start')."=?, ".
@@ -1121,6 +1149,10 @@ PROPP;
     $reminder
   ) {
     if (!empty($this->rcmail->user->ID)) {
+      $offset = $this->offset($start);
+      $start = $start + $offset;
+      $offset = $this->offset($end);
+      $end = $end + $offset;
       $query = $this->rcmail->db->query(
         "UPDATE " . $this->table('events') . " 
          SET ".$this->q('start')."=?, ".
@@ -1866,13 +1898,27 @@ PROPP;
     return $events;
   }
   
-  public function test($str = 'db_table_events') {
-    $this->rcmail->db->db_handle->loadModule('Manager');
-    if(!PEAR::isError($result = $this->rcmail->db->db_handle->listTableFields($this->rcmail->config->get($str))))
-      $ret = $result;
+  private function offset($time = 0){
+    $stz = date_default_timezone_get();
+    if($_SESSION['tzname'])
+      $tz = $_SESSION['tzname'];
+    else if(get_input_value('_btz', RCUBE_INPUT_GPC))
+      $tz = get_input_value('_btz', RCUBE_INPUT_GPC);
+    else if(get_input_value('_tz', RCUBE_INPUT_GPC))
+      $tz = get_input_value('_tz', RCUBE_INPUT_GPC);
     else
-      $ret = array();
-    return $ret;
+      $tz = $stz;
+    if($this->rcmail->config->get('timezone') != 'auto'){
+      $ctz = $this->rcmail->config->get('timezone');
+    }
+    else{
+      $ctz = $tz;
+    }
+    date_default_timezone_set($tz);
+    $offset = - date('Z', $time);
+    date_default_timezone_set($ctz);
+    $offset = $offset + date('Z', $time);
+    return - $offset;
   }
 }
 ?>

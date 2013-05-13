@@ -157,11 +157,9 @@ $(document).ready(function() {
         //$('.fc-agenda-allday').height($('.fc-agenda-allday').height(""));
         //setTimeout("$('.fc-agenda-allday').height($('.fc-agenda-allday').height() + 3);",1000)
         calendar_gui.init(response);
-        $('#toolbar').show();
         $('#jqdatepicker').datepicker('setDate', $('#calendar').fullCalendar('getDate'));
         $('#upcoming').fullCalendar('addEventSource',$('#calendar').fullCalendar('clientEvents'));
         $('#upcoming').fullCalendar('gotoDate', $('#calendar').fullCalendar('getDate'));
-        calendar_gui.minimalmode();
       },
       header: {
         left: '',
@@ -202,6 +200,7 @@ $(document).ready(function() {
         calendar_callbacks.viewDisplay(view, response);
       },
       loading : function(isLoading){
+        calendar_gui.minimalmode();
         rcmail.env.calendar_msgid = calendar_callbacks.loading(isLoading, rcmail.env.calendar_msgid);
         calendar_callbacks.loading(isLoading, rcmail.env.calendar_msgid);
       },

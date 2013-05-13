@@ -214,7 +214,7 @@ function calendar_commands(){
     }
     $('#event').tabs('select',2);
     $('#event').tabs('disable', 0);
-    $('#ui-dialog-title-event').html(rcmail.gettext('calendar.import'));
+    $("#event").dialog("option", "title", rcmail.gettext('calendar.import'));
   }
   
   /* print preview */

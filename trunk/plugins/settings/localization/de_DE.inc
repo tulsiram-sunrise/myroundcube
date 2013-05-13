@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 02/13/2013 10:19:43
+ | Author: myroundcube@mail4us.net - 05/08/2013 06:23:29
  +-----------------------------------------------------------------------+
 */
 
@@ -18,6 +18,7 @@ $labels['menu'] = 'Menü';
 $labels['managefolders'] = 'Ordner verwalten';
 $labels['account'] = 'Konto-Einstellungen';
 $labels['classic'] = 'Standard';
+$labels['larry'] = 'Larry';
 $labels['remotefolders'] = 'Spezialordner';
 $labels['myroundcube'] = 'MyRoundCube';
 $labels['skin_preview'] = 'Vorschau Benutzerobfläche';

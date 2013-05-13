@@ -6,10 +6,12 @@ abstract class Backend
    * Search Events
    *
    * @param  string Search string
+   * @param  string Label for default category
    * @access public
    */
   abstract public function searchEvents(
-    $str
+    $str,
+    $label
   );
   
   /**
@@ -330,12 +332,5 @@ abstract class Backend
   abstract public function getEventsByUID(
     $uid
   );
-   
-  /**
-   * Check database access
-   * 
-   * @access public
-   */  
-  abstract public function test(); 
 }
 ?>

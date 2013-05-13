@@ -1,4 +1,3 @@
-
 CREATE TABLE events (
    event_id serial NOT NULL PRIMARY KEY,
    uid text,
@@ -31,7 +30,6 @@ CREATE TABLE events (
    notified smallint NOT NULL DEFAULT 0,
    client text
 );
-CREATE INDEX events_user_id ON events (user_id, del);
 
 CREATE TABLE events_cache (
    event_id serial NOT NULL PRIMARY KEY,
@@ -65,7 +63,6 @@ CREATE TABLE events_cache (
    notified smallint NOT NULL DEFAULT 0,
    client text
 );
-CREATE INDEX events_cache_user_id ON events_cache (user_id, del);
 
 CREATE TABLE events_caldav (
    event_id serial NOT NULL PRIMARY KEY,
@@ -99,7 +96,6 @@ CREATE TABLE events_caldav (
    notified smallint NOT NULL DEFAULT 0,
    client text
 );
-CREATE INDEX events_caldav_user_id ON events_caldav (user_id, del);
 
 CREATE TABLE reminders (
     reminder_id serial NOT NULL PRIMARY KEY,
@@ -112,3 +108,7 @@ CREATE TABLE reminders (
     props text,
     runtime integer NOT NULL
 );
+
+CREATE INDEX events_user_id ON events (user_id, del);
+CREATE INDEX events_cache_user_id ON events_cache (user_id, del);
+CREATE INDEX events_caldav_user_id ON events_caldav (user_id, del);

@@ -169,6 +169,9 @@ $rcmail_config['cal_searchset'] = array(
   'categories'
 );
 
+/* display small basic agenda day in calendar view */
+$rcmail_config['hide_agenda_day_basic'] = true;
+
 /* display upcoming calendar in mailbox view
    If enabled it is resource consuming on the client side!
 */
@@ -211,12 +214,14 @@ $rcmail_config['first_hour'] = -1;
 // default category
 $rcmail_config['default_category'] = 'c0c0c0';
 
+// label for default category
+$rcmail_config['default_category_label'] = utf8_encode('Default');
+
 // default font color ('complementary' or 'blackwhite')
 $rcmail_config['default_font_color'] = 'blackwhite';
 
-// event categories (can be modified by user)
+// default event categories (additional to 'default_category' / can be modified by user)
 $rcmail_config['categories'] = array(
-  'Personal' => '19F7FF', 
   'Work' => 'ff0000',
   'Family' => '00ff00',
   'Holidays' => 'ff6600',

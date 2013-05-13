@@ -6,7 +6,10 @@ final class calendar_dummy extends Backend
   public function getCtags() {
   }
   
-  public function searchEvents($str) {
+  public function searchEvents(
+    $str,
+    $label
+  ) {
   }
   
   public function newCalendar(
@@ -239,9 +242,6 @@ final class calendar_dummy extends Backend
   public function getEventsByUID(
     $uid
   ) {
-  }
-  
-  public function test($str = 'db_table_events') {
   }
 }
 ?>
