@@ -2,9 +2,9 @@
 
 $ps_localization_update = serialize(
   array(
-    'translator' => 'myroundcube@mail4us.net',
-    'language ' => 'de_DE',
-    'date' => '05/08/2013 06:16:48'
+    'translator' => 'Thomas Parvais',
+    'language ' => 'fr_FR',
+    'date' => '06/17/2013 11:12:29'
   )
 );
 

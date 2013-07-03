@@ -32,8 +32,6 @@ CREATE TABLE 'events' (
  CONSTRAINT 'user_id_fk_events' FOREIGN KEY ('user_id')
    REFERENCES 'users'('user_id') ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE INDEX events_user_id ON events (user_id, del);
-
 
 CREATE TABLE 'events_cache' (
   'event_id' INTEGER,
@@ -69,7 +67,6 @@ CREATE TABLE 'events_cache' (
  CONSTRAINT 'user_id_fk_events_cache' FOREIGN KEY ('user_id')
    REFERENCES 'users'('user_id') ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE INDEX events_user_id ON events_cache (user_id, del);
 
 CREATE TABLE 'events_caldav' (
   'event_id' INTEGER,
@@ -105,7 +102,6 @@ CREATE TABLE 'events_caldav' (
  CONSTRAINT 'user_id_fk_events_caldav' FOREIGN KEY ('user_id')
    REFERENCES 'users'('user_id') ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE INDEX events_user_id ON events_caldav (user_id, del);
 
 CREATE TABLE reminders (
     reminder_id integer NOT NULL PRIMARY KEY,
@@ -117,4 +113,11 @@ CREATE TABLE reminders (
     props text,
     runtime integer NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS 'system' (
+  name varchar(64) NOT NULL PRIMARY KEY,
+  value text NOT NULL
+);
+
+INSERT INTO system (name, value) VALUES ('myrc_calendar', 'initial');
 

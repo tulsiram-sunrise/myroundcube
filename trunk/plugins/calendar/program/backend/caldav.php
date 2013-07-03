@@ -578,7 +578,11 @@ PROPP;
           $prefs = unserialize($arr['preferences']);
           $events_table = $this->rcmail->config->get('db_table_events', 'events');
           $db_table = str_replace('_caldav','',$events_table);
-          $map = $this->rcmail->config->get('backend_db_table_map',array());
+          $default = array(
+            'database' => '', // default db table
+            'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
+          );
+          $map = $this->rcmail->config->get('backend_db_table_map', $default);
           if($prefs['backend'] == 'caldav'){
             $db_table .= $map['caldav'];
           }
@@ -646,7 +650,11 @@ PROPP;
   
   public function scheduleReminders($event){
     if (!empty($this->rcmail->user->ID) && $event) {
-      $map = $this->rcmail->config->get('backend_db_table_map');
+      $default = array(
+        'database' => '', // default db table
+        'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
+      );
+      $map = $this->rcmail->config->get('backend_db_table_map', $default);
       if(stripos($this->table('events'),$map['caldav'])){
         $col = 'caldav';
       }
@@ -1253,7 +1261,11 @@ PROPP;
         WHERE ".$this->q('user_id')."=?",
         $this->rcmail->user->ID
       );
-      $map = $this->rcmail->config->get('backend_db_table_map');
+      $default = array(
+        'database' => '', // default db table
+        'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
+      );
+      $map = $this->rcmail->config->get('backend_db_table_map', $default);
       $table = str_replace('`','',str_replace($map['caldav'], '', $this->table('events')));
       $this->rcmail->config->set('db_table_events', $table);
       $query = $this->rcmail->db->query(
@@ -1358,26 +1370,38 @@ PROPP;
   
   public function exportEvents($categories=false){
     if($this->type == 'caldav'){
-      $this->connect($this->account['url'], $this->account['user'], $this->account['pass'], $this->account['auth']);
-      $response = trim($this->caldav->DoRequest());
-      $temparr = explode("\r\n\r\n", $response);
-      $append = '';
-      // SabreDAV
-      if(substr($temparr[count($temparr) - 1], 0, 1) == '<'){
-        $append = '?export';
-      }
       if($categories){
         $caldavs = $this->caldavs;
         if(is_array($caldavs[$categories])){
-          $this->connect($caldavs[$categories]['url'].$append,$caldavs[$categories]['user'],$caldavs[$categories]['pass'],$caldavs[$categories]['auth']);
+          $this->connect($caldavs[$categories]['url'],$caldavs[$categories]['user'],$caldavs[$categories]['pass'],$caldavs[$categories]['auth']);
         }
       }
       else{
-        $this->connect($this->account['url'].$append, $this->account['user'], $this->account['pass'], $this->account['auth']);
+        $this->connect($this->account['url'], $this->account['user'], $this->account['pass'], $this->account['auth']);
       }
       $response = trim($this->caldav->DoRequest());
       $temparr = explode("\r\n\r\n", $response);
-      return $temparr[count($temparr) - 1];
+      if(strtoupper(substr($temparr[count($temparr) - 1], 0, strlen('BEGIN:VCALENDAR'))) != 'BEGIN:VCALENDAR'){
+        $append = '?export';
+        if($categories){
+          $caldavs = $this->caldavs;
+          if(is_array($caldavs[$categories])){
+            $this->connect($caldavs[$categories]['url'].$append,$caldavs[$categories]['user'],$caldavs[$categories]['pass'],$caldavs[$categories]['auth']);
+          }
+        }
+        else{
+          $this->connect($this->account['url'].$append, $this->account['user'], $this->account['pass'], $this->account['auth']);
+        }
+        $response = trim($this->caldav->DoRequest());
+        $temparr = explode("\r\n\r\n", $response);
+      }
+      if(strtoupper(substr($temparr[count($temparr) - 1], 0, strlen('BEGIN:VCALENDAR'))) == 'BEGIN:VCALENDAR'){
+        $return = $temparr[count($temparr) - 1];
+      }
+      else{
+        $return = "BEGIN:VCALENDAR\nEND:VCALENDAR";
+      }
+      return $return;
     }
   }
   
@@ -1389,7 +1413,11 @@ PROPP;
   ) {
     if($this->type == 'caldav'){
       $events = array();
-      $map = $this->rcmail->config->get('backend_db_table_map');
+      $default = array(
+        'database' => '', // default db table
+        'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
+      );
+      $map = $this->rcmail->config->get('backend_db_table_map', $default);
       $ctags = $this->rcmail->config->get('ctags', array());
       if(stripos($this->table('events'),$map['caldav'])){
         $startYear  = date('Y',$estart);
@@ -1442,7 +1470,7 @@ PROPP;
             "UPDATE " . $this->table('events') . " 
             SET ".$this->q('timestamp')."=?, ".$this->q('notified')."=?
             WHERE ".$this->q('user_id')."=?",
-            '0',
+            '0000-00-00 00:00:00',
             '1',
             $this->rcmail->user->ID
           );
@@ -1802,7 +1830,7 @@ PROPP;
         "UPDATE " . $this->table('events') . " 
          SET ".$this->q('timestamp')."=?
          WHERE ".$this->q('user_id')."=?",
-        '0',
+        '0000-00-00 00:00:00',
         $this->rcmail->user->ID
       );
     }

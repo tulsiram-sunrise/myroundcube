@@ -2,9 +2,8 @@
 // caldav debug
 $rcmail_config['caldav_debug'] = false;
 
-// backend type (dummy, caldav, database)
-// Note: "dummy" is only for demonstrating basic functionality.
-$rcmail_config['backend'] = "dummy";
+// backend type (caldav, database)
+$rcmail_config['backend'] = 'database';
 
 /* If you don't want that users are able to overwrite defaults, then add
    'backend' in main configuration file (./config/main.inc.php) to
@@ -145,7 +144,6 @@ $rcmail_config['cal_dont_save_passwords'] = false;
 /* Database table mapping */
 // notice: leading underscore
 $rcmail_config['backend_db_table_map'] = array(
-  'dummy' => '', // no db table
   'database' => '', // default db table
   'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
 );
@@ -182,11 +180,11 @@ $rcmail_config['cal_previews'] = 2;
 
 /* cron */
 $rcmail_config['cron_log'] = true;
-$rcmail_config['cron_smtp_user'] = 'dummy@mail4us.net'; //smtp user
+$rcmail_config['cron_smtp_user'] = 'dummy@mydomain.tld'; //smtp user
 $rcmail_config['cron_smtp_pass'] = 'pass'; //smtp password
 $rcmail_config['cron_rc_url'] = 'http://where_is_roundcube/'; //trailing slash !!!
 $rcmail_config['cron_ip'] = '127.0.0.1'; //please use real IP
-$rcmail_config['cron_sender'] = 'noreply@mail4us.net';
+$rcmail_config['cron_sender'] = 'noreply@mydomain.tld';
 
 /* link colors for jquery-ui accordions 
    set according to your css */

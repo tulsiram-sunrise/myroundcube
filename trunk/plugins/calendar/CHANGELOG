@@ -34,4 +34,10 @@ VERSION                COMMENT
 14.2.5                 - Search: Find events with default category
 14.2.6                 - Fix: Invalid argument supplied for foreach() in ./plugins/calendar/calendar.php on line 3217
 14.2.7                 - Implemented workaround for servers which do not add xml tag at the begin of the body (Calypso)
-14.3                   - Implemented TZID (CalDAV)
+14.3 - 14.3.1          - Implemented TZID (CalDAV)
+14.3.2                 - Added support for %gu and %gp placeholders in CalDAV-URLs
+15.0                   - Implemented database versioning
+15.0.1                 - If CalDAV password is equal to SESSION password the save placeholder %p
+15.0.2                 - Fix error log entry when '0' is written into a datetime database field
+15.0.3                 - Improve performance in settings task
+15.0.4 - 15.0.5        - GUI improvements

@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 04/23/2013 08:42:39
+ | Author: Yoni - 05/26/2013 23:55:13
  +-----------------------------------------------------------------------+
 */
 
@@ -19,7 +19,6 @@ $labels['forinstance'] = 'p.e.';
 $labels['caldavserver'] = 'Servidor CalDAV';
 $labels['caldavsettings'] = 'Configuración CalDAV';
 $labels['unlink_caldav'] = 'Para eliminar esta categoría, por favor desvincule el servidor CalDAV primero.';
-$labels['unlink_caldav_warning'] = '¿Está seguro? Si continúa todos los eventos de este calendario se eliminarán de forma permanente. Esta acción no puede ser revertida! Elija CANCELAR para no borrar los eventos presentes en este calendario.';
 $labels['caldavurl'] = 'Url CalDAV';
 $labels['passwordisset'] = 'Contraseña establecida';
 $labels['passwordisnotset'] = 'Contraseña no establecida';
@@ -69,6 +68,10 @@ $labels['cal_notify'] = 'Enviar email cuando los eventos cambien';
 $labels['caldav_notify'] = 'Enviar notificación cuando eventos han sido cambiados por los asistentes';
 $labels['cal_notify_to'] = 'Receptor';
 $labels['showbirthdays'] = 'Mostrar cumpleaños';
+$labels['googleuser'] = 'Cuenta de Google';
+$labels['googlepass'] = 'Contraseña de Google';
+$labels['googlepassisset'] = 'Contraseña de Google está presente';
+$labels['googlepassisnotset'] = 'Introducir Contraseña de Google';
 $labels['googlecaptcha'] = 'Permitir acceso a tu cuenta de Google';
 $labels['clickhere'] = 'Haga clic aquí';
 $labels['titleFormatMonth'] = 'MMMM yyyy';
@@ -131,7 +134,7 @@ $labels['choose_date'] = 'Escoja una fecha';
 $labels['click_here'] = 'Pulse aquí';
 $labels['removed'] = 'Se ha eliminado el evento posterior';
 $labels['edited_by'] = 'Modificado por';
-$labels['addicalmsg'] ='Importar todos los eventos al calendario';
+$labels['addicalmsg'] = 'Importar todos los eventos al calendario';
 $labels['icalsavefailed'] = 'No ha sido posible importar el archivo de calendario';
 $labels['importedsuccessfully'] = 'Se ha importado correctamente';
 $labels['switch_calendar'] = 'Cambiar de calendario';
@@ -140,6 +143,7 @@ $labels['cal_user'] = 'Usuario del calendario';
 $labels['submit'] = 'Aceptar';
 $labels['filter'] = 'Filtros';
 $labels['allevents'] = 'todos los eventos';
+$labels['defaultcategorylabel'] = 'Etiqueta de calendario predeterminado';
 $labels['defaultcategory'] = 'Predeterminado';
 $labels['backgroundcolor'] = 'color de fondo';
 $labels['general'] = 'General';

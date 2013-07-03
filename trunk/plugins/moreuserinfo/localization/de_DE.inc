@@ -1,7 +1,7 @@
 <?php
 
 $labels = array();
-$labels['pluginname'] = 'Benutzer Information';
+$labels['pluginname'] = 'Benutzerinformation';
 $labels['plugindescription'] = 'Zeigt Ihren Benutzern Informationen zum IMAP-, SMTP-, CalDAV-, CardDAV-Servern sowie das letzte Anmeldedatum und die Standard-Identität an.';
 $labels['accountinformation'] = 'Kontodetails';
 $labels['encryption'] = 'Verschlüsselung';

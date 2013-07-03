@@ -2,7 +2,7 @@
 /**
  * message_highlight
  *
- * @version 1.1.1 - 13.04.2013
+ * @version 1.1.2 - 11.06.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -36,8 +36,8 @@ class message_highlight extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.1.1';
-  static private $date = '13-04-2012';
+  static private $version = '1.1.2';
+  static private $date = '11-06-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -152,6 +152,13 @@ class message_highlight extends rcube_plugin
 
   // user preferences
   function mh_preferences($args) {
+    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && $args['section'] == 'mh_preferences'){
+      $args['blocks'][$args['section']]['options'] = array(
+        'title'   => '',
+        'content' => html::tag('div', array('id' => 'pm_dummy'), '')
+      );
+      return $args;
+    }
     if($args['section'] == 'mh_preferences') {
       $this->add_texts('localization/', false);
       $rcmail = rcmail::get_instance();
@@ -234,7 +241,7 @@ class message_highlight extends rcube_plugin
   // save preferences
   function mh_save($args) {
     if($args['section'] != 'mh_preferences') return;
-
+    
     $rcmail = rcmail::get_instance();
 
     $header  = get_input_value('_mh_header', RCUBE_INPUT_POST);

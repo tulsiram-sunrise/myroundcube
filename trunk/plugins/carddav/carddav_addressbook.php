@@ -358,9 +358,6 @@ class carddav_addressbook extends rcube_addressbook
     if($rcmail->decrypt($server['password']) == '%p'){
       $server['password'] = $this->rcpassword;
     }
-    if($server['password'] == '%gp'){
-      $server['password'] = $rcmail->config->get('googlepass');
-    }
 		$carddav_backend->set_auth($server['username'], $rcmail->decrypt($server['password']));
 		if ($carddav_backend->check_connection())
 		{
@@ -744,18 +741,9 @@ class carddav_addressbook extends rcube_addressbook
 		$vcard = $this->vcard_check($vcard);
 		$server = current(carddav::get_carddav_server($this->carddav_server_id));
 		$arr = parse_url($server['url']);
-		$carddav_slow = $rcmail->config->get('carddav_slow_backends', array());
-		if(isset($carddav_slow[strtolower($arr['host'])])){
-		  $carddav_backend = new carddav_backend($server['url'], '', (int) $carddav_slow[strtolower($arr['host'])], false);
-		}
-		else{
-		  $carddav_backend = new carddav_backend($server['url']);
-		}
+    $carddav_backend = new carddav_backend($server['url']);
     if($rcmail->decrypt($server['password']) == '%p'){
       $server['password'] = $this->rcpassword;
-    }
-    if($rcmail->decrypt($server['password']) == '%gp'){
-      $server['password'] = $rcmail->config->get('googlepass');
     }
 		$carddav_backend->set_auth($server['username'], $rcmail->decrypt($server['password']));
 		if ($carddav_backend->check_connection())
@@ -801,9 +789,6 @@ class carddav_addressbook extends rcube_addressbook
     if($rcmail->decrypt($server['password']) == '%p'){
       $server['password'] = $this->rcpassword;
     }
-    if($rcmail->decrypt($server['password']) == '%gp'){
-      $server['password'] = $rcmail->config->get('googlepass');
-    }
 		$carddav_backend->set_auth($server['username'], $rcmail->decrypt($server['password']));
 
 		if ($carddav_backend->check_connection())
@@ -830,9 +815,6 @@ class carddav_addressbook extends rcube_addressbook
 		$carddav_backend = new carddav_backend($server['url']);
     if($rcmail->decrypt($server['password']) == '%p'){
       $server['password'] = $this->rcpassword;
-    }
-    if($rcmail->decrypt($server['password']) == '%gp'){
-      $server['password'] = $rcmail->config->get('googlepass');
     }
 		$carddav_backend->set_auth($server['username'], $rcmail->decrypt($server['password']));
 
@@ -1044,9 +1026,14 @@ class carddav_addressbook extends rcube_addressbook
         }
       }
       else{
+        if(rcmail::get_instance()->action == 'photo'){
+          $vcard = new rcube_vcard();
+          $vcard->load($record['vcard']);
+          $contact = $vcard->get_assoc();
+          $record['photo'] = $contact['photo'];
+        }
         $this->result->add($record);
       }
-
 		}
 		return $this->result;
 	}
@@ -1065,7 +1052,7 @@ class carddav_addressbook extends rcube_addressbook
   public function search($fields, $value, $mode = 0, $select = true, $nocount = false, $required = array())
   {
     $this->set_filter($fields, $value, $required);
-    $contacts = $this->search_carddav_addressbook_contacts();
+    $contacts = $this->search_carddav_addressbook_contacts($fields);
     if(count($contacts->records) > 0){
       $mode = intval($mode);
       // advanced search
@@ -1649,10 +1636,12 @@ class carddav_addressbook extends rcube_addressbook
     $valid = parent::validate($save_data, $autofix);
 
     // require at least one e-mail address (syntax check is already done)
+    /* https://code.google.com/p/myroundcube/issues/detail?id=534
     if ($valid && !array_filter($this->get_col_values('email', $save_data, true))) {
       $this->set_error(self::ERROR_VALIDATE, 'noemailwarning');
       $valid = false;
     }
+    */
     return $valid;
   }
 }

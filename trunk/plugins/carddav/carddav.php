@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 5.3.10 - 08.05.2013
+ * @version 5.4.6 - 26.06.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -40,29 +40,36 @@ class carddav extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. Google Contacts, automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
+  static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '5.3.10';
-  static private $date = '08-05-2013';
+  static private $version = '5.4.6';
+  static private $date = '26-06-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',
     'PHP' => '5.2.1 + cURL',
     'required_plugins' => array(
       'settings' => 'require_plugin',
+      'db_version' => 'require_plugin',
     ),
     'recommended_plugins' => array(
       'carddav_plus' => 'config',
     ),
   );
+  static private $tables = array(
+    'carddav_contacts',
+    'carddav_server',
+    'carddav_contactgroups',
+    'carddav_contactgroupmembers',
+    'collected_contacts',
+  );
+  static private $db_version = array(
+    'initial',
+  );
   static private $prefs = array(
     'automatic_addressbook',
     'use_auto_abook',
     'use_auto_abook_for_completion',
-    'use_google_abook',
-    'googleuser',
-    'googlepass',
-    'carddav_noreport',
     'carddav_done',
     'carddavs_removed',
   );
@@ -70,6 +77,19 @@ class carddav extends rcube_plugin{
 
   public function init(){
     $rcmail = rcmail::get_instance();
+    /* DB versioning */
+    if(is_dir(INSTALL_PATH . 'plugins/db_version')){
+      $this->require_plugin('db_version');
+      if(!$load = db_version::exec(self::$plugin, self::$tables, self::$db_version)){
+        return;
+      }
+    }
+    
+    /* CardDAV plus */
+    if(is_dir(INSTALL_PATH . 'plugins/carddav_plus')){
+      $this->require_plugin('carddav_plus');
+    }
+    
     $skin_path = $this->local_skin_path();
     if(!is_dir($skin_path)){
       $skin_path = 'skins/classic';
@@ -223,6 +243,7 @@ class carddav extends rcube_plugin{
       'plugin' => self::$plugin,
       'version' => self::$version,
       'date' => self::$date,
+      'db_version' => self::$db_version,
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
@@ -386,17 +407,6 @@ class carddav extends rcube_plugin{
     }
     $carddavs = array_merge($rcmail->config->get('carddavs', array()), $def_carddavs);
     $carddavs = array_merge($detected, $carddavs);
-    if($rcmail->config->get('googleuser') && $rcmail->config->get('googlepass') && $rcmail->config->get('use_google_abook')){
-      $google = array('Google' => array(
-          'user' => $rcmail->config->get('googleuser'),
-          'pass' => $rcmail->decrypt($rcmail->config->get('googlepass')),
-          'url' => 'https://google.com/m8/carddav/principals/__uids__/' . $rcmail->config->get('googleuser') . '/lists/default/',
-          'readonly' => false,
-          'autocomplete' => true,
-        )
-      );
-      $carddavs = array_merge($carddavs, $google);
-    }
     $a_prefs = array();
     foreach($carddavs as $category => $carddav){
       $user = $carddav['user'];
@@ -416,9 +426,9 @@ class carddav extends rcube_plugin{
         " . get_table_name('carddav_server') . "
         WHERE url=? AND user_id=?
       ";
-      $rcmail->db->query($query, str_replace('%u', $user, str_replace('%su', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $carddav['url']))), $_SESSION['user_id']);
+      $rcmail->db->query($query, str_replace('%u', $user, str_replace('%su', $user, $carddav['url'])), $_SESSION['user_id']);
       $addressbooks = array();
-      $url = str_replace('%u', $user, str_replace('%su', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $carddav['url'])));
+      $url = str_replace('%u', $user, str_replace('%su', $user, $carddav['url']));
       while($addressbook = $rcmail->db->fetch_assoc($result)){
         $addressbooks[$url] = $addressbook;
       }
@@ -448,16 +458,6 @@ class carddav extends rcube_plugin{
             AND url=?
         ";
         $rcmail->db->query($query, $rcmail->encrypt('%p'), $rcmail->user->ID, $url);
-      }
-      else if($carddav['pass'] == '%gp'){
-        $query = "
-          UPDATE
-          ". get_table_name('carddav_server') . "
-          SET password=?
-            WHERE user_id=?
-            AND url=?
-        ";
-        $rcmail->db->query($query, $rcmail->encrypt('%gp'), $rcmail->user->ID, $url);
       }
     }
     if(count($a_prefs) > 0){
@@ -532,7 +532,7 @@ class carddav extends rcube_plugin{
       $addressbooks = array_merge($rcmail->config->get('carddavs', array()), $rcmail->config->get('def_carddavs', array()));
       $urls = array();
       foreach($addressbooks as $label => $addressbook){
-        $urls[strtolower(str_replace('%u', $_SESSION['username'], str_replace('%su', $user, str_replace('%gu', $rcmail->config->get('googleuser'), $addressbook['url']))))] = $addressbook;
+        $urls[strtolower(str_replace('%u', $_SESSION['username'], str_replace('%su', $user, $addressbook['url'])))] = $addressbook;
       }
       $sorted = array();
       foreach($servers as $server){
@@ -590,7 +590,7 @@ class carddav extends rcube_plugin{
         }
         $img = $autocomplete ? 'checked.png' : 'blank.gif';
         $table->add(array('align' => 'center'), html::tag('p', array('style' => 'width: 15px; height: 15px; border: 1px solid #B2B2B2; border-radius: 4px;'), html::tag('img', array('height' => '12', 'width' => '12', 'onclick' => $onclick, 'title' => $title, 'src' => $skin_path . '/' . $img))));
-        $delete = html::tag('a', array('href' => '#del', 'class' => 'deletebutton', 'title' => $this->gettext('delete'), 'onclick' => "if(confirm('" . addslashes($this->gettext('settings_delete_warning')) . "')) { rcmail.command('plugin.carddav-server-remove', '" . $server['carddav_server_id'] ."', this) } else { rcmail.command('plugin.carddav-server-delete', '" . $server['carddav_server_id'] ."', this)}"), $this->gettext('delete'));
+        $delete = html::tag('a', array('href' => '#del', 'class' => 'deletebutton', 'title' => $this->gettext('delete'), 'onclick' => "if(confirm('" . addslashes($this->gettext('settings_delete_warning')) . "')) { if(confirm('" . addslashes($this->gettext('settings_delete_contacts_warning')) . "')) { rcmail.command('plugin.carddav-server-remove', '" . $server['carddav_server_id'] ."', this) } else { rcmail.command('plugin.carddav-server-delete', '" . $server['carddav_server_id'] ."', this)} }"), $this->gettext('delete'));
         if(isset($urls[$server['url']]) || ($this->carddav_addressbook . $server['carddav_server_id']) == $autoabook){
           unset($urls[$server['url']]);
           $delete = '&nbsp;';
@@ -628,17 +628,6 @@ class carddav extends rcube_plugin{
       $table->add(array('align' => 'center'), $input_autocomplete->show(true));
       $add = html::tag('a', array('href' => '#add', 'class' => 'addbutton', 'title' => $this->gettext('add'), 'onclick' => "return rcmail.command('plugin.carddav-server-save', '', this)"), $this->gettext('add'));
       $table->add(array(), $add);
-      if($rcmail->config->get('use_google_abook') && class_exists('carddav_plus')){
-        $table->add(array('style' => 'font-size: 9px; font-weight: normal; height: 11px;'), '&nbsp;');
-        $table->add(array('style' => 'font-size: 9px; font-weight: normal; height: 11px;'), '&nbsp;');
-        $table->add(array('style' => 'font-size: 9px; font-weight: normal; height: 11px;'), '&nbsp;');
-        $googleuser = $rcmail->config->get('googleuser', 'john.doe@mail.com');
-        $table->add(array('colspan' => 3, 'style' => 'font-size: 9px; font-weight: normal; height: 11px;'),
-          '&nbsp;&nbsp;' . $this->gettext('fe') . ': https://google.com/m8/carddav/principals/__uids__/'. $googleuser . '/lists/default/'
-        );
-        $table->add(array('style' => 'font-size: 9px; font-weight: normal; height: 11px;'), '&nbsp;');
-        $table->add(array('style' => 'font-size: 9px; font-weight: normal; height: 11px;'), '&nbsp;');
-      }
     }
     $content .= html::div(array('class' => 'carddav_container'), $table->show());
     return $content;
@@ -669,10 +658,10 @@ class carddav extends rcube_plugin{
       $show = true;
       if($rcmail->config->get('automatic_addressbook', 'sql') != 'sql'){
         $query = 'SELECT user_id FROM ' . get_table_name('collected_contacts') . ' WHERE user_id=? AND del<>?';
-      }
-      $result = $rcmail->db->query($query, $rcmail->user->data['user_id'], 1);
-      if($rcmail->db->num_rows($result) == 0 && !$rcmail->config->get('show_empty_database_addressbooks', true)){
-        $show = false;
+        $result = $rcmail->db->query($query, $rcmail->user->data['user_id'], 1);
+        if($rcmail->db->num_rows($result) == 0 && !$rcmail->config->get('show_empty_database_addressbooks', true)){
+          $show = false;
+        }
       }
       if($show){
         $args['sources'][$this->automatic_addressbook] = array('id' => $this->automatic_addressbook, 'name' => Q($this->gettext('automaticallycollected_local')), 'readonly' => false, 'groups' => false);
@@ -800,9 +789,6 @@ class carddav extends rcube_plugin{
       }
       $password = $rcmail->decrypt($password);
     }
-    if($password == '%gp'){
-      $password = $rcmail->decrypt($rcmail->config->get('googlepass'));
-    }
     $carddav_backend = new carddav_backend($url);
     $carddav_backend->set_auth($username, $password);
     $return = $carddav_backend->check_connection();
@@ -818,6 +804,13 @@ class carddav extends rcube_plugin{
   }
 
   public function carddav_settings($args){
+    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('addressbook')) == 'addressbook'){
+      $args['blocks'][$args['section']]['options'] = array(
+        'title'   => '',
+        'content' => html::tag('div', array('id' => 'pm_dummy'), '')
+      );
+      return $args;
+    }
     $addressbooks = array();
     if($args['section'] == 'addressbook'){
       $addressbooks = (array) $this->get_carddav_addressbook_sources(false);
@@ -996,14 +989,6 @@ class carddav extends rcube_plugin{
     $carddav_server_id = parse_input_value(base64_decode($_POST['_carddav_server_id']));
     $remove = get_input_value('_remove', RCUBE_INPUT_POST);
     $servers = (array) $this->get_carddav_server();
-    $noreport = $rcmail->config->get('carddav_noreport', array());
-    foreach($servers as $server){
-      if($server['carddav_server_id'] == $carddav_server_id){
-        unset($noreport[$server['url']]);
-      }
-    }
-    $a_prefs['carddav_noreport'] = $noreport;
-    $rcmail->user->save_prefs($a_prefs);
     $user_id = $rcmail->user->data['user_id'];
     $query = "
       SELECT * FROM
@@ -1083,7 +1068,7 @@ class carddav extends rcube_plugin{
   }
   
   private function sanitize($unformatted){
-    $url = strtolower(trim($unformatted));
+    $url = trim($unformatted);
     $url = htmlentities($url, ENT_QUOTES, 'UTF-8');
     $url = preg_replace('~&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i', '$1', $url);
     $url = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
@@ -1096,10 +1081,10 @@ class carddav extends rcube_plugin{
     $url = str_replace($search, $replace, $url);
     $find = array(' ', '&', '\r\n', '\n', '+', ',', '//');
     $url = str_replace($find, '-', $url);
-    $find = array('/[^a-z0-9\-<>\/@\.]/', '/[\-]+/', '/<[^>]*>/');
+    $find = array('/[^a-zA-Z0-9\-\+<>_\/@\.]/', '/[\-]+/', '/<[^>]*>/');
     $replace = array('', '-', '');
-    $uri = preg_replace($find, $replace, $url);
-    return $uri;
+    $url = preg_replace($find, $replace, $url);
+    return $url;
   }
 }
 ?>

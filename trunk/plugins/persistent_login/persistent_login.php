@@ -2,7 +2,7 @@
 /**
  * persistent_login (based on code by Manuel Freiholz)
  *
- * @version 1.2.2 - 03.05.2013
+ * @version 1.2.3 - 31.05.2013
  * @author Roland 'rosali' Liebl, Matthias Krauser
  * @website http://myroundcube.googlecode.com 
  */
@@ -16,7 +16,7 @@
 */
 class persistent_login extends rcube_plugin
 {
-	public $task = 'login|logout';
+	public $task = 'login|logout|mail';
 	public $noframe = true;
 	public $noajax = true;
 	
@@ -33,21 +33,42 @@ class persistent_login extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.2.2';
-  static private $date = '03-05-2013';
+  static private $version = '1.2.3';
+  static private $date = '31-05-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
+    'Roundcube' => '0.9',
     'PHP' => '5.2.1',
+    'required_plugins' => array(
+      'db_version' => 'require_plugin',
+    ),
   );
   static private $prefs = null;
   static private $config_dist = false;
+  static private $tables = array('auth_tokens');
+  static private $db_version = array('initial');
 	
 	function init()
 	{
 		$rcmail = rcmail::get_instance();
+    
+    /* DB versioning */
+    if(is_dir(INSTALL_PATH . 'plugins/db_version')){
+      $this->require_plugin('db_version');
+      if(!$load = db_version::exec(self::$plugin, self::$tables, self::$db_version)){
+        return;
+      }
+    }
+    
+    // we need task binding to 'mail' for db versioning only
+    if($rcmail->task == 'mail'){
+      return;
+    }
+    
 		// load plugin configuration.
-		$this->load_config();
+    if(!in_array('global_config', $rcmail->config->get('plugins'))){
+      $this->load_config();
+    }
 		$this->cookie_expire_time = $rcmail->config->get('ifpl_login_expire', 172800);
 		$this->cookie_name = $rcmail->config->get('ifpl_cookie_name', '_pt');
 		$this->use_auth_tokens = $rcmail->config->get('ifpl_use_auth_tokens', false);
@@ -95,6 +116,7 @@ class persistent_login extends rcube_plugin
     $ret = array(
       'plugin' => self::$plugin,
       'version' => self::$version,
+      'db_version' => self::$db_version,
       'date' => self::$date,
       'author' => self::$author,
       'comments' => self::$authors_comments,

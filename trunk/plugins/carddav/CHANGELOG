@@ -37,3 +37,10 @@ VERSION                COMMENT
 5.3.9                  - Implemented 'addressbook_search_mode' for autocompletion
 5.3.10                 - Fixed bug: PHP Fatal error:  Cannot access protected property rcube_db_mysql::$db_error
                          in ./plugins/carddav/carddav_addressbook.php on line 1408
+5.3.11                 - Added database sequences to config.inc.php.dist (PostgreSQL)
+5.4                    - Implemented database versioning
+5.4.1                  - Display phote in message view
+5.4.2 5.4.3            - Do not replace underscore in URLs
+5.4.4                  - Load carddav_plus automatically if available
+5.4.5                  - Accept upercase in CardDAV URLs
+5.4.6                  - GUI improvements

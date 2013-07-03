@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 4.2.2 - 23.04.2013
+ * @version 4.2.6 - 15.06.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -27,8 +27,8 @@ class settings extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.2.2';
-  static private $date = '23-04-2013';
+  static private $version = '4.2.6';
+  static private $date = '15-06-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
     'Roundcube' => '0.8',
@@ -38,7 +38,7 @@ class settings extends rcube_plugin
   static private $config_dist = 'config.inc.php.dist';
 
   function init(){
-    $this->task = 'settings';
+
     $this->_load_config();
 
     $rcmail = rcmail::get_instance();
@@ -135,9 +135,9 @@ class settings extends rcube_plugin
   function _load_config()
   {
     $rcmail = rcmail::get_instance();
+    $this->require_plugin('qtip');
     if(!in_array('global_config', $rcmail->config->get('plugins'))){
       $this->load_config();
-      $this->require_plugin('qtip');
     }
   }
 
@@ -170,8 +170,10 @@ class settings extends rcube_plugin
     $args['list']['calendarsharing'] = array();
     $args['list']['nabblelink'] = array();
     $args['list']['plugin_manager'] = array();
-    $args['list']['plugin_manager_update'] = array();
+    $args['list']['plugin_manager_settings'] = array();
+    $args['list']['plugin_manager_admins'] = array();
     $args['list']['plugin_manager_customer'] = array();
+    $args['list']['plugin_manager_update'] = array();
     $args['list']['accountslink'] = array();
     $args['list']['server'] = $temparr['server'];
     $parts = $GLOBALS['settingsnav'];
@@ -239,6 +241,13 @@ element.qtip({
 
   function prefs_table($args)
   {
+    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && $args['section'] == 'accountlink'){
+      $args['blocks'][$args['section']]['options'] = array(
+        'title'   => '',
+        'content' => html::tag('div', array('id' => 'pm_dummy'), '')
+      );
+      return $args;
+    }
     if ($args['section'] == 'accountlink') {
       $args['blocks']['main']['options']['accountlink']['title'] = "";
       $args['blocks']['main']['options']['accountlink']['content'] = $this->account_sections("");

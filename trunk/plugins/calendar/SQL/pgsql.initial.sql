@@ -109,6 +109,13 @@ CREATE TABLE reminders (
     runtime integer NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS "system" (
+    name varchar(64) NOT NULL PRIMARY KEY,
+    value text
+);
+
+INSERT INTO "system" (name, value) VALUES ('myrc_calendar', 'initial');
+
 CREATE INDEX events_user_id ON events (user_id, del);
 CREATE INDEX events_cache_user_id ON events_cache (user_id, del);
 CREATE INDEX events_caldav_user_id ON events_caldav (user_id, del);

@@ -161,13 +161,6 @@ class carddav_backend
 	private $vcard_id_chars = array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F');
 
 	/**
-	 * Failsafe Id
-	 *
-	 * @var boolean
-	 */
-  private $failsafe_id = null;
-
-	/**
 	 * Current id for the running request
 	 *
 	 * @var string
@@ -189,13 +182,6 @@ class carddav_backend
 	private $ext = '.vcf';
 
 	/**
-	 * Sleep after PUT request instead of waiting for response
-	 *
-	 * @var integer
-	 */
-	private $sleep = null;
-
-	/**
 	 * Constructor
 	 * Sets the CardDAV server url
 	 *
@@ -204,13 +190,11 @@ class carddav_backend
 	 * @param boolean $wait 
 	 * @return	void
 	 */
-	public function __construct($url = null, $ext = 'vcf', $sleep = null, $failsafe_id = true)
+	public function __construct($url = null, $ext = 'vcf')
 	{
 		if ($url !== null)
 		{
 			$this->set_url($url);
-			$this->sleep = $sleep;
-			$this->failsafe_id = $failsafe_id;
 			if(class_exists('carddav_plus')){
 			  $this->ext = carddav_plus::carddav_ext($url, $ext);
 			}
@@ -680,7 +664,6 @@ class carddav_backend
       $auth = $this->auth_method[$protocol . $host . $port];
       $username = $this->username;
       $password = $this->password;
-      $sleep = $this->sleep;
       $current_id = $this->current_id;
       $ret = carddav_plus::carddav_put(
         $protocol,
@@ -695,7 +678,6 @@ class carddav_backend
         $content_type,
         $content,
         $return_boolean,
-        $sleep,
         $current_id
       );
       if($ret){
@@ -792,9 +774,6 @@ class carddav_backend
 		
 		$this->current_id = $id;
 		
-		if(!$this->failsafe_id){
-		  return $id;
-		}
 		$carddav = new carddav_backend($this->url);
 		$carddav->set_auth($this->username, $this->password);
 

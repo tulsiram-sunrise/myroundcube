@@ -11,7 +11,7 @@ $rcmail_config['ifpl_cookie_name'] = '_pt';
 
 // ----------------------------------
 // TOKEN BASED (MORE SECURE!) - OPTIONAL
-// Installation of database scripts required. (see "./sql/" folder)
+// Installation of database scripts required. (see "./SQL/" folder)
 // ----------------------------------
 
 // Turn on feature  to use tokens.

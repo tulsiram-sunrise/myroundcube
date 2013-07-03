@@ -562,7 +562,69 @@ class Utils
       $ical = "BEGIN:VCALENDAR\n";
       $ical .= "VERSION:2.0\n";
       $ical .= "PRODID:-//" . $rcmail->config->get('product_name') . "//NONSGML Calendar//EN\n";
-      $ical .= "X-WR-Timezone: $ctz\n";
+      $use_utc = true;
+      if(count($events) == 1){
+        $use_utc = false;
+        $tz = new DateTimeZone($ctz);
+        $transitions = $tz->getTransitions(strtotime(date('Y', $events[0]['start']) . '0101T000000Z'));
+        if(isset($transitions[1])){
+          if($transitions[1]['isdst']){
+            $dst = 1;
+            $st  = 2;
+          }
+          else{
+            $st  = 1;
+            $dst = 2;
+          }
+        }
+        else{
+          $st = 0;
+        }
+        foreach($transitions as $idx => $props){
+          if($idx == 0) continue;
+          if($props['isdst']){
+            if(date('j', $props['ts']) < 16){
+              $dst_l = '1';
+            }
+            else{
+              $dst_l = '-1';
+            }
+            $dst_d = strtoupper(substr(date('D', $props['ts']), 0, 2));
+            $dst_m = date('m', $props['ts']);
+          }
+          else{
+            if(date('j', $props['ts']) < 16){
+              $st_l = '1';
+            }
+            else{
+              $st_l = '-1';
+            }
+            $st_d = strtoupper(substr(date('D', $props['ts']), 0, 2));
+            $st_m = date('m', $props['ts']);
+          }
+        }
+        $ical .= "BEGIN:VTIMEZONE\n";
+        $ical .= "TZID:$ctz\n";
+        if(!empty($dst)){
+          $ical .= "BEGIN:DAYLIGHT\n";
+          $ical .= "DTSTART:" . date('Ymd\THis\Z', $transitions[1]['ts']) . "\n";
+          $ical .= "RRULE:FREQ=YEARLY;BYDAY=" . $dst_l . $dst_d . ";BYMONTH=" . $dst_m . "\n";
+          $ical .= "TZNAME:" . $transitions[$dst]['abbr'] . "\n";
+          $ical .= "TZOFFSETFROM:" . date('O', $transitions[$st]['ts']) . "\n";
+          $ical .= "TZOFFSETTO:" . date('O', $transitions[$dst]['ts']) . "\n";
+          $ical .= "END:DAYLIGHT\n";
+        }
+        $ical .= "BEGIN:STANDARD\n";
+        $ical .= "DTSTART:" . date('Ymd\THis\Z', $transitions[2]['ts']) . "\n";
+        if(!empty($dst)){
+          $ical .= "RRULE:FREQ=YEARLY;BYDAY=" . $st_l . $st_d . ";BYMONTH=" . $st_m . "\n";
+        }
+        $ical .= "TZNAME:" . $transitions[$st]['abbr'] . "\n";
+        $ical .= "TZOFFSETFROM:" . date('O', $transitions[$dst]['ts']) . "\n";
+        $ical .= "TZOFFSETTO:" . date('O', $transitions[$st]['ts']) . "\n";
+        $ical .= "END:STANDARD\n";
+        $ical .= "END:VTIMEZONE\n";
+      }
       foreach ($events as $event) {
         if(($event['del'] != 1 || $showdel) && (!$event['clone'] || $showclone)){
           $ical .= "BEGIN:VEVENT\n";
@@ -581,15 +643,35 @@ class Utils
             }
           }
           else if($event['clone']){
-            $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['clone']) . "\n";
+            if($use_utc){
+              $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['clone']) . "\n";
+            }
+            else{
+              $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['clone']) . "\n";
+            }
             if($event['clone'] != $event['clone_end']) {
-              $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['clone_end']) . "\n";
+              if($use_utc){
+                $ical .= "DTEND:" . gmdate('Ymd\THis\Z',$event['clone_end']) . "\n";
+              }
+              else{
+                $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['clone_end']) . "\n";
+              }
             }
           }
           else{
-            $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['start']) . "\n";
+            if($use_utc){
+              $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['start']) . "\n";
+            }
+            else{
+              $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['start']) . "\n";
+            }
             if($event['start'] != $event['end']) {
-              $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['end']) . "\n";
+              if($use_utc){
+                $ical .= "DTEND:" . gmdate('Ymd\THis\Z',$event['end']) . "\n";
+              }
+              else{
+                $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['end']) . "\n";
+              }
             }
           }
           $freq = $this->rrule($event);
@@ -684,7 +766,7 @@ class Utils
             $ical .= 'BEGIN:VALARM' . "\n";
             $ical .= 'ACTION:DISPLAY' . "\n";
             if($event['summary']) {
-              $ical .= 'DESCRITION:' . $event['summary'] . "\n";
+              $ical .= 'DESCRIPTION:' . $event['summary'] . "\n";
             }
             else if($event['description']){
               $ical .= 'DESCRIPTION:' . $event['description'] . "\n";
@@ -720,6 +802,34 @@ class Utils
         }
       }
       $ical .= "END:VCALENDAR";
+/*$ical = 'BEGIN:VCALENDAR
+PRODID:-//Roundcube//NONSGML Calendar//EN\n";
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+DTSTART:20000404T020000
+RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=4
+TZNAME:EDT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+END:DAYLIGHT
+BEGIN:STANDARD
+DTSTART:20001026T020000
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+TZNAME:EST
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:' . gmdate('Ymd\THis\Z',time()) . '
+DTSTART;TZID=America/New_York:20130522T140000
+DTEND;TZID=America/New_York:20130522T150000
+SUMMARY:Event #2 bis
+UID:' . md5(time()) . '@example.com
+END:VEVENT
+END:VCALENDAR';*/
       date_default_timezone_set($stz);
       return $ical;
     }

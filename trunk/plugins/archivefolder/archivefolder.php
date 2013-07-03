@@ -7,7 +7,7 @@
  * To move messages to a special archive folder.
  * Based on Mark As Junk sample plugin.
  *
- * @version 2.8.5 - 20.03.2013
+ * @version 2.8.6 - 15.05.2013
  * @author Andre Rodier, Thomas Bruederli, Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com 
  */
@@ -29,8 +29,8 @@ class archivefolder extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.8.5';
-  static private $date = '20-03-2013';
+  static private $version = '2.8.6';
+  static private $date = '15-05-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -189,9 +189,9 @@ class archivefolder extends rcube_plugin
     if ($rcmail->task == 'mail' && ($rcmail->action == '' || $rcmail->action == 'show') && ($archive_folder = $rcmail->config->get('archive_mbox', false))) {   
 
       // add archive folder to the list of default mailboxes
-      if (($default_folders = $rcmail->config->get('default_imap_folders')) && !in_array($archive_folder, $default_folders)) {
+      if (($default_folders = $rcmail->config->get('default_folders')) && !in_array($archive_folder, $default_folders)) {
         $default_folders[] = $archive_folder;
-        $rcmail->config->set('default_imap_folders', $default_folders);
+        $rcmail->config->set('default_folders', $default_folders);
       }
       
     }

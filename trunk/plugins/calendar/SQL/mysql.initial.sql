@@ -113,6 +113,14 @@ CREATE TABLE IF NOT EXISTS `reminders` (
   KEY `reminders_ibfk_1` (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2299 ;
 
+CREATE TABLE IF NOT EXISTS `system` (
+ `name` varchar(64) NOT NULL,
+ `value` mediumtext,
+ PRIMARY KEY(`name`)
+);
+
+INSERT INTO `system` (name, value) VALUES ('myrc_calendar', 'initial');
+
 ALTER TABLE `events`
   ADD CONSTRAINT `events_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
   

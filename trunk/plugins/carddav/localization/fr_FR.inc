@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: hugues@mail4us.net - 04/17/2013 15:24:54
+ | Author: Thomas Parvais - 06/17/2013 11:12:29
  +-----------------------------------------------------------------------+
 */
 
@@ -19,8 +19,11 @@ $labels['sharing'] = 'Partager';
 $labels['share'] = 'Partage';
 $labels['resource'] = 'Ressource';
 $labels['confidentialcarddavaccess'] = 'Accès CardDAV confidentiel [%s]';
+$labels['sharehint'] = 'Veuillez fournir les informations demandées ce-dessus (login, mot de passe (jeton) et URLs) pour que les autres utilisateurs puissent se accéder à votre carnet d\'adresses partagé. Accès en écriture et lecture. Changer ou supprimer le mot de passe (jeton) pour fermer l\'accès';
+$labels['sharehint_readonly'] = 'Veuillez fournir les informations demandées ce-dessus (login, mot de passe (jeton) et URLs) pour que les autres utilisateurs puissent se accéder à votre carnet d\'adresses partagé. Accès en lecture uniquement. Changer ou supprimer le mot de passe (jeton) pour fermer l\'accès';
 $labels['readwrite'] = 'lecture/écriture';
 $labels['readonly'] = 'lecture seule';
+$labels['abooktoken'] = 'Jeton';
 $labels['isenabled'] = 'est activé';
 $labels['isdisabled'] = 'est désactivé';
 $labels['sync_short'] = 'Synchroniser';
@@ -50,25 +53,15 @@ $labels['automaticallycollected_local'] = 'Adresse automatiquement collectée (l
 $labels['useautoabook'] = 'Utiliser le carnet d\'adresses automatique';
 $labels['useforcompletion'] = 'Utiliser les adresses collectées automatiquement pour l\'autocomplétion';
 $labels['automatic_addressbook'] = 'Ajouter automatiquement les contacts collectés à...';
-$labels['googlecontacts'] = 'Contacts Google';
-$labels['usegoogleabook'] = 'Utiliser le répertoire de contact Google';
-$labels['googleuser'] = 'Compte google';
-$labels['googlepass'] = 'Mot de passe Google';
-$labels['googlepassisset'] = 'Le mot de passe Google a été introduit';
-$labels['googlepassisnotset'] = 'Le mot de passe Google n\'a pas encore été introduit';
 $labels['toggle'] = '(Dés)activer';
 $labels['protected'] = 'Protégé';
 $labels['defaultaddressbook'] = 'Contacts personnels';
-$labels['Google'] = 'Google';
 $labels['Global'] = 'Global (lecture)';
 $labels['Work'] = 'Travail';
 $labels['Family'] = 'Famille';
 $labels['Personal'] = 'Personnel';
 $labels['Collected'] = 'Collecté';
 $labels['local'] = 'local';
-$labels['fe'] = 'f.e.';
-$labels['googlecaptcha'] = 'Donner l\'accès à votre compte google';
-$labels['clickhere'] = 'Cliquer ici';
 $labels['submenuprefix'] = '>>';
 $labels['blank'] = 'vide';
 
