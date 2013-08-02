@@ -52,14 +52,14 @@ $rcmail_config['cal_short_urls'] = false;
 */
 /* Google example */
 /*
-$rcmail_config['default_caldav_backend'] = array(
-  'user' => '%gu',
-  'pass' => '%gp',
-  'url' => 'https://www.google.com/calendar/dav/%gu/events',
-  'cat' => 'https://www.google.com/calendar/dav/%gu/%c',
-  'auth' => 'basic', //basic or detect
-  'extr' => true, // external reminder service (Google calendar reminders)
-);
+  $rcmail_config['default_caldav_backend'] = array(
+    'user' => '%gu',
+    'pass' => '%gp',
+    'url' => 'https://www.google.com/calendar/dav/%gu/events',
+    'cat' => 'https://www.google.com/calendar/dav/%gu/%c',
+    'auth' => 'basic', //basic or detect
+    'extr' => true, // external reminder service (Google calendar reminders)
+  );
 */
 /* SabreDAV example */
 $rcmail_config['default_caldav_backend'] = array(
@@ -278,14 +278,13 @@ $rcmail_config['calendarfeeds'] = array(
                  Conclusion: Link only dynamic feeds directly!
      (*) The better way:
          (**) Create a user who holds your static feeds, f.e. public_user@yourdomain.tld.
-         (**) Login as 'public_user@yourdomain.tld.
-         (**) Goto Settings -> Calendar and choose 'Default view' => 'All Calendars'
+         (**) Login as public_user@yourdomain.tld.
          (**) Goto Settings -> Calendar Feeds and enable ...
               ... 'Confidential feed access [read only]'
          (**) Copy the 'Feed URL' to clipboard.
          (**) Add this URL below and associate it with a category ...
               (***) Add a separator '|' followed by 'cache' to the category ...
-              (***) If you want to inherit colorizing of 'public_user@yourdomain.tld,
+              (***) If you want to inherit colorizing of public_user@yourdomain.tld,
                     then add a further separator '|' followed by 'inherit' to the
                     category.
               (***) Now the config entry should be something like:
@@ -305,7 +304,7 @@ $rcmail_config['calendarfeeds'] = array(
 */
 $rcmail_config['public_calendarfeeds'] = array(
   'http://www.google.com/calendar/feeds/usa__en@holiday.calendar.google.com/public/basic' => 'Public',
-  //'http://yourdomain.tld/?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1' => 'Holiday|cache'
+  //'http://yourdomain.tld/?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1' => 'Holiday|cache|inherit'
 );
 
 ?>

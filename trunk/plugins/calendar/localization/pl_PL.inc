@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: tomasz.chilinski@chilan.com - 06/22/2013 12:34:49
+ | Author: Tomasz - 07/28/2013 20:34:11
  +-----------------------------------------------------------------------+
 */
 
@@ -19,6 +19,8 @@ $labels['forinstance'] = 'np.';
 $labels['caldavserver'] = 'Serwer CalDAV';
 $labels['caldavsettings'] = 'Ustawienia CalDAV';
 $labels['unlink_caldav'] = 'Aby usunąć tę kategorię, proszę najpierw odłączyć serwer CalDAV';
+$labels['unlink_caldav_warning'] = 'Jesteś pewien?';
+$labels['unlink_events_warning'] = 'Czy chcesz trwale usunąć wszystkie zdarzenia z tego kalendarza? Czynność nie będzie mogła zostać odwrócona! Wybierz ANULUJ, aby zapobiec skasowaniu wydarzeń przechowywanych w tym kalendarzu.';
 $labels['caldavurl'] = 'URL CalDAV';
 $labels['passwordisset'] = 'Hasło jest ustawione';
 $labels['passwordisnotset'] = 'Hasło nie jest ustawione';

@@ -7,7 +7,7 @@ function calendar_gui(){
   this.minimalmode = function(){
     if(typeof rcmail.get_cookie != 'undefined' && rcmail.env.skin == 'larry'){
       var minmode = rcmail.get_cookie('minimalmode');
-      if(typeof rcmail.get_cookie != 'undefined' && (parseInt(minmode) || (minmode === null && $(window).height() < 850))){
+      if(typeof rcmail.get_cookie != 'undefined' && typeof minmode == 'string' && (parseInt(minmode) || (minmode === null && $(window).height() < 850))){
         $('#mainscreen').css('top', '85px');
         $('#calendaroverlay').css('top', '85px');
         $('#calendar-header').css('top', '85px');

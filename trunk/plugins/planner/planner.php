@@ -2,9 +2,9 @@
 /**
  * planner
  *
- * @version 3.0.2 - 01.06.2013
+ * @version 3.0.6 - 10.07.2013
  * @author Roland 'rosali' Liebl (forked from: see below)
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  *
  **/
 /*
@@ -56,8 +56,8 @@ class planner extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.0.2';
-  static private $date = '01-06-2013';
+  static private $version = '3.0.6';
+  static private $date = '10-07-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',

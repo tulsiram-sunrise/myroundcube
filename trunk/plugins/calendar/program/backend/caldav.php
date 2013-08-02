@@ -1001,6 +1001,9 @@ PROPP;
       if ($uid==false) $uid='0';
       if ($client==false) $client='0';
       //
+      if(is_array($exdates)){
+        $exdates = serialize($exdates);
+      }
       if($this->type == 'caldav'){
         if(is_array($this->caldavs[$categories])){
           $this->url = $this->caldavs[$categories]['url'];
@@ -1618,7 +1621,7 @@ PROPP;
          WHERE ".$this->q('user_id')."=? AND ".
                  //$this->q('start').">? AND ". // find me: memory exhaustion?
                  $this->q('start')."<? AND ".
-                 $this->q($filterfield) . $filtercomp,
+                 $this->q($filterfield) . $filtercomp . ' ORDER BY ' . $this->q('uid') . ' ASC, ' . $this->q('recurrence_id') . ' ASC',
          $this->rcmail->user->ID,
          //$start, // find me: memory exhaustion?
          $end,
@@ -1847,7 +1850,7 @@ PROPP;
         if(isset($events[$event['uid']])){
           $this->rcmail->db->query(
             "DELETE FROM " . $this->table($table) . "
-            WHERE ".$this->q('user_id')."=? AND ".$this->q('event_id')."=?",
+            WHERE ".$this->q('user_id')."=? AND ".$this->q('event_id')."=? AND ".$this->q('recurrence_id'). " IS NULL",
             $this->rcmail->user->ID,
             $event['event_id']
           );

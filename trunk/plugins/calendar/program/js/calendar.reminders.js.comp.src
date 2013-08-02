@@ -5,10 +5,12 @@ function calendar_reminders(){
   this.schedule = function(){
     rcmail.enable_command('send-attachment',false);
     $('#attachment-form .mainaction').prop('disabled', true);
-    $('#remindersloading').html('<span class="smallreminders"align="center">' + rcmail.gettext('remindersloading','calendar') + '</span>');
-    $('#remindersloading').show();
-    if(rcmail.env.task != 'login' && rcmail.env.task != 'logout'){
-      rcmail.http_request('plugin.calendar_get_reminders');
+    if(rcmail.env.task != 'tasks'){
+      $('#remindersloading').html('<span class="smallreminders"align="center">' + rcmail.gettext('remindersloading','calendar') + '</span>');
+      $('#remindersloading').show();
+      if(rcmail.env.task != 'login' && rcmail.env.task != 'logout'){
+        rcmail.http_request('plugin.calendar_get_reminders');
+      }
     }
   }
   this.remove = function(id, event_id){

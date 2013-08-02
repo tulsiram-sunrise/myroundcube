@@ -26,16 +26,16 @@ $rcmail_config['carddav_url_replace'] = array('http://localhost:570' => 'https:/
 /* Multiple domain config example
    See https://code.google.com/p/myroundcube/issues/detail?id=491 */
 /*
-$rcmail_config['moreuserinfo'] = array(
-  'IMAP' => array(
-    'all' => array(
-      'encryption' => 'SSL',
-      'server' => 'imap.{DOMAIN.TLD}',
-      'port' => '993',
-      'auth' => 'yes'
+  $rcmail_config['moreuserinfo'] = array(
+    'IMAP' => array(
+      'all' => array(
+        'encryption' => 'SSL',
+        'server' => 'imap.{DOMAIN.TLD}',
+        'port' => '993',
+        'auth' => 'yes'
+      )
     )
-  )
-);
+  );
 */
 
 $rcmail_config['moreuserinfo'] = array(

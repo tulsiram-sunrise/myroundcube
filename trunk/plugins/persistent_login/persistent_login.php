@@ -2,9 +2,9 @@
 /**
  * persistent_login (based on code by Manuel Freiholz)
  *
- * @version 1.2.3 - 31.05.2013
+ * @version 1.2.4 - 23.07.2013
  * @author Roland 'rosali' Liebl, Matthias Krauser
- * @website http://myroundcube.googlecode.com 
+ * @website http://myroundcube.com 
  */
  
 /**
@@ -33,8 +33,8 @@ class persistent_login extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.2.3';
-  static private $date = '31-05-2013';
+  static private $version = '1.2.4';
+  static private $date = '23-07-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',

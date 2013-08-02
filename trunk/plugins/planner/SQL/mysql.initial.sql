@@ -1,4 +1,4 @@
-CREATE TABLE `planner` (
+CREATE TABLE IF NOT EXISTS `planner` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL DEFAULT '0',
   `starred` int(1) NOT NULL DEFAULT '0',

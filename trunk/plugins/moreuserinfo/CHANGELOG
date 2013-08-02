@@ -13,3 +13,4 @@ VERSION                COMMENT
 4.0.10 - 4.0.11        - config.inc.php.dist revision
 4.0.12 - 4.1.13        - Compatibility with latest calendar release
 4.0.14                 - Fix: https://code.google.com/p/myroundcube/issues/detail?id=532
+4.0.15                 - Plugin Manager related adjustments

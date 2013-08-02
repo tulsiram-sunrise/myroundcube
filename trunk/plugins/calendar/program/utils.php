@@ -290,6 +290,14 @@ class Utils
         if($vevent->dtstart['params']['TZID']){
           date_default_timezone_set($vevent->dtstart['params']['TZID']);
         }
+        $norm = array('hour', 'min', 'sec');
+        foreach($norm as $prop){
+          if(isset($vevent->dtstart['value'][$prop])){
+            if(strlen($vevent->dtstart['value'][$prop]) < 2){
+              $vevent->dtstart['value'][$prop] = '0' . $vevent->dtstart['value'][$prop];
+            }
+          }
+        }
         $val = implode('', $vevent->dtstart['value']);
         if($ts = strtotime($val)){
           if(is_numeric($ts)){
@@ -306,6 +314,13 @@ class Utils
             if(is_array($vevent->dtend)){
               if($vevent->dtend['params']['TZID']){
                 date_default_timezone_set($vevent->dtend['params']['TZID']);
+              }
+              foreach($norm as $prop){
+                if(isset($vevent->dtend['value'][$prop])){
+                  if(strlen($vevent->dtend['value'][$prop]) < 2){
+                    $vevent->dtend['value'][$prop] = '0' . $vevent->dtend['value'][$prop];
+                  }
+                }
               }
               $val = implode('', $vevent->dtend['value']);
               $xevent['DTEND'] = strtotime($val);
@@ -337,6 +352,7 @@ class Utils
             if(is_array($vevent->uid)){
               $xevent['UID'] = $vevent->uid['value'];
             }
+            $recurrence_id = null;
             if(is_array($vevent->recurrenceid)){
               $xevent['RECURRENCE-ID']['TZID'] = $vevent->recurrenceid['params']['TZID'];
               $xevent['RECURRENCE-ID']['unixtime'] = strtotime(implode('', $vevent->recurrenceid['value']));
@@ -705,6 +721,9 @@ class Utils
             $exdates = @unserialize($event['exdates']);
             if(is_array($exdates)){
               foreach($exdates as $idx => $exdate){
+                if(is_array($exdate)){
+                  $exdate = $exdate[0];
+                }
                 if(!$event['end'] || ($event['end'] - $event['start'] >= 86340 && $event['end'] - $event['start'] <= 86400) ||
                   (date('I', $event['start']) < date('I', $event['end']) && $event['start'] >= (86340 - 3600) && $event['end'] - $event['start'] <= (86400 - 3600)) ||
                   (date('I', $event['start']) > date('I', $event['end']) && $event['start'] >= (86340 + 3600) && $event['end'] - $event['start'] <= (86400 + 3600))

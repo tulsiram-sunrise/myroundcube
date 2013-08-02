@@ -4,7 +4,7 @@ CREATE SEQUENCE planner_ids
     NO MINVALUE
     CACHE 1;
 
-CREATE TABLE planner (
+CREATE TABLE IF NOT EXISTS planner (
     id integer DEFAULT nextval('planner_ids'::regclass) NOT NULL,
     user_id integer NOT NULL,
     "starred" smallint NOT NULL DEFAULT 0,

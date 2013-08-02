@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 15.0.5 - 26.06.2013
+ * @version 15.0.13 - 28.07.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -80,8 +80,8 @@ class calendar extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '15.0.5';
-  static private $date = '26-06-2013';
+  static private $version = '15.0.13';
+  static private $date = '28-07-2013';
   static private $db_version = array(
     'initial',
     '20130512',
@@ -1152,7 +1152,7 @@ class calendar extends rcube_plugin{
     
   }
   
-  function message_compose_body($args) {
+  function message_compose_body($args){
     $rcmail = rcmail::get_instance();
     $_SESSION['compose_ids'][get_input_value('_id', RCUBE_INPUT_GET)] = 1;
     if(class_exists('compose_newwindow')){
@@ -1168,7 +1168,7 @@ class calendar extends rcube_plugin{
     return $args;
   }
   
-  function message_compose($args) {
+  function message_compose($args){
     if(empty($args['param']['attachics']))
       return $args;
     $rcmail = rcmail::get_instance();
@@ -2244,7 +2244,7 @@ class calendar extends rcube_plugin{
     if($_SESSION['user_id']){
       $categories = $rcmail->config->get('categories', array());
       if($this->backend->newCalendar($save['caldavs'][$category], $category, '#' . $categories[$category])){
-        $subscribed[$category] = $caldavs[$category];
+        $subscribed[$category] = $save['caldavs'][$category];
         $save['caldavs_subscribed'] = array_merge($caldavs_subscribed, $subscribed);
         $save['ctags'] = array();
         unset($save['caldavs_removed'][unslashify($url)]);
@@ -2559,7 +2559,7 @@ class calendar extends rcube_plugin{
   
   function settingsTable($args){
     $rcmail = rcmail::get_instance();
-    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('calendar')) == 'calendar'){
+    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('calendar')) == 'calendar' && class_exists('calendar_plus')){
       $args['blocks'][$args['section']]['options'] = array(
         'title'   => '',
         'content' => html::tag('div', array('id' => 'pm_dummy'), '')
@@ -3109,6 +3109,11 @@ class calendar extends rcube_plugin{
       }
       else
         $feeds = array();
+      $public = $rcmail->config->get('public_calendarfeeds', array());
+      $pfeeds = array();
+      foreach($public as $url => $cat){
+        $pfeeds[$url] = $cat;
+      }
       $this->clearCache();
       foreach($feeds as $key => $val){
         if(!empty($key)){
@@ -3140,11 +3145,14 @@ class calendar extends rcube_plugin{
       }
       $args['prefs']['calendarfeeds'] = $feeds;
       foreach($feeds_subscribed as $key => $val){
-        if(!$feeds[$key]){
+        if(!$feeds[$key] && !$pfeeds[$key]){
           unset($feeds_subscribed[$key]);
         }
-        else if($feeds[$key] != $feeds_subscribed[$key]){
+        else if($feeds[$key] && $feeds[$key] != $feeds_subscribed[$key]){
           $feeds_subscribed[$key] = $feeds[$key];
+        }
+        else if($pfeeds[$key] && $pfeeds[$key] != $feeds_subscribed[$key]){
+          $feeds_subscribed[$key] = $pfeeds[$key];
         }
       }
       $args['prefs']['feeds_subscribed'] = $feeds_subscribed;
@@ -3649,7 +3657,7 @@ class calendar extends rcube_plugin{
             $source = 'ics';
           }
         }
-        else if(stripos($arr['host'],'google.') && strtolower(substr($feedurl,strlen($feedurl)-4)) != '.ics'){ // Google xml calendar
+        else if(stripos($arr['host'], 'google.') && strtolower(substr($feedurl, strlen($feedurl)-4)) != '.ics'){ // Google xml calendar
           $source = 'google';
           $feedurl = preg_replace('/\/basic$/', '/full', $feedurl) . $con . 'alt=json';
         }
@@ -3664,7 +3672,7 @@ class calendar extends rcube_plugin{
           }
         }
         if($source == 'ics'){
-          $this->utils->importEvents($content,$userid=false,$echo=false,$idoverwrite=$url,$item=false,$client=false,$className);
+          $this->utils->importEvents($content, $userid=false, $echo=false, $idoverwrite=$url, $item=false, $client=false, $className);
         }
         if($source == 'google'){
           $events = json_decode($content, true);

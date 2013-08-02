@@ -1,4 +1,4 @@
-CREATE TABLE planner (
+CREATE TABLE IF NOT EXISTS planner (
   id integer NOT NULL PRIMARY KEY,
   user_id integer NOT NULL default '0',
   starred tinyint(1) NOT NULL default '0',

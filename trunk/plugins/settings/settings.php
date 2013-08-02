@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 4.2.6 - 15.06.2013
+ * @version 4.2.7 - 20.07.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  */
@@ -27,8 +27,8 @@ class settings extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.2.6';
-  static private $date = '15-06-2013';
+  static private $version = '4.2.7';
+  static private $date = '20-07-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
     'Roundcube' => '0.8',
@@ -291,13 +291,15 @@ element.qtip({
     }
     
     $p['content'] = implode('', $temparr);
-    if($_GET['_section'] == "general" || $_POST['_section'] == "general"){
-      $p['content'] .= html::tag('br') . 
-        html::tag('fieldset', null, html::tag('legend', null, $this->gettext('skin_preview')) . 
-          html::tag('div', array('id' => 'skin_preview', 'align' => 'center'),
-            html::tag('img', array('id' => 'skin_preview_img', 'src' => './plugins/settings/skins/' . $rcmail->config->get('skin','classic') . '/images/' . $rcmail->config->get('skin','classic') . '.png'))
-          )
-        ) . html::tag('script', array('type' => 'text/javascript'), '$(document).ready(function(){$(".skinitem").click(function(){ $("#skin_preview_img").attr("src", "./plugins/settings/skins/" + $(this).children().val() + "/images/" + $(this).children().val() + ".png"); }); });');
+    if(!in_array('skin', $rcmail->config->get('dont_override', array()))){
+      if($_GET['_section'] == "general" || $_POST['_section'] == "general"){
+        $p['content'] .= html::tag('br') . 
+          html::tag('fieldset', null, html::tag('legend', null, $this->gettext('skin_preview')) . 
+            html::tag('div', array('id' => 'skin_preview', 'align' => 'center'),
+              html::tag('img', array('id' => 'skin_preview_img', 'src' => './plugins/settings/skins/' . $rcmail->config->get('skin','classic') . '/images/' . $rcmail->config->get('skin','classic') . '.png'))
+            )
+          ) . html::tag('script', array('type' => 'text/javascript'), '$(document).ready(function(){$(".skinitem").click(function(){ $("#skin_preview_img").attr("src", "./plugins/settings/skins/" + $(this).children().val() + "/images/" + $(this).children().val() + ".png"); }); });');
+      }
     }
     return $p;
 

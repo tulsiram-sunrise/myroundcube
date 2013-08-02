@@ -3,15 +3,9 @@
 /**
  * Webmail Notifier
  *
- * @version 3.1 - 19.11.2012
+ * @version 3.1.2 - 01.08.2013
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
- *
- **/
- 
-/**
- *
- * Usage: http://mail4us.net/myroundcube/
+ * @website http://myroundcube.com
  *
  **/
  
@@ -34,8 +28,8 @@ class webmail_notifier extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/webmail_notifier-plugin" target=_new>Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.1';
-  static private $date = '19-11-2012';
+  static private $version = '3.1.2';
+  static private $date = '01-08-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',
@@ -119,6 +113,7 @@ class webmail_notifier extends rcube_plugin
     if(!empty($_POST['_webmail_notifier']) || !empty($_GET['_webmail_notifier'])){
       $_SESSION['noidletimeout'] = true;
       $args['valid'] = true;
+      $args['cookiecheck'] = false;
     }
     return $args;
   }
@@ -130,9 +125,9 @@ class webmail_notifier extends rcube_plugin
       $s = "s";
     $append = '';
     if(file_exists(INSTALL_PATH . 'plugins/summary/summary.php')){
-      $append = '?_action=plugin.summary';
+      $append = '&_action=plugin.summary';
     }
-    $providerurl = unslashify("http$s://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . $append);
+    $providerurl = unslashify("http$s://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?wmn' . $append);
 
     $script = file_get_contents('./plugins/webmail_notifier/scripts/roundcube.js');
     $script = str_replace('$providername$',$providername,$script);

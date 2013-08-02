@@ -180,22 +180,22 @@ $(document).ready(function() {
         $('#' + response[1]).children().next().removeClass('done');
         $('#' + response[1]).children().next().addClass('delete');
         $('#done_count').html(parseInt($('#done_count').html()) + 1);
-        $('#all_count').html(parseInt($('#all_count').html()) - 1);
-        $('#today_count').html(parseInt($('#today_count').html()) - 1);
-        $('#tomorrow_count').html(parseInt($('#tomorrow_count').html()) - 1);
-        $('#week_count').html(parseInt($('#week_count').html()) - 1);
+        $('#all_count').html(Math.max(parseInt($('#all_count').html()) - 1, 0));
+        $('#today_count').html(Math.max(parseInt($('#today_count').html()) - 1, 0));
+        $('#tomorrow_count').html(Math.max(parseInt($('#tomorrow_count').html()) - 1, 0));
+        $('#week_count').html(Math.max(parseInt($('#week_count').html()) - 1, 0));
         rcmail.env.planner_counts.done = rcmail.env.planner_counts.done + 1;
-        rcmail.env.planner_counts.today = rcmail.env.planner_counts.today - 1;
-        rcmail.env.planner_counts.tomorrow = rcmail.env.planner_counts.tomorrow - 1;
-        rcmail.env.planner_counts.week = rcmail.env.planner_counts.week - 1;
+        rcmail.env.planner_counts.today = Math.max(rcmail.env.planner_counts.today - 1, 0);
+        rcmail.env.planner_counts.tomorrow = Math.max(rcmail.env.planner_counts.tomorrow - 1, 0);
+        rcmail.env.planner_counts.week = Math.max(rcmail.env.planner_counts.week - 1, 0);
         planner_show_overdue_count();
         break;
       case 'unstar':
         $('#' + response[1]).children().removeClass('star');
         $('#' + response[1]).children().addClass('nostar');
         $('#' + response[1]).children().attr('title', rcmail.gettext('planner.star_plan'));
-        $('#starred_count').html(parseInt($('#starred_count').html()) - 1);
-        rcmail.env.planner_counts.starred = rcmail.env.planner_counts.starred - 1;
+        $('#starred_count').html(Math.max(parseInt($('#starred_count').html()) - 1, 0));
+        rcmail.env.planner_counts.starred = Math.max(rcmail.env.planner_counts.starred - 1, 0);
         if(rcmail.env.planner_items == 'starred'){
           $('#' + response[1]).remove();
         }
@@ -210,9 +210,9 @@ $(document).ready(function() {
       case 'delete':
         $('#' + response[1]).children().next().removeClass('delete');
         $('#' + response[1]).children().next().addClass('remove');
-        $('#done_count').html(parseInt($('#done_count').html()) - 1);
+        $('#done_count').html(Math.max(parseInt($('#done_count').html()) - 1, 0));
         $('#deleted_count').html(parseInt($('#deleted_count').html()) + 1);
-        rcmail.env.planner_counts.done = rcmail.env.planner_counts.done - 1;
+        rcmail.env.planner_counts.done = Math.max(rcmail.env.planner_counts.done - 1, 0);
         rcmail.env.planner_counts.deleted = rcmail.env.planner_counts.deleted + 1;
         planner_items = 0;
         $('#planner_items_list li').each(function(){

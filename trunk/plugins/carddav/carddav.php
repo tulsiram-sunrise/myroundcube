@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 5.4.6 - 26.06.2013
+ * @version 5.4.8 - 20.07.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -42,8 +42,8 @@ class carddav extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '5.4.6';
-  static private $date = '26-06-2013';
+  static private $version = '5.4.8';
+  static private $date = '20-07-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',
@@ -804,7 +804,7 @@ class carddav extends rcube_plugin{
   }
 
   public function carddav_settings($args){
-    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('addressbook')) == 'addressbook'){
+    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('addressbook')) == 'addressbook' && class_exists('carddav_plus')){
       $args['blocks'][$args['section']]['options'] = array(
         'title'   => '',
         'content' => html::tag('div', array('id' => 'pm_dummy'), '')

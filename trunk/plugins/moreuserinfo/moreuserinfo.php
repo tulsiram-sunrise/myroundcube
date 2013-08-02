@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.14 - 19.05.2013
+ * @version 4.0.15 - 22.07.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -26,8 +26,8 @@ class moreuserinfo extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0.14';
-  static private $date = '19-05-2013';
+  static private $version = '4.0.15';
+  static private $date = '22-07-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.1',

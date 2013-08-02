@@ -211,7 +211,7 @@ function planner_datetimepicker(){
     timeText: rcmail.gettext('planner.timeText'),
     hourText: rcmail.gettext('planner.hourText'),
     minuteText: rcmail.gettext('planner.minuteText'),
-    minDate: Math.round((new Date().getTime() + 60 * 60 * 1000) / (15 * 60 * 1000)) * 15 * 60 * 1000,
+    minDate: new Date(Math.round(new Date().getTime() / (15 * 60 * 1000)) * 15 * 60 * 1000),
     showButtonPanel: false,
     onSelect: function(dateText){
       dateText = planner_dialog_ampm_replace(dateText) + ' ';
@@ -333,8 +333,6 @@ function planner_keypress(){
         planner_dialog();
       }
       if(typed){
-        if(bw.mz)
-          $('#planner_raw').val(typed);
         $('#planner_raw').focus();
       }
     }
@@ -695,7 +693,15 @@ function planner_dialog_reset_gui(){
   $("#planner_deleted").prop('checked', false);
   $("#planner_preview_done").removeClass('pdelete');
   $('#planner_id').val('');
-  $('#planner_input').dialog('option', 'title', rcmail.gettext('planner.new'));
+  try{
+    if($('#planner_input').dialog("isOpen") !== true){
+      $('#planner_input').dialog('option', 'title', rcmail.gettext('planner.new'));
+    }
+  }
+  catch(e){
+    planner_dialog();
+    $('#planner_input').dialog('option', 'title', rcmail.gettext('planner.new'));
+  }
   $('#planner_mode').val('new');
   $('#planner_datetime').val('');
   $('#planner_text').val('');
