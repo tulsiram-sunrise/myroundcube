@@ -33,6 +33,10 @@ final class calendar_dummy extends Backend
     $location,
     $categories,
     $allDay,
+    $status,
+    $priority,
+    $due,
+    $complete,
     $recur,
     $expires,
     $occurrences,
@@ -45,7 +49,8 @@ final class calendar_dummy extends Backend
     $remindertype=false,
     $remindermailto=false,
     $uid=false,
-    $client=false
+    $client=false,
+    $component='vevent'
   ) {
   }
 
@@ -53,6 +58,10 @@ final class calendar_dummy extends Backend
     $id,
     $start,
     $end,
+    $status,
+    $priority,
+    $due,
+    $complete,
     $summary,
     $description,
     $location,
@@ -70,7 +79,8 @@ final class calendar_dummy extends Backend
     $remindermailto=false,
     $allDay=false,
     $old_categories=false,
-    $caldav=false
+    $caldav=false,
+    $component='vevent'
   ) {
   }
 

@@ -2,20 +2,22 @@
 /**
  * codemirror_ui
  *
- * @version 1.0 - 27.07.2013
+ * @version 1.0.2 - 07.08.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
  **/
 
 class codemirror_ui extends rcube_plugin{
+
+  public $noajax = true;
   
   /* unified plugin properties */
   static private $plugin = 'codemirror_ui';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
-  static private $version = '1.0';
-  static private $date = '27-07-2013';
+  static private $version = '1.0.2';
+  static private $date = '07-08-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.8.6',

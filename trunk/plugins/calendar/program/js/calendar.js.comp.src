@@ -36,6 +36,7 @@ $(document).ready(function() {
     $('#calendar').fullCalendar('refetchEvents');
     $('#calendaroverlay').hide();
     $('#cal_boxtitle').html(response[0].content);
+    rcmail.http_post('plugin.getTasks', '_init=0');
     return;
   }
   
@@ -44,11 +45,13 @@ $(document).ready(function() {
     $('#calendaroverlay').hide();
     rcmail.display_message(rcmail.gettext('calendar.errorsaving'), 'error');
     $('#calendar').fullCalendar('refetchEvents');
+    rcmail.http_post('plugin.getTasks', '_init=0');
   }
   
   function reloadCalendar(msgid) {
     $('#calendar').fullCalendar('removeEvents');
     $('#calendar').fullCalendar('refetchEvents');
+    rcmail.http_post('plugin.getTasks', '_init=0');
     rcmail.set_busy(false,'loading',msgid);
     $('#calendaroverlay').hide();
   }
@@ -100,6 +103,111 @@ $(document).ready(function() {
     calendar_commands.triggerSearch();
   }
   
+  /* get tasks */
+  rcmail.addEventListener('plugin.getTasks', getTasks);
+  rcmail.addEventListener('plugin.getTask', getTask);
+  
+  rcmail.http_post('plugin.getTasks', '_init=1');
+  
+  function getTasks(response){
+    $('#taskscontent').html(response.html);
+    if($('.all').length > 0){
+      $('#call').html('(' + $('.all').length + ')').show();
+      $('#all').show();
+    }
+    else{
+      $('#call').html(0).hide();
+      $('#all').hide();
+    }
+    if($('.overdue').length > 0){
+      $('#coverdue').html('(' + $('.overdue').length + ')').show();
+      $('#overdue').addClass('overduered').show();
+    }
+    else{
+      $('#coverdue').html(0).hide();
+      $('#overdue').removeClass('overduered').hide();
+    }
+    if($('.today').length > 0){
+      $('#ctoday').html('(' + $('.today').length + ')').show();
+      $('#today').show();
+    }
+    else{
+      $('#ctoday').html(0).hide();
+      $('#today').hide();
+    }
+    if($('.tomorrow').length > 0){
+      $('#ctomorrow').html('(' + $('.tomorrow').length + ')').show();
+       $('#tomorrow').show();
+    }
+    else{
+      $('#ctomorrow').html(0).hide();
+      $('#tomorrow').hide();
+    }
+    if($('.sevendays').length > 0){
+      $('#csevendays').html('(' + $('.sevendays').length + ')').show();
+       $('#sevendays').show();
+    }
+    else{
+      $('#csevendays').html(0).hide();
+      $('#sevendays').hide();
+    }
+    if($('.later').length > 0){
+      $('#clater').html('(' + $('.later').length + ')').show();
+      $('#later').show();
+    }
+    else{
+      $('#clater').html(0).hide();
+      $('#later').hide();
+    }
+    if($('.nodate').length > 0){
+      $('#cnodate').html('(' + $('.nodate').length + ')').show();
+      $('#nodate').show();
+    }
+    else{
+      $('#cnodate').html(0).hide();
+      $('#nodate').hide();
+    }
+    if($('.high').length > 0){
+      $('#chigh').html('(' + $('.high').length + ')').show();
+      $('#high').show();
+    }
+    else{
+      $('#chigh').html(0).hide();
+      $('#high').hide();
+    }
+    if($('.low').length > 0){
+      $('#clow').html('(' + $('.low').length + ')').show();
+      $('#low').show();
+    }
+    else{
+      $('#clow').html(0).hide();
+      $('#low').hide();
+    }
+    if($('.complete').length > 0){
+      $('#ccomplete').html('(' + $('.complete').length + ')').show();
+      $('#complete').show();
+    }
+    else{
+      $('#ccomplete').html(0).hide();
+      $('#complete').hide();
+    }
+    $('#tasks th.selected').trigger('click');
+    if(response.script){
+      eval(response.script);
+    }
+    var isvisible = rcmail.get_cookie('tasksvisible');
+    if(isvisible == 1 || isvisible === null){
+      $('#tasks').show();
+    }
+    $('#taskquickinput').focus();
+    $('#calendaroverlay').hide();
+  }
+  
+  function getTask(event){
+    $('#calendaroverlay').hide();
+    calendar_callbacks.eventClick(event, rcmail.env.calsettings, 'vtodo');
+  }
+  
   /* get settings */
   rcmail.addEventListener('plugin.getSettings', getSettings);
   
@@ -131,6 +239,7 @@ $(document).ready(function() {
     $('#cal_boxtitle').html(response.settings['boxtitle'].content);
     $('#calusers').html(response.settings['usersselector'].content);
     $('#categories_html').html(response.settings['categorieshtml']);
+    $('#taskscategories_html').html(response.settings['categorieshtml'].replace('categories', 'taskscategories'));
 
     /* init Navigation Datepicker */
     calendar_gui.initNavDatepicker(response);
@@ -229,6 +338,29 @@ $(document).ready(function() {
         calendar_callbacks.eventClick(event, response);
       }
     });
+    
+    // show/hide tasks
+    $('#taskstoggle').click(function(){
+      if($(this).html() == '+'){
+        $(this).html('&minus;');
+        $(this).attr('title', rcmail.gettext('hide_tasks', 'calendar'));
+        $('#tasks').show();
+        $('#calendar').css('right', '450px');
+        rcmail.set_cookie('tasksvisible', 1);
+      }
+      else{
+        $(this).html('+');
+        $(this).attr('title', rcmail.gettext('show_tasks', 'calendar'));
+        $('#tasks').hide();
+        $('#calendar').css('right', '0');
+        rcmail.set_cookie('tasksvisible', 0);
+      }
+      $('#calendar').fullCalendar('render');
+    });
+    
+    if(rcmail.get_cookie('tasksvisible') == 0){
+      $('#taskstoggle').trigger('click');
+    }
     
     if(response.settings['date']){
       calendar_commands.gotoDate(response.settings['date']);

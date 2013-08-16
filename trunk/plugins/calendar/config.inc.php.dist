@@ -132,6 +132,9 @@ $rcmail_config['caldav_replication_range'] = array(
   'future' => 2, // (y)
 );
 
+/* Tasks Replication */
+$rcmail_config['caldav_replication_range_tasks'] = 92; // days
+
 /* Replicate CalDAV automatically after (x) seconds
    Recommended: 1800
    Never replicate automatically: false

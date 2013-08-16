@@ -1,12 +1,13 @@
 <div id="event">
   <ul>
-    <li><a href="#event-1" id="tab1"><roundcube:label name="calendar.general" /></a></li>
+    <li><a href="#event-1" id="tab1"><span class="vevent"><roundcube:label name="calendar.event" /></span><span class="vtodo"><roundcube:label name="calendar.task" /></span></a></li>
     <li><a href="#event-2" id="tab2"><roundcube:label name="calendar.schedule" /></a></li>
     <li><a href="#event-3" id="tab3"><roundcube:label name="import" /></a></li>
     <li><a href="#event-4" id="tab4"><roundcube:label name="export" /></a></li>
     <li><a href="#event-5" id="tab5"><roundcube:label name="calendar.reminders" /></a><li>
   </ul>
   <form autocomplete="off" id="form" target="uploader" name="form" method="post" enctype="multipart/form-data" action="./?_task=dummy&_action=plugin.calendar_upload">
+    <input type="hidden" name="component" id="component" value="vevent" />
     <div id="event-1">
     <table>
       <tr>
@@ -18,15 +19,60 @@
         <td>
             <input type="text" name="starttime" size="5" id="starttime" readonly="readonly" />
             <span>&nbsp;</span>
-            <input type="text" name="startdate" size="12" id="startdate" readonly="readonly" />
+            <input type="text" name="startdate" size="14" id="startdate" readonly="readonly" />
+            <span class="vtodo">&nbsp;</span>
+            <input class="vtodo" type="radio" name="startactive" size="14" id="startactive" value="1" />
+        </td>
+      </tr>
+      <tr class="vtodo">
+        <td><roundcube:label name="calendar.due" />:</td>
+        <td>
+            <input type="text" name="duetime" size="5" id="duetime" readonly="readonly" />
+            <span>&nbsp;</span>
+            <input type="text" name="duedate" size="14" id="duedate" readonly="readonly" />
+            <span>&nbsp;</span>
+            <input type="radio" name="dueactive" size="14" id="dueactive" value="1" />
         </td>
       </tr>
       <tr>
-        <td><roundcube:label name="calendar.end" />:</td>
+        <td><span class="vevent"><roundcube:label name="calendar.end" /></span><span class="vtodo"><roundcube:label name="calendar.completed" /></span>:</td>
         <td>
             <input type="text" name="endtime" size="5"  id="endtime" readonly="readonly" />
             <span>&nbsp;</span>
-            <input type="text" name="enddate" size="12" id="enddate" readonly="readonly" />
+            <input type="text" name="enddate" size="14" id="enddate" readonly="readonly" />
+            <span class="vtodo">&nbsp;</span>
+            <input class="vtodo" type="radio" name="endactive" size="14" id="endactive" value="1" />
+        </td>
+      </tr>
+      <tr class="vtodo">
+        <td><roundcube:label name="calendar.status" />:</td>
+        <td>
+          <select id="statussel" name="status">
+            <option value="0">--</option>
+            <option value="IN-PROCESS"><roundcube:label name="calendar.IN-PROCESS" /></option>
+            <option value="NEEDS-ACTION"><roundcube:label name="calendar.NEEDS-ACTION" /></option>
+            <option value="COMPLETED"><roundcube:label name="calendar.COMPLETED" /></option>
+            <option value="CANCELLED"><roundcube:label name="calendar.CANCELLED" /></option>
+          </select>
+        </td>
+      </tr>
+      <tr class="vtodo" height="20px">
+        <td><roundcube:label name="calendar.percentage" />:<br />(<span id="percentagedisplay"></span>%)</td>
+        <td>
+            <div id="slider" style="margin-left: 5px; margin-right: 5px; width: 220px;"></div>
+            <input type="hidden" name="percentage" id="percentage" value="0" />
+        </td>
+      </tr>
+      <tr>
+        <td><roundcube:label name="calendar.priority" />:</td>
+        <td>
+          <select id="prioritysel" name=priority>
+            <option value="0">--</option>
+            <option value="9"><roundcube:label name="calendar.low" /></option>
+            <option value="5"><roundcube:label name="normal" /></option>
+            <option value="1"><roundcube:label name="calendar.high" /></option>
+          </select>
+        <td>
         </td>
       </tr>
       <tr>
@@ -46,9 +92,6 @@
     </table>
     </div>
     <div id="event-2">
-    <table>
-      <tr>
-    </table>
     <table>
       <tr>
         <td nowrap><roundcube:label name="calendar.recur" />:</td>
@@ -447,7 +490,7 @@
       <tr>
         <td><roundcube:label name="calendar.expires" />:</td>
         <td>
-          <input name="expires" size="12" id="expires" type="text" readonly="readonly" />
+          <input name="expires" size="14" id="expires" type="text" readonly="readonly" />
           <small>&nbsp;<a class="button"  href="#" id="infinite"><roundcube:label name="calendar.infinite" /></a></small>
         </td>
       </tr>  

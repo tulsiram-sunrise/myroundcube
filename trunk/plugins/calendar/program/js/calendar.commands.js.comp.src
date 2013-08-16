@@ -6,7 +6,9 @@ function calendar_commands(){
     rcmail.register_command('plugin.calendar_switchCalendar', calendar_commands.switchCalendar, true);
     rcmail.register_command('plugin.exportEventsZip', calendar_commands.exportEventsZip, true);
     rcmail.register_command('plugin.importEvents', calendar_commands.importEvents, true);
-    rcmail.register_command('plugin.calendar_print', calendar_commands.previewPrintEvents, true);
+    rcmail.register_command('plugin.calendar_print', calendar_commands.printSubmenu, true);
+    rcmail.register_command('plugin.events_print', calendar_commands.previewPrintEvents, true);
+    rcmail.register_command('plugin.tasks_print', calendar_commands.previewPrintTasks, true);
     rcmail.register_command('plugin.calendar_filterEvents', calendar_commands.filterEvents, true);
     rcmail.register_command('plugin.calendar_do_print', calendar_commands.printEvents, true);
     rcmail.register_command('plugin.calendar_toggle_view', calendar_commands.toggleView, true);
@@ -69,10 +71,12 @@ function calendar_commands(){
   }
   
   /* edit recurring html */
-  this.edit_recurring_html = function(action){
+  this.edit_recurring_html = function(action, row){
     var html = "<div id='recurringdialog'>";
     html = html + "<br /><fieldset><legend>" + rcmail.gettext('calendar.applyrecurring') + "</legend><p>";
-    html = html + "<input class='button' type='button' onclick='calendar_commands.edit_event(\"initial\",\"" + action + "\")' value='&bull;' />&nbsp;<span>" + rcmail.gettext('calendar.editall') + "</span><br />";
+    if(row){
+      html = html + "<input class='button' type='button' onclick='calendar_commands.edit_event(\"initial\",\"" + action + "\")' value='&bull;' />&nbsp;<span>" + rcmail.gettext('calendar.editall') + "</span><br />";
+    }
     html = html + "<input class='button' type='button' onclick='calendar_commands.edit_event(\"future\",\"" + action + "\")' value='&bull;' />&nbsp;<span>" + rcmail.gettext('calendar.editfuture') + "</span><br />";
     html = html + "<input class='button' type='button' onclick='calendar_commands.edit_event(\"single\",\"" + action + "\")' value='&bull;' />&nbsp;<span>" + rcmail.gettext('calendar.editsingle') + "</span>";
     html = html + "</p></fieldset>";
@@ -217,9 +221,35 @@ function calendar_commands(){
     $("#event").dialog("option", "title", rcmail.gettext('calendar.import'));
   }
   
-  /* print preview */
+  /* print submenu */
+  this.printSubmenu = function() {
+    if($('#printmenu').is(':visible')){
+      $('#printmenu').hide();
+    }
+    else{
+      $('#printmenu').show();
+    }
+  }
+  
+  /* print preview tasks */
+  this.previewPrintTasks = function() {
+    $('.popupmenu').hide();
+    var url = './?_task=dummy&_action=plugin.calendar_print_tasks';
+    mycalpopup = window.open(url, "Print", "width=740,height=740,location=0,resizable=1,scrollbars=1");
+    if(mycalpopup){
+      mycalpopup.focus();
+      rcmail.env.calpopup = true;
+      return true;
+    }
+    else
+      return false;
+
+  }
+  
+  /* print preview events */
   this.previewPrintEvents = function() {
-    var url = './?_task=dummy&_action=plugin.calendar_print';
+    $('.popupmenu').hide();
+    var url = './?_task=dummy&_action=plugin.calendar_print_events';
     url = url + '&_view=' + escape($('#calendar').fullCalendar('getView').name.replace('agenda','basic'));
     url = url + '&_date=' + $('#calendar').fullCalendar('getDate').getTime() / 1000;
     mycalpopup = window.open(url, "Print", "width=740,height=740,location=0,resizable=1,scrollbars=1");

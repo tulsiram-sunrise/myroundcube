@@ -242,13 +242,13 @@ final class calendar_caldav extends Backend
     return $icalStamp."-".$rndStr;
   }
 
-  private function syncCalDAV($events,$request='PUT',$categories=false){
+  private function syncCalDAV($events,$request='PUT',$categories=false,$component='vevent'){
     if(!$this->sync){
       return true;
     }
     $return = false;
     if($this->type == 'caldav'){
-      $event = $this->utils->exportEvents(0,0,$events);
+      $event = $this->utils->exportEvents(0,0,$events,false,false,false,$component);
       $caldav_props = unserialize($events[0]['caldav']);
       $depth = true;
       if($request == 'DELETE'){
@@ -259,15 +259,10 @@ final class calendar_caldav extends Backend
         $caldavs = $this->caldavs;
         if(!empty($caldavs[$categories])){
           $url = $caldavs[$categories]['url'];
-          $url = explode('?', $url, 2);
-          if($url[1]){
-            $url = explode('=', $url[1]);
-            if($url[0] == 'access'){
-              $url = explode('?', $caldavs[$categories]['url'], 2);
-              $url = explode('/', $url[0]);
-              $oldcategory = ucwords($url[count($url) - 1]);
-              $event = str_replace("\nCATEGORIES:", "\nCATEGORIES:$oldcategory\nX-CATEGORIES:", $event);
-            }
+          $url = parse_url($url);
+          if($url['host'] == $this->rcmail->config->get('sabredav_readwrite_host') || $url['host'] == $this->rcmail->config->get('sabredav_readonly_host')){
+            $category = explode('/', $url['path']);
+            $event = str_replace("\nCATEGORIES:", "\nCATEGORIES:" . ucwords($category[count($category) - 1]) . "\nX-CATEGORIES:", $event);
           }
           $this->connect($caldavs[$categories]['url'],$caldavs[$categories]['user'],$caldavs[$categories]['pass'],$caldavs[$categories]['auth']);
         }
@@ -748,6 +743,58 @@ PROPP;
             }
           }
         }
+        foreach($events as $key => $event){
+          if(!$event['due']){
+            continue;
+          }
+          if($event['reminderservice'] != '0'){
+            $next = $event['due'] - $event['reminder'];
+            $schedule = false;
+            if($event['reminderservice'] == 'popup'){
+              //if(!$event['remindersent'])
+                //$schedule = true; // schedule missed reminders
+              if($next > $start)
+                $schedule = true; // always schedule future reminders
+            }
+            else if($event['reminderservice'] == 'email'){
+              if($next > $start && $event['clone'])
+                $schedule = true; // schedule future reminders for recurring events
+              if(!$event['remindersent'] && !$event['clone'] && $next > $start)
+                $schedule = true; // schedule future reminders for single events
+              if(!empty($this->caldavs[$event['categories']])){
+                if($this->caldavs[$event['categories']]['extr'] == 'external')
+                  $schedule = false;
+              }
+              else{
+                if($this->account['extr'] == 'external')
+                  $schedule = false;
+              }
+            }
+            if($schedule){
+              $mapped = $this->utils->eventArrayMap($event);
+              $props['event'] = $mapped;
+              $props['ics'] = $this->utils->exportEvents(0,0,array(0=>$event), false, true);
+              $query = $this->rcmail->db->query(
+                "INSERT INTO " . $this->table('reminders') . "
+                (".
+                  $this->q('user_id').", ".
+                  $this->q($col).", ".
+                  $this->q('type').", ".
+                  $this->q('props').", ".
+                  $this->q('runtime').")
+                VALUES (?, ?, ?, ?, ?)",
+                $this->rcmail->user->ID,
+                $event['event_id'],
+                $event['reminderservice'],
+                serialize($props),
+                $next
+              );
+              if($event['reminderservice'] == 'email'){
+                break;
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -760,6 +807,10 @@ PROPP;
     $location,
     $categories,
     $allDay,
+    $status,
+    $priority,
+    $due,
+    $complete,
     $recur,
     $expires,
     $occurrences,
@@ -773,7 +824,8 @@ PROPP;
     $remindermailto=false,
     $uid=false,
     $client=false,
-    $adjust = true
+    $adjust = true,
+    $component = 'vevent'
   ) {
     if (!empty($this->rcmail->user->ID)) {
       $srecur = (string) $recur;
@@ -781,6 +833,9 @@ PROPP;
       $rr = substr($recur,0,1);
       $recur = substr($recur,1);
       // PostgreSQL sets 'f' instead of '0' for false, which messes up our conditionals!
+      if ($priority==false) $priority = '0';
+      if ($due==false) $due = '0';
+      if ($complete==false) $complete = '0';
       if ($byday==false) $byday='0';
       if ($bymonth==false) $bymonth='0';
       if ($bymonthday==false) $bymonthday='0';
@@ -837,6 +892,10 @@ PROPP;
         if(
           $start != $exists['start'] ||
           $end != $exists['end'] ||
+          $status != $exists['status'] ||
+          $priority != $exists['priority'] ||
+          $due != $exists['due'] ||
+          $complete != $exists['complete'] ||
           $summary != $exists['summary'] ||
           $description != $exists['description'] ||
           $location != $exists['location'] ||
@@ -857,6 +916,10 @@ PROPP;
             $exists['event_id'],
             $start,
             $end,
+            $status,
+            $priority,
+            $due,
+            $complete,
             $summary,
             $description,
             $location,
@@ -875,7 +938,8 @@ PROPP;
             $allDay,
             false,
             serialize(array(0 => $href, 1 => $etag, 2 => $uid)),
-            $adjust
+            $adjust,
+            $component
           );
         }
         else{
@@ -888,8 +952,13 @@ PROPP;
         "INSERT INTO " . $this->table('events') . "
          (".
            $this->q('user_id').", ".
+           $this->q('component').", ".
            $this->q('start').", ".
            $this->q('end').", ".
+           $this->q('status').", ".
+           $this->q('priority').", ".
+           $this->q('due').", ".
+           $this->q('complete').", ".
            $this->q('summary').", ".
            $this->q('description').", ".
            $this->q('location').", ".
@@ -912,10 +981,15 @@ PROPP;
            $this->q('caldav').", ".
            $this->q('url').", ".
            $this->q('timestamp').")
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         $this->rcmail->user->ID,
+        $component,
         $start,
         $end,
+        $status,
+        $priority,
+        $due,
+        $complete,
         $summary,
         $description,
         $location,
@@ -943,6 +1017,7 @@ PROPP;
       //find me: investigate why this is here ...
       if(
         $this->rcmail->action == 'plugin.newEvent' ||
+        $this->rcmail->action == 'plugin.newTask' ||
         $this->rcmail->action == 'plugin.editEvent' ||
         $this->rcmail->action == 'plugin.saveical' ||
         $this->rcmail->action == 'plugin.calendar_upload' ||
@@ -950,7 +1025,7 @@ PROPP;
         $this->rcmail->action == 'plugin.resizeEvent' ||
         $this->rcmail->action == 'plugin.calendar_showlayer'
       ){
-        $events[0]['sync'] = $this->syncCalDAV($events,'PUT',$categories);
+        $events[0]['sync'] = $this->syncCalDAV($events,'PUT',$categories,$component);
       }
       $this->scheduleReminders($events[0]);
       return $events[0];
@@ -961,6 +1036,10 @@ PROPP;
     $id,
     $start,
     $end,
+    $status,
+    $priority,
+    $due,
+    $complete,
     $summary,
     $description,
     $location,
@@ -979,7 +1058,8 @@ PROPP;
     $allDay=false,
     $old_categories=false,
     $caldav=false,
-    $adjust = true
+    $adjust = true,
+    $component = 'vevent'
   ) {
     if (!empty($this->rcmail->user->ID)) {
       $srecur = $recur;
@@ -987,6 +1067,9 @@ PROPP;
       $recur = substr($recur,1);
       $description = addcslashes($description, "\n\r");
       // PostgreSQL sets 'f' instead of '0' for false, which messes up our conditionals! 
+      if ($priority==false) $priority = '0';
+      if ($due==false) $due = '0';
+      if ($complete==false) $complete = '0';
       if ($byday==false) $byday='0';
       if ($bymonth==false) $bymonth='0';
       if ($bymonthday==false) $bymonthday='0';
@@ -1027,9 +1110,14 @@ PROPP;
       $query = $this->rcmail->db->query(
         "UPDATE " . $this->table('events') . " 
          SET ".
+           $this->q('component')."=?, ".
            $this->q('summary')."=?, ".
            $this->q('start')."=?, ".
            $this->q('end')."=?, ".
+           $this->q('status')."=?, ".
+           $this->q('priority')."=?, ".
+           $this->q('due')."=?, ".
+           $this->q('complete')."=?, ".
            $this->q('description')."=?, ".
            $this->q('location')."=?, ".
            $this->q('categories')."=?, ".
@@ -1053,9 +1141,14 @@ PROPP;
            $this->q('caldav')."=?
          WHERE ".$this->q('event_id')."=?
          AND ".$this->q('user_id')."=?",
+        $component,
         $summary,
         $start,
         $end,
+        $status,
+        $priority,
+        $due,
+        $complete,
         $description,
         $location,
         $categories,
@@ -1085,11 +1178,38 @@ PROPP;
       $this->scheduleReminders($events[0]);
       if($this->type == 'caldav'){
         //find me: investigate why this is here ...
-        if($this->rcmail->action == 'plugin.editEvent' || $this->rcmail->action == 'plugin.newEvent' || $this->rcmail->action == 'plugin.removeEvent' || $this->rcmail->action == 'plugin.calendar_upload' || $this->rcmail->action == 'plugin.calendar_showlayer'){
+        if($this->rcmail->action == 'plugin.editEvent' || $this->rcmail->action == 'plugin.editTask' || $this->rcmail->action == 'plugin.newEvent' || $this->rcmail->action == 'plugin.removeEvent' || $this->rcmail->action == 'plugin.calendar_upload' || $this->rcmail->action == 'plugin.calendar_showlayer'){
           $caldavs = $this->caldavs;
           if($categories != $old_categories){
             if(!empty($caldavs[$old_categories]) || !empty($caldavs[$categories])){
-              $sync = $this->newEvent($start, $end, $summary, $description, $location, $categories, $allDay, $srecur, $expires, $occurrences, $byday, $bymonth, $bymonthday, $recurrence_id, $exdates, $reminderbefore, $remindertype, $remindermailto);
+              $sync = $this->newEvent(
+                $start,
+                $end,
+                $summary,
+                $description,
+                $location,
+                $categories,
+                $allDay,
+                $status,
+                $priority,
+                $due,
+                $complete,
+                $srecur,
+                $expires,
+                $occurrences,
+                $byday,
+                $bymonth,
+                $bymonthday,
+                $recurrence_id,
+                $exdates,
+                $reminderbefore,
+                $remindertype,
+                $remindermailto,
+                false,
+                false,
+                true,
+                $component
+              );
               if($sync){
                 if(!$old_categories){
                   $old_categories = md5(time());
@@ -1098,11 +1218,11 @@ PROPP;
               }
             }
             else{
-              $events[0]['sync'] = $this->syncCalDAV($events);
+              $events[0]['sync'] = $this->syncCalDAV($events, 'PUT', false, $component);
             }
           }
           else{
-            $events[0]['sync'] = $this->syncCalDAV($events, 'PUT', $categories);
+            $events[0]['sync'] = $this->syncCalDAV($events, 'PUT', $categories, $component);
           }
         }
       }
@@ -1434,6 +1554,9 @@ PROPP;
           if($type == 'events'){
             $events = (array) $this->caldav->GetEvents($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
           }
+          else if($type == 'todos'){
+            $events = (array) $this->caldav->GetAllTodos();
+          }
           else if($type == 'alarms'){
             // cron login successful ?
             if(class_exists('CalDAVClient') && method_exists('CalDAVClient', 'GetEventAlarms')){
@@ -1451,6 +1574,9 @@ PROPP;
             if($type == 'events'){
               $layers = (array) $this->caldav->GetEvents($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
             }
+            else if($type == 'todos'){
+              $layers = (array) $this->caldav->GetAllTodos();
+            }
             else if($type == 'alarms'){
               $layers = (array) $this->caldav->GetEventAlarms($startYear.$startMonth.$startDay."T000000Z",$endYear.$endMonth.$endDay."T000000Z");
             }
@@ -1464,8 +1590,14 @@ PROPP;
         }
         foreach($events as $key => $val){
           $insert = "\nX-HREF:".$val['href']."\nX-ETAG:".$val['etag'];
-          $val['data'] = str_replace("\nBEGIN:VEVENT", "\nBEGIN:VEVENT" . $insert, $val['data']);
-          $this->utils->importEvents($val['data'], false, false, false, false, false, false, $val['href'], $val['etag']);
+          if($type == 'todos'){
+            $val['data'] = str_replace("\nBEGIN:VTODO", "\nBEGIN:VTODO" . $insert, $val['data']);
+            $this->utils->importTodos($val['data'], false, false, false, false, false, $category, $val['href'], $val['etag']);
+          }
+          else{
+            $val['data'] = str_replace("\nBEGIN:VEVENT", "\nBEGIN:VEVENT" . $insert, $val['data']);
+            $this->utils->importEvents($val['data'], false, false, false, false, false, false, $val['href'], $val['etag']);
+          }
           $import = true;
         }
         if($import){
@@ -1560,7 +1692,7 @@ PROPP;
         );
         if($result){
           $event = $this->rcmail->db->fetch_assoc($result);
-          if(is_numeric($event['event_id'])){
+           if(is_numeric($event['event_id'])){
             if($event['recurring'] != '0'){
               $duration = 0;
               if($event['end'] != '0'){
@@ -1574,6 +1706,10 @@ PROPP;
               }
             }
             $event['reminder_id'] = $val['reminder_id'];
+            if($event['due'] && time() - $val['reminder'] >= $event['due']){
+              $event['start'] = $event['due'];
+              $event['duereminder'] = true;
+            }
             $ret[$event['start'] . $event['uid'] . $event['event_id']] = $this->utils->eventArrayMap($event);
           }
         }
@@ -1588,7 +1724,7 @@ PROPP;
     $category=false,
     $type='events'
   ){
-    if (!empty($this->rcmail->user->ID)) {
+    if(!empty($this->rcmail->user->ID)) {
       $this->_getEvents($estart, $eend, $category, $type);
     }
   }
@@ -1600,10 +1736,11 @@ PROPP;
     $category=false,
     $filter=false,
     $client=false,
-    $type='events'
+    $component = 'vevent'
   ) {
     if (!empty($this->rcmail->user->ID)) {
-      // find me: memory exhaustion?
+    if($component == 'vtodo')
+       // find me: memory exhaustion?
       $start = strtotime(date('Y', strtotime('-100 years')) . '-01-01') - 1;
       $end = $eend + 1;
       if($filter){
@@ -1619,10 +1756,12 @@ PROPP;
       $result = $this->rcmail->db->query(
         "SELECT * FROM " . $this->table('events') . " 
          WHERE ".$this->q('user_id')."=? AND ".
+                 $this->q('component')."=? AND ".
                  //$this->q('start').">? AND ". // find me: memory exhaustion?
                  $this->q('start')."<? AND ".
                  $this->q($filterfield) . $filtercomp . ' ORDER BY ' . $this->q('uid') . ' ASC, ' . $this->q('recurrence_id') . ' ASC',
          $this->rcmail->user->ID,
+         $component,
          //$start, // find me: memory exhaustion?
          $end,
          $filterval
@@ -1683,10 +1822,15 @@ PROPP;
           if($event['start'] >= $estart || $event['end'] >= $estart){
             if($add){
               $events[md5($event['uid'].$append)]=array( 
-               'event_id'        => (int)    $event['event_id'],
+                'event_id'        => (int)    $event['event_id'],
+                'component'       => (string) $event['component'],
                 'uid'             => (string) $event['uid'], 
                 'start'           => (int)    $event['start'], 
                 'end'             => (int)    $event['end'],
+                'due'             => (int)    $event['due'],
+                'status'          => (string) $event['status'],
+                'complete'        => (int)    $event['complete'],
+                'priority'        => (int)    $event['priority'],
                 'expires'         => (string) $event['expires'],
                 'rr'              => (string) $event['rr'],
                 'recur'           => (string) $event['recurring'],
@@ -1756,7 +1900,7 @@ PROPP;
                 if(isset($date)){
                   $clone_date = $date->Render();
                   $clone_start = strtotime($clone_date);
-                  if($clone_duration){
+                  if($clone_duration && $component == 'vevent'){
                     $clone_end = strtotime($clone_date) + $clone_duration;
                   }
                   else{
@@ -1776,16 +1920,27 @@ PROPP;
                       $hasoccurred ++;
                       $event['editable'] = true;
                       $event['recur'] = $event['recurring'];
+                      if($event['due']){
+                        $clone_due = $event['due'] - $event['start'] + $clone_start;
+                      }
+                      else{
+                        $clone_due = 0;
+                      }
                       $events[md5($event['uid'].$clone_start)] = array( 
-                        'event_id'        => (int) $event['event_id'],
+                        'event_id'        => (int)    $event['event_id'],
                         'uid'             => (string) $event['uid'],
-                        'start'           => (int) $clone_start,
-                        'end'             => (int) $clone_end,
+                        'component'       => (string) $event['component'],
+                        'start'           => (int)    $clone_start,
+                        'end'             => (int)    $clone_end,
+                        'due'             => (int)    $clone_due,
+                        'status'          => (string) $event['status'],
+                        'complete'        => (int)    $event['complete'],
+                        'priority'        => (int)    $event['priority'],
                         'expires'         => (string) $event['expires'],
                         'rr'              => (string) $event['rr'],
                         'recur'           => (string) $event['recurring'],
                         'occurrences'     => (int)    $event['occurrences'],
-                        'hasoccurred'     => (int)   $hasoccurred,
+                        'hasoccurred'     => (int)    $hasoccurred,
                         'recurrence_id'   => (string) $event['recurrence_id'],
                         'summary'         => (string) $event['summary'], 
                         'description'     => (string) $event['description'],

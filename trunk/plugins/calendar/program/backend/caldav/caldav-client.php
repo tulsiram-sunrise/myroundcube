@@ -618,10 +618,10 @@ $time_range = <<<EOTIME
                 <C:time-range start="$start" end="$finish"/>
 EOTIME;
     }
-
+$time_range = '';
     // Warning!  May contain traces of double negatives...
     $neg_cancelled = ( $cancelled === true ? "no" : "yes" );
-    $neg_completed = ( $cancelled === true ? "no" : "yes" );
+    $neg_completed = ( $completed === true ? "no" : "yes" );
 
     $filter = <<<EOFILTER
   <C:filter>
@@ -632,16 +632,34 @@ EOTIME;
                 </C:prop-filter>
                 <C:prop-filter name="STATUS">
                         <C:text-match negate-condition="$neg_cancelled">CANCELLED</C:text-match>
-                </C:prop-filter>$time_range
+                </C:prop-filter>
+                $time_range
           </C:comp-filter>
     </C:comp-filter>
   </C:filter>
 EOFILTER;
-
     return $this->DoCalendarQuery($filter, $relative_url);
   }
+  
+  /**
+  * Get all ToDos
+  * 
+  * @param string    $relative_url The URL relative to the base_url specified when the calendar was opened.  Default ''.
+  *
+  * @return array An array of the relative URL, etag, and calendar data returned from DoCalendarQuery() @see DoCalendarQuery()
+  */
+  function GetAllTodos(  $relative_url = "" ) {
 
-
+    $filter = <<<EOFILTER
+  <C:filter>
+    <C:comp-filter name="VCALENDAR">
+          <C:comp-filter name="VTODO">
+          </C:comp-filter>
+    </C:comp-filter>
+  </C:filter>
+EOFILTER;
+    return $this->DoCalendarQuery($filter, $relative_url);
+  }
   /**
   * Get the calendar entry by UID
   *

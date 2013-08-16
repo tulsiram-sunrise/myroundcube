@@ -45,3 +45,4 @@ VERSION                COMMENT
 5.4.5                  - Accept upercase in CardDAV URLs
 5.4.6 - 5.4.7          - GUI improvements
 5.4.8                  - Fix for outdated DAVical installations
+5.4.9                  - Bugfix: Mailto from left pane in addressbook didn't work

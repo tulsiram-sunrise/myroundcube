@@ -26,7 +26,7 @@ class carddav_addressbook extends rcube_addressbook
 	private $name;
 	private $carddav_server_id = false;
 	private $counter = 0;
-	private $table_cols = array('name', 'firstname', 'surname', 'email');
+	private $table_cols = array('name', 'firstname', 'surname', 'email', 'carddav_contact_id');
 	private $fulltext_cols = array('name', 'firstname', 'surname', 'middlename', 'nickname',
 		  'jobtitle', 'organization', 'department', 'maidenname', 'email', 'phone',
 		  'address', 'street', 'locality', 'zipcode', 'region', 'country', 'website', 'im', 'notes');
@@ -249,12 +249,6 @@ class carddav_addressbook extends rcube_addressbook
 	 */
 	public function set_filter($fields, $value, $required = array())
 	{
-    if(!is_array($fields) && $fields == $this->primary_key){
-      $filter = ' AND ' . $this->db->quoteIdentifier($this->primary_key) . '=' . $this->db->quote($value);
-		  $this->set_search_set($filter);
-		  return;
-		}
-		
 		if(class_exists('carddav_plus') && isset($_POST['_adv'])){
       $version = carddav_plus::about(array('version'));
       if($version['version'] <= '2.0.5'){
@@ -264,9 +258,10 @@ class carddav_addressbook extends rcube_addressbook
       }
     }
 
-    if(!is_array($fields))
+    if(!is_array($fields)){
+      $value[$fields] = $value;
       $fields = array($fields);
-
+    }
     $where = $and_where = array();
     $WS = ' ';
     foreach ($fields as $idx => $col){
@@ -282,7 +277,15 @@ class carddav_addressbook extends rcube_addressbook
         $val = is_array($value) ? $value[$idx] : $value;
         // table column
         if(in_array($col, $this->table_cols)){
-          $where[] = $this->db->ilike($col, '%' . $val . '%');
+          if(is_array($value[$col])){
+            foreach($value[$col] as $or){
+              $concat[] = $this->db->ilike($col, '%' . $or . '%');
+            }
+            $where[] = join(' OR ', $concat);
+          }
+          else{
+            $where[] = $this->db->ilike($col, '%' . $val . '%');
+          }
         }
         // fulltext/vcard field
         else{
@@ -315,6 +318,7 @@ class carddav_addressbook extends rcube_addressbook
     if(!empty($and_where)){
       $where = ($where ? "($where) AND " : '') . join(' AND ', $and_where);
     }
+
     $this->set_search_set(' AND ' . $where);
   }
 

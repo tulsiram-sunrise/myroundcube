@@ -112,6 +112,8 @@ function calendar_callbacks(){
         msgid = rcmail.set_busy(true,'loading');
       }
       rcmail.enable_command('plugin.calendar_print', false);
+      rcmail.enable_command('plugin.events_print', false);
+      rcmail.enable_command('plugin.tasks_print', false);
     }
     else{
       rcmail.set_busy(false,'loading',msgid);
@@ -145,6 +147,8 @@ function calendar_callbacks(){
   }
   this.eventRender = function(event, element, view, response){
     rcmail.enable_command('plugin.calendar_print', true);
+    rcmail.enable_command('plugin.events_print', true);
+    rcmail.enable_command('plugin.tasks_print', true);
     if(element.find('span.fc-event-title').html() == ''){
       element.find('span.fc-event-title').html('&nbsp;');
     }
@@ -362,6 +366,9 @@ function calendar_callbacks(){
       rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
       return;
     }
+    $('#event .vtodo').hide();
+    $('#event .vevent').show();
+    $('#component').val('vevent');
     $('#catprotected').remove();
     var $dialogContent = $("#event");
     try{
@@ -635,10 +642,25 @@ function calendar_callbacks(){
     }).show();
     $('#summary').focus();
   }
-  this.eventClick = function(event, response){
+  this.eventClick = function(event, response, component){
     if(event.editable && !rcmail.env.replication_complete && queryString('_event_id') == 'false'){
       rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
       return;
+    }
+    var evt = event;
+    if(!component && event.component){
+      component = event.component;
+    }
+    if(component == 'vtodo'){
+      $('#component').val('vtodo');
+      $('#event .vevent').hide();
+      $('#event .vtodo').show();
+    }
+    else{
+      component = 'vevent';
+      $('#component').val('vevent');
+      $('#event .vtodo').hide();
+      $('#event .vevent').show();
     }
     if(event.onclick){
       if(event.onclick.indexOf('?_task=mail&_action=compose') > -1){
@@ -655,11 +677,55 @@ function calendar_callbacks(){
       return;
     }
     rcmail.env.edit_event = event;
+    //task
+    if(component == 'vtodo'){
+      if(!event.complete){
+        event.complete = 0;
+      }
+      $('#percentage').val(event.complete);
+      $('#percentagedisplay').html(event.complete);
+      $('#slider').slider({
+        value: event.complete,
+        step: 5,
+        stop: function(event, ui){
+          $('#percentage').val(ui.value);
+          $('#percentagedisplay').html(ui.value);
+          if(ui.value == 100){
+            $('#endactive').prop('checked', true);
+            $('#statussel').val('COMPLETED');
+          }
+          else if(ui.value > 0){
+            $('#statussel').val('IN-PROCESS');
+          }
+        }
+      });
+      if(event.start == 0){
+        event.start = new Date(Math.round(new Date().getTime() / 1000 / 60 / 15 + 0.5) * 1000 * 60 * 15);
+        var startactive = false;
+      }
+      else if(typeof event.start == 'number'){
+        event.start = new Date(event.start * 1000);
+        var startactive = true;
+      }
+    }
     //recurring event
-    if(event.clone && event.editable){
+    if((event.clone || event.rr != 0) && event.editable){
       if(!rcmail.env.edit_recurring){
-        calendar_commands.edit_recurring_html('edit');
-        return;
+        if(component == 'vtodo'){
+          if(event.clone){
+            calendar_commands.edit_recurring_html('edit');
+            return;
+            //rcmail.env.edit_recurring = 'single';
+          }
+          else{
+            calendar_commands.edit_recurring_html('edit', true);
+            return;
+          }
+        }
+        else{
+          calendar_commands.edit_recurring_html('edit', true);
+          return;
+        }
       }
       switch(rcmail.env.edit_recurring){
         case 'initial':
@@ -670,7 +736,7 @@ function calendar_callbacks(){
             if(event.allDay)
               offset = parseInt(event.start.getTimezoneOffset());
             event.start = new Date((parseInt(event.start_unix) + 60 * offset) * 1000);
-            if(event.end){
+            if(event.end && event.end != 0){
               event.end = new Date(event.end_unix * 1000);
               offset = 0;
               if(event.allDay)
@@ -682,7 +748,13 @@ function calendar_callbacks(){
             $('#calendaroverlay').html('')
           }
           else{
-            calendar_commands.gotoDate(event.clone, event.id);
+            if(event.clone){
+              calendar_commands.gotoDate(event.clone, event.id);
+            }
+            else{
+              evt.initial = evt;
+              calendar_callbacks.eventClick(evt, response, component)
+            }
             return;
           }
           break;
@@ -694,15 +766,44 @@ function calendar_callbacks(){
           break;
       }
     }
-    if(!event.end)
-      event.end = new Date(event.start.getTime() + (response.settings['duration'] * 1000));
+    if(!event.end || event.end == 0){
+      if(component = 'vtodo'){
+        event.end = new Date(Math.round(new Date().getTime() / 1000 / 60 / 15 + 0.5) * 1000 * 60 * 15);
+      }
+      else{
+        event.end = new Date(event.start.getTime() + (response.settings['duration'] * 1000));
+      }
+      var endactive = false;
+    }
+    else if(typeof event.end == 'number'){
+      event.end = new Date(event.end * 1000);
+      var endactive = true;
+    }
+    if(!event.due || event.due == 0){
+      event.due = new Date(Math.round(new Date().getTime() / 1000 / 60 / 15 + 0.5) * 1000 * 60 * 15);
+      var dueactive = false;
+    }
+    else if(typeof event.due == 'number'){
+      event.due = new Date(event.due * 1000);
+      var dueactive = true;
+    }
     var $dialogContent = $("#event");
     calendar_gui.resetForm($dialogContent);
+    $('#startactive').prop('checked', startactive);
+    $('#endactive').prop('checked', endactive);
+    $('#dueactive').prop('checked', dueactive);
+    if(event.status){
+      $('#statussel').val(event.status);
+    }
+    if(event.priority){
+      $('#prioritysel').val(event.priority);
+    }
     calendar_gui.initTabs(3,2);
     var starttime = event.start;
     calendar_gui.initExpireDatepicker(event.start,response);
     calendar_gui.initStartdateDatepicker(event.start,response);
     calendar_gui.initEnddateDatepicker(event.start,response);
+    calendar_gui.initDuedateDatepicker(event.due,response);
     calendar_gui.initReminderDatepicker(event.start,response);
     shour = starttime.getHours() + '';
     if(shour.length < 2)
@@ -735,6 +836,29 @@ function calendar_callbacks(){
     $('#enddate').val(eyear + "-" + emonth + "-" + eday);
     $('#endtime').val(ehour + ':' + eminute);
     var s_end = $('#endtime').val();
+    var duetime = event.due;
+    if(duetime)
+      dhour = duetime.getHours() + '';
+    else
+      dhour = '0';
+    if(dhour.length < 2)
+      dhour = '0' + dhour;
+    if(duetime)
+      dminute = duetime.getMinutes() + '';
+    else
+      dminute = '0';
+    if(dminute.length < 2)
+      dminute = '0' + dminute;
+    var dday = duetime.getDate() + '';
+    if(dday.length < 2)
+      dday = '0' + dday;
+    var dmonth = (duetime.getMonth() + 1) + '';
+    if(dmonth.length < 2)
+      dmonth = '0' + dmonth;
+    var dyear = duetime.getFullYear() + '';
+    $('#duedate').val(dyear + "-" + dmonth + "-" + dday);
+    $('#duetime').val(dhour + ':' + dminute);
+    var s_due = $('#duetime').val();
     var summary = $('#summary').val(event.title);
     var description = $('#description').val(event.description);
     var location = $('#location').val(event.location);
@@ -962,7 +1086,12 @@ function calendar_callbacks(){
       $('#hoursel').attr('checked',true);
     }
     calendar_gui.reminderControls();
-    rcmail.env.event_initial = $('#form').serialize();
+    if(event.initial){
+      rcmail.env.event_initial = false;
+    }
+    else{
+      rcmail.env.event_initial = $('#form').serialize();
+    }
     var save = rcmail.gettext('save', 'calendar');
     var remove = rcmail.gettext('remove', 'calendar');
     var cancel = rcmail.gettext('cancel', 'calendar');
@@ -1190,7 +1319,7 @@ function calendar_callbacks(){
     };
     $dialogContent.dialog({
       modal: false,
-      title: rcmail.gettext('edit_event', 'calendar'),
+      title: component == 'vtodo' ? rcmail.gettext('edit_task', 'calendar') : rcmail.gettext('edit_event', 'calendar'),
       // find me: autoadjust
       width: 630,
       zIndex: 5001,

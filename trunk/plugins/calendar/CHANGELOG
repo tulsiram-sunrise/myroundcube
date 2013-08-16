@@ -46,3 +46,6 @@ VERSION                COMMENT
 15.0.11                - Fix https://code.google.com/p/myroundcube/issues/detail?id=557
 15.0.12                - Make sure that events with recurrence id are returned behind the initial event
 15.0.13                - Compatibility fix for Kolab tasklist
+15.0.14                - Prepare database for tasks
+15.0.15                - Save CalDAV even if MKCOL fails
+16.0 - 16.0.5          - Implemented tasks

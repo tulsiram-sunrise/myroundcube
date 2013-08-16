@@ -258,9 +258,79 @@ table.records-table {
   position: absolute;
   top: 20px;
   left: 0;
-  right: 0;
+  right: 450px;
   height: 100%;
   overflow: auto;
+}
+
+#tasks {
+  margin-top: 20px;
+  margin-right: 1px;
+  float: right;
+  top: 20px;
+  width: 450px;
+  height: 100%;
+  background: #fff;
+  display: none;
+}
+
+#tasks table {
+  table-layout: fixed;
+}
+
+#tasks th, td {
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-top: 0;
+}
+
+#tasks th a {
+  text-decoration: none;
+}
+
+#tasks th.selected {
+  color: #fff;
+  background: #005d76;
+}
+
+#tasks th.selected a {
+  color: #fff;
+}
+
+#tasks th.overduered {
+  background: #ff3800 !important;
+}
+
+#tasks .count {
+  display: none;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+#tasks .done {
+  text-decoration: line-through;
+  font-style: italic;
+}
+
+#tasks .scrollbar {
+  width: 43px;
+}
+
+#tasks .adjust {
+  width: 40px;
+}
+
+#tasks .donecol {
+  width: 20px;
+}
+
+#taskscontent {
+  overflow-y: scroll;
+}
+
+#slider {
+  border: 1px solid #AAA !important;
 }
 
 #calendar-container {

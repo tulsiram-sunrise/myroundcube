@@ -109,6 +109,10 @@ abstract class Backend
    * @param  string  Event's location
    * @param  string  Event's category
    * @param  integer Event allDay state
+   * @param  string  ToDo's status
+   * @param  string  ToDo's priority
+   * @param  integer ToDo's due date
+   * @param  integer ToDo's completeness percent
    * @param  integer Event recur interval in seconds
    * @param  string  Event's expiration date
    * @param  string  Event's occurrences
@@ -122,6 +126,7 @@ abstract class Backend
    * @param  string  Event's Reminder recipient
    * @param  string  Event's unique identifier
    * @param  mixed   Client flag
+   * @param  bool    Timezone adjustment
    * @access public
    */
   abstract public function newEvent(
@@ -132,6 +137,10 @@ abstract class Backend
     $location,
     $categories,
     $allDay,
+    $status,
+    $priority,
+    $due,
+    $component,
     $recur,
     $expires,
     $occurrences,
@@ -144,7 +153,9 @@ abstract class Backend
     $remindertype=false,
     $remindermailto=false,
     $uid=false,
-    $client=false
+    $client=false,
+    $adjust=true,
+    $component='vevent'
   );
   
   /**
@@ -166,7 +177,11 @@ abstract class Backend
    * @param  integer Event identifier
    * @param  integer Event's start
    * @param  integer Event's end
-   * @param  string  Event's title
+   * @param  string  ToDo's status
+   * @param  integer ToDo's priority
+   * @param  integer ToDo's due data
+   * @param  integer ToDo's completeness percentage
+   * @param  string  Event's summary
    * @param  string  Event's location
    * @param  string  Event's category
    * @param  integer Event recur interval in seconds
@@ -187,7 +202,11 @@ abstract class Backend
     $id,
     $start,
     $end,
-    $title,
+    $status,
+    $priority,
+    $due,
+    $complete,
+    $summary,
     $description,
     $location,
     $categories,

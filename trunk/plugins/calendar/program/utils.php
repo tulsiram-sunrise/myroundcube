@@ -52,7 +52,7 @@ class Utils
     $cnfoffset = date('Z', $event['start']) / 3600;
     date_default_timezone_set($btz);
     $clientoffset = date('Z', $event['start']) / 3600;
-    if($event['clone']){
+    if($event['clone'] && is_numeric($event['clone'])){
       $clientcloneoffset = date('Z', $event['clone']) / 3600;
       $cloneoffset = ($cnfoffset - $clientcloneoffset) * 3600;
     }
@@ -98,12 +98,18 @@ class Utils
     $jevent=array( 
       'id'                  => $event['event_id'],
       'hash'                => (string) hexdec(substr(sha1(serialize($event)),0,15)),
+      'component'           => (string) $event['component'],
       'uid'                 => $event['uid'],
       'user_id'             => $this->rcmail->user->ID,
       'start'               => $event['start'],
       'start_unix'          => $event['start'],
       'end'                 => $event['end'],
       'end_unix'            => $event['end'],
+      'due'                 => (int) $event['due'],
+      'duereminder'         => $event['duereminder'],
+      'complete'            => $event['complete'],
+      'status'              => $event['status'],
+      'priority'            => $event['priority'],
       'title'               => $event['summary'],
       'description'         => stripcslashes($event['description']),
       'location'            => $event['location'],
@@ -229,12 +235,21 @@ class Utils
   }
   
   /**
+   * Import todos from iCalendar format
+   *
+   * @param  array Associative events array
+   * @access public
+   */
+  public function importToDos($events,$userid=false,$echo=false,$idoverwrite=false,$item=false,$client=false,$className=false,$href=false,$etag=false) {
+    $this->importEvents($events,$userid,$echo,$idoverwrite,$item,$client,$className,$href,$etag,'todos');
+  }
+  /**
    * Import events from iCalendar format
    *
    * @param  array Associative events array
    * @access public
    */
-  public function importEvents($events,$userid=false,$echo=false,$idoverwrite=false,$item=false,$client=false,$className=false,$href=false,$etag=false) {
+  public function importEvents($events,$userid=false,$echo=false,$idoverwrite=false,$item=false,$client=false,$className=false,$href=false,$etag=false,$type='events') {
     // find me: investigate the use of params echo, idoverwrite, item, client, className
     /* calendar.php  958: $arr = (array)$this->utils->importEvents($part,false,true,'preview'); // string
        calendar.php 1290: $success = $this->utils->importEvents($content); // string
@@ -274,7 +289,14 @@ class Utils
     $vcalendar->parse($cal);
     $stz = date_default_timezone_get();
     $ctz = calendar::getClientTimezoneName($this->rcmail->config->get('timezone', 'auto'));
-    while($vevent = $vcalendar->getComponent("vevent")){
+    if($type == 'events'){
+      $component = 'vevent';
+    }
+    else{
+      $component = 'vtodo';
+    }
+    $norm = array('hour', 'min', 'sec');
+    while($vevent = $vcalendar->getComponent($component)){
       date_default_timezone_set($ctz);
       $items ++;
       if($item){
@@ -283,34 +305,39 @@ class Utils
         }
       }
       $xevent = array();
-      if(is_array($vevent->dtstart)){
-        if($vevent->dtstart['params']['VALUE'] == 'DATE'){
-          $xevent['ALLDAY'] = true;
-        }
-        if($vevent->dtstart['params']['TZID']){
-          date_default_timezone_set($vevent->dtstart['params']['TZID']);
-        }
-        $norm = array('hour', 'min', 'sec');
-        foreach($norm as $prop){
-          if(isset($vevent->dtstart['value'][$prop])){
-            if(strlen($vevent->dtstart['value'][$prop]) < 2){
-              $vevent->dtstart['value'][$prop] = '0' . $vevent->dtstart['value'][$prop];
+      if(is_array($vevent->dtstart) || $component == 'vtodo'){
+        if(is_array($vevent->dtstart)){
+          if($vevent->dtstart['params']['VALUE'] == 'DATE'){
+            $xevent['ALLDAY'] = true;
+          }
+          if($vevent->dtstart['params']['TZID']){
+            date_default_timezone_set($vevent->dtstart['params']['TZID']);
+          }
+          foreach($norm as $prop){
+            if(isset($vevent->dtstart['value'][$prop])){
+              if(strlen($vevent->dtstart['value'][$prop]) < 2){
+                $vevent->dtstart['value'][$prop] = '0' . $vevent->dtstart['value'][$prop];
+              }
             }
           }
+          $val = implode('', $vevent->dtstart['value']);
         }
-        $val = implode('', $vevent->dtstart['value']);
-        if($ts = strtotime($val)){
-          if(is_numeric($ts)){
-            $xevent['DTSTART'] = $ts;
-            $xevent['SUMMARY'] = '';
-            $xevent['DESCRIPTION'] = '';
-            $xevent['LOCATION'] = '';
-            $xevent['CATEGORIES'] = '';
-            $recur = 0;
-            $expires = 0;
-            $remindertype = 0;
-            $remindermailto = false;
-            $reminderbefore = 0;
+        else{
+          $val = date('YmdHis', 0);
+        }
+        $ts = strtotime($val);
+        if(is_numeric($ts)){
+          $xevent['DTSTART'] = max(0, $ts);
+          $xevent['SUMMARY'] = '';
+          $xevent['DESCRIPTION'] = '';
+          $xevent['LOCATION'] = '';
+          $xevent['CATEGORIES'] = '';
+          $recur = 0;
+          $expires = 0;
+          $remindertype = 0;
+          $remindermailto = false;
+          $reminderbefore = 0;
+          if($component == 'vevent'){
             if(is_array($vevent->dtend)){
               if($vevent->dtend['params']['TZID']){
                 date_default_timezone_set($vevent->dtend['params']['TZID']);
@@ -328,200 +355,256 @@ class Utils
             else{
               $xevent['DTEND'] = min(0, $xevent['DTSTART']);
             }
-            if(is_array($vevent->summary) && $vevent->summary['value']){
-              $xevent['SUMMARY'] = $vevent->summary['value'];
-            }
-            if(is_array($vevent->description)){
-              $xevent['DESCRIPTION'] = $vevent->description[0]['value'];
-            }
-            if(is_array($vevent->location)){
-              $xevent['LOCATION'] = $vevent->location['value'];
-            }
-            if(is_array($vevent->categories)){
-              $xevent['CATEGORIES'] = $vevent->categories[0]['value'];
-            }
-            if($className === '0'){
-              $dbClassName = null;
-            }
-            else if(!$className){
-              $dbclassName = $xevent['CATEGORIES'];
-            }
-            else{
-              $dbclassName = $className;
-            }
-            if(is_array($vevent->uid)){
-              $xevent['UID'] = $vevent->uid['value'];
-            }
-            $recurrence_id = null;
-            if(is_array($vevent->recurrenceid)){
-              $xevent['RECURRENCE-ID']['TZID'] = $vevent->recurrenceid['params']['TZID'];
-              $xevent['RECURRENCE-ID']['unixtime'] = strtotime(implode('', $vevent->recurrenceid['value']));
-              if(!empty($xevent['RECURRENCE-ID'])){
-                if(is_array($xevent['RECURRENCE-ID'])){
-                  $recurrence_id = $xevent['RECURRENCE-ID']['unixtime'];
-                }
+          }
+          else{
+            if(is_array($vevent->completed)){
+              if($vevent->completed['params']['TZID']){
+                date_default_timezone_set($vevent->completed['params']['TZID']);
               }
-            }
-            if(is_array($vevent->exdate)){
-              foreach($vevent->exdate as $date){
-                $xevent['EXDATE'][] = strtotime(implode('', $date['value'][0]));
-              }
-              if(!empty($xevent['EXDATE'])){
-                $exdates = array();
-                $exdates[(int) $xevent['EXDATE']] = $xevent['EXDATE'];
-                $exdates = array_values($exdates);
-                $exdates = serialize($exdates);
-              }
-            }
-            if(is_array($vevent->rrule)){
-              $rrule = $vevent->rrule[0]['value'];
-              if(is_array($rrule)){
-                foreach($rrule as $prop => $val){
-                  switch($prop){
-                    case 'BYDAY':
-                      foreach($val as $key => $value){
-                        if(is_numeric($value)){
-                          $val[$key] = $value . '|'; 
-                        }
-                      }
-                      $val = str_replace('|,', '', implode(',', $this->array_flatten($val)));
-                      break;
-                    case 'BYMONTH':
-                    case 'BYMONTHDAY':
-                      if(is_array($val)){
-                        $val = implode(',', $this->array_flatten($val));
-                      }
-                      break;
-                    default:
-                      if(is_array($val)){
-                        $val = implode('', $val);
-                        if($ts = strtotime($val)){
-                          $val = $ts;
-                        }
-                      }
+              foreach($norm as $prop){
+                if(isset($vevent->completed['value'][$prop])){
+                  if(strlen($vevent->completed['value'][$prop]) < 2){
+                    $vevent->completed['value'][$prop] = '0' . $vevent->completed['value'][$prop];
                   }
-                  $xevent['RRULE'][$prop] = $val;
                 }
               }
-              if(!empty($xevent['RRULE']['FREQ'])){
-                $recur = $freq[$xevent['RRULE']['FREQ']];
-                if(!empty($xevent['RRULE']['INTERVAL'])){
-                  $recur = $recur * $xevent['RRULE']['INTERVAL'];
-                }
-                $recur = $rr[$xevent['RRULE']['FREQ']] . $recur;
-              }
-              if(!empty($xevent['RRULE']['COUNT'])){
-                $occurrences = $xevent['RRULE']['COUNT'];
-              }
-              else{
-                $occurrences = 0;
-              }
-              if(!empty($xevent['RRULE']['UNTIL'])){
-                $expires = $xevent['RRULE']['UNTIL'];
-              }  
-              else{
-                $expires = strtotime(CALEOT);
-              }
-              if(!empty($xevent['RRULE']['BYDAY'])){
-                $byday = $xevent['RRULE']['BYDAY'];
-              }
-              if(!empty($xevent['RRULE']['BYMONTH'])){
-                $bymonth = $xevent['RRULE']['BYMONTH'];
-              }
-              if(!empty($xevent['RRULE']['BYMONTHDAY'])){
-                $bymonthday = $xevent['RRULE']['BYMONTHDAY'];
-              }
-            }
-            if($valarm = $vevent->getComponent('valarm')){
-              if(is_array($valarm->attendee)){
-                $xevent[strtolower($valarm->action['value'])]['mailto'] = str_ireplace('MAILTO:', '', $valarm->attendee[0]['value']);
-              }
-              if(is_array($valarm->trigger)){
-                if($valarm->trigger['value']['sec']){
-                  $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['sec'];
-                }
-                else if($valarm->trigger['value']['min']){
-                  $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['min'] * 60;
-                }
-                else if($valarm->trigger['value']['hour']){
-                  $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['hour'] * 3600;
-                }
-                else if($valarm->trigger['value']['day']){
-                  $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['day'] * 86400;
-                }
-              }
-              if(isset($xevent['email'])){
-                $remindertype = 'email';
-                $remindermailto = $xevent['email']['mailto'];
-                $reminderbefore = $xevent['email']['trigger'];
-              }
-              else if(isset($xevent['display'])){
-                $remindertype = 'popup';
-                $reminderbefore = $xevent['display']['trigger'];
-              }
-            }
-            if(empty($xevent['UID'])){
-              $xevent['UID'] = md5(serialize($xevent));
-            }
-            if(empty($event['CATEGORIES'])){
-              if($post_categories){
-                $xevent['CATEGORIES'] = $post_categories;
-              }
-            }
-            if(!$echo){
-              $ret = $this->backend->newEvent(
-                $xevent['DTSTART'],
-                $xevent['DTEND'],
-                str_replace("\\","",str_replace("\\n","\n",$xevent['SUMMARY'])),
-                str_replace("\\","",str_replace("\\n","\n",$xevent['DESCRIPTION'])),
-                str_replace("\\","",str_replace("\\n","\n",$xevent['LOCATION'])),
-                str_replace("\\","",str_replace("\\n","\n",$dbclassName)),
-                0,
-                $recur,
-                $expires,
-                $occurrences,
-                $byday,
-                $bymonth,
-                $bymonthday,
-                $recurrence_id,
-                $exdates,
-                $reminderbefore,
-                $remindertype,
-                $remindermailto,
-                array('uid' => $xevent['UID'], 'href' => $href, 'etag' => $etag),
-                $client,
-                false
-              );
+              $val = implode('', $vevent->completed['value']);
+              $xevent['DTEND'] = strtotime($val);
             }
             else{
-              if($recur === 0)
-                $recur = '';
-              else{
-                $recur = rcube_label('calendar.yes');
-              }
-              if(strtolower($xevent['CATEGORIES']) == '[undefined]'){
-                $xevent['CATEGORIES'] = '';
-              }
-              if(!$className){
-                $className = 'preview';
-              }
-              $jsonevents[] = array(
-                'id' => $idoverwrite,
-                'title' => str_replace("\\","",str_replace("\\n","\n",$xevent['SUMMARY'])),
-                'start' => $xevent['DTSTART'],
-                'end' => $xevent['DTEND'],
-                'start_unix' => $xevent['DTSTART'],
-                'end_unix' => $xevent['DTEND'],
-                'allDay' => false,
-                'recurs' => $recur,
-                'description' => str_replace("\\","",str_replace("\\n","\n",$xevent['DESCRIPTION'])),
-                'location' => str_replace("\\","",str_replace("\\n","\n",$xevent['LOCATION'])),
-                'className' => $className,
-                'category' => $xevent['CATEGORIES'],
-                'classNameDisp' => $xevent['CATEGORIES'],
-                'editable' => false,
-              );
+              $xevent['DTEND'] = 0;
             }
+            if(is_array($vevent->due)){
+              if($vevent->due['params']['TZID']){
+                date_default_timezone_set($vevent->due['params']['TZID']);
+              }
+              foreach($norm as $prop){
+                if(isset($vevent->due['value'][$prop])){
+                  if(strlen($vevent->due['value'][$prop]) < 2){
+                    $vevent->due['value'][$prop] = '0' . $vevent->due['value'][$prop];
+                  }
+                }
+              }
+              $val = implode('', $vevent->due['value']);
+              $xevent['DUE'] = strtotime($val);
+            }
+            else{
+              $xevent['DUE'] = 0;
+            }
+            if(is_array($vevent->status)){
+              $xevent['STATUS'] = $vevent->status['value'];
+            }
+            if(is_array($vevent->percentcomplete)){
+              $xevent['COMPLETE'] = $vevent->percentcomplete['value'];
+            }
+          }
+          if(is_array($vevent->priority)){
+            $xevent['PRIORITY'] = $vevent->priority['value'];
+          }
+          if(is_array($vevent->summary) && $vevent->summary['value']){
+            $xevent['SUMMARY'] = $vevent->summary['value'];
+          }
+          if(is_array($vevent->description)){
+            $xevent['DESCRIPTION'] = $vevent->description[0]['value'];
+          }
+          if(is_array($vevent->location)){
+            $xevent['LOCATION'] = $vevent->location['value'];
+          }
+          if(is_array($vevent->categories)){
+            $xevent['CATEGORIES'] = $vevent->categories[0]['value'];
+          }
+          if($className === '0'){
+            $dbClassName = null;
+          }
+          else if(!$className){
+            $dbclassName = $xevent['CATEGORIES'];
+          }
+          else{
+            $dbclassName = $className;
+          }
+          if(is_array($vevent->uid)){
+            $xevent['UID'] = $vevent->uid['value'];
+          }
+          $recurrence_id = null;
+          if(is_array($vevent->recurrenceid)){
+            $xevent['RECURRENCE-ID']['TZID'] = $vevent->recurrenceid['params']['TZID'];
+            $xevent['RECURRENCE-ID']['unixtime'] = strtotime(implode('', $vevent->recurrenceid['value']));
+            if(!empty($xevent['RECURRENCE-ID'])){
+              if(is_array($xevent['RECURRENCE-ID'])){
+                $recurrence_id = $xevent['RECURRENCE-ID']['unixtime'];
+              }
+            }
+          }
+          if(is_array($vevent->exdate)){
+            foreach($vevent->exdate as $date){
+              $xevent['EXDATE'][] = strtotime(implode('', $date['value'][0]));
+            }
+            if(!empty($xevent['EXDATE'])){
+              $exdates = array();
+              $exdates[(int) $xevent['EXDATE']] = $xevent['EXDATE'];
+              $exdates = array_values($exdates);
+              $exdates = serialize($exdates);
+            }
+          }
+          if(is_array($vevent->rrule)){
+            $rrule = $vevent->rrule[0]['value'];
+            if(is_array($rrule)){
+              foreach($rrule as $prop => $val){
+                switch($prop){
+                  case 'BYDAY':
+                    foreach($val as $key => $value){
+                      if(is_numeric($value)){
+                        $val[$key] = $value . '|'; 
+                      }
+                    }
+                    $val = str_replace('|,', '', implode(',', $this->array_flatten($val)));
+                    break;
+                  case 'BYMONTH':
+                  case 'BYMONTHDAY':
+                    if(is_array($val)){
+                      $val = implode(',', $this->array_flatten($val));
+                    }
+                    break;
+                  default:
+                    if(is_array($val)){
+                      $val = implode('', $val);
+                      if($ts = strtotime($val)){
+                        $val = $ts;
+                      }
+                    }
+                }
+                $xevent['RRULE'][$prop] = $val;
+              }
+            }
+            if(!empty($xevent['RRULE']['FREQ'])){
+              $recur = $freq[$xevent['RRULE']['FREQ']];
+              if(!empty($xevent['RRULE']['INTERVAL'])){
+                $recur = $recur * $xevent['RRULE']['INTERVAL'];
+              }
+              $recur = $rr[$xevent['RRULE']['FREQ']] . $recur;
+            }
+            if(!empty($xevent['RRULE']['COUNT'])){
+              $occurrences = $xevent['RRULE']['COUNT'];
+            }
+            else{
+              $occurrences = 0;
+            }
+            if(!empty($xevent['RRULE']['UNTIL'])){
+              $expires = $xevent['RRULE']['UNTIL'];
+            }  
+            else{
+              $expires = strtotime(CALEOT);
+            }
+            if(!empty($xevent['RRULE']['BYDAY'])){
+              $byday = $xevent['RRULE']['BYDAY'];
+            }
+            if(!empty($xevent['RRULE']['BYMONTH'])){
+              $bymonth = $xevent['RRULE']['BYMONTH'];
+            }
+            if(!empty($xevent['RRULE']['BYMONTHDAY'])){
+              $bymonthday = $xevent['RRULE']['BYMONTHDAY'];
+            }
+          }
+          if($valarm = $vevent->getComponent('valarm')){
+            if(is_array($valarm->attendee)){
+              $xevent[strtolower($valarm->action['value'])]['mailto'] = str_ireplace('MAILTO:', '', $valarm->attendee[0]['value']);
+            }
+            if(is_array($valarm->trigger)){
+              if($valarm->trigger['value']['sec']){
+                $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['sec'];
+              }
+              else if($valarm->trigger['value']['min']){
+                $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['min'] * 60;
+              }
+              else if($valarm->trigger['value']['hour']){
+                $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['hour'] * 3600;
+              }
+              else if($valarm->trigger['value']['day']){
+                $xevent[strtolower($valarm->action['value'])]['trigger'] = $valarm->trigger['value']['day'] * 86400;
+              }
+            }
+            if(isset($xevent['email'])){
+              $remindertype = 'email';
+              $remindermailto = $xevent['email']['mailto'];
+              $reminderbefore = $xevent['email']['trigger'];
+            }
+            else if(isset($xevent['display'])){
+              $remindertype = 'popup';
+              $reminderbefore = $xevent['display']['trigger'];
+            }
+          }
+          if(empty($xevent['UID'])){
+            $xevent['UID'] = md5(serialize($xevent));
+          }
+          if(empty($event['CATEGORIES'])){
+            if($post_categories){
+              $xevent['CATEGORIES'] = $post_categories;
+            }
+          }
+          if(!$echo){
+            $ret = $this->backend->newEvent(
+              $xevent['DTSTART'],
+              $xevent['DTEND'],
+              str_replace("\\","",str_replace("\\n","\n",$xevent['SUMMARY'])),
+              str_replace("\\","",str_replace("\\n","\n",$xevent['DESCRIPTION'])),
+              str_replace("\\","",str_replace("\\n","\n",$xevent['LOCATION'])),
+              str_replace("\\","",str_replace("\\n","\n",$dbclassName)),
+              0,
+              $xevent['STATUS'],
+              $xevent['PRIORITY'],
+              $xevent['DUE'],
+              $xevent['COMPLETE'],
+              $recur,
+              $expires,
+              $occurrences,
+              $byday,
+              $bymonth,
+              $bymonthday,
+              $recurrence_id,
+              $exdates,
+              $reminderbefore,
+              $remindertype,
+              $remindermailto,
+              array('uid' => $xevent['UID'], 'href' => $href, 'etag' => $etag),
+              $client,
+              false,
+              $component
+            );
+          }
+          else{
+            if($recur === 0)
+              $recur = '';
+            else{
+              $recur = rcube_label('calendar.yes');
+            }
+            if(strtolower($xevent['CATEGORIES']) == '[undefined]'){
+              $xevent['CATEGORIES'] = '';
+            }
+            if(!$className){
+              $className = 'preview';
+            }
+            $jsonevents[] = array(
+              'id' => $idoverwrite,
+              'title' => str_replace("\\","",str_replace("\\n","\n",$xevent['SUMMARY'])),
+              'start' => $xevent['DTSTART'],
+              'due' => $xevent['DUE'],
+              'end' => $xevent['DTEND'],
+              'start_unix' => $xevent['DTSTART'],
+              'end_unix' => $xevent['DTEND'],
+              'due_unix' => $xevent['DUE'],
+              'allDay' => false,
+              'recurs' => $recur,
+              'description' => str_replace("\\","",str_replace("\\n","\n",$xevent['DESCRIPTION'])),
+              'location' => str_replace("\\","",str_replace("\\n","\n",$xevent['LOCATION'])),
+              'className' => $className,
+              'category' => $xevent['CATEGORIES'],
+              'classNameDisp' => $xevent['CATEGORIES'],
+              'editable' => false,
+              'component' => $component,
+              'status' => $xevent['STATUS'],
+              'priority' => $xevent['PRIORITY'],
+              'complete' => $xevent['COMPLETE'],
+            );
           }
         }
       }
@@ -546,7 +629,7 @@ class Utils
    * @return string  Events in iCalendar format (http://tools.ietf.org/html/rfc5545)
    * @access public
    */
-  public function exportEvents($start, $end, $events=true, $showdel=false, $showclone=false, $category=false) {
+  public function exportEvents($start, $end, $events=true, $showdel=false, $showclone=false, $category=false, $component='vevent') {
     if (!empty($this->rcmail->user->ID)) {
       $rcmail = $this->rcmail;
       if(!is_array($events)){
@@ -555,7 +638,9 @@ class Utils
             return $this->backend->exportEvents($category);
           }
           else{
-            $events = $this->backend->getEvents($start, $end, $labels=array(), $category=false, $filter=false, $client=true);
+            $events = $this->backend->getEvents($start, $end, $labels=array(), $category=false, $filter=false, $client=true, 'vevent');
+            $tasks  = $this->backend->getEvents($start, $end, $labels=array(), $category=false, $filter=false, $client=true, 'vtodo');
+            $events = array_merge($events, $tasks);
           }
         }
       }
@@ -643,50 +728,96 @@ class Utils
       }
       foreach ($events as $event) {
         if(($event['del'] != 1 || $showdel) && (!$event['clone'] || $showclone)){
-          $ical .= "BEGIN:VEVENT\n";
+          if($event['component'] == 'vevent'){
+            $ical .= "BEGIN:VEVENT\n";
+            $dtend = 'DTEND';
+          }
+          else{
+            $ical .= "BEGIN:VTODO\n";
+            $dtend = 'COMPLETED';
+            if($event['complete']){
+              $ical .= "PERCENT-COMPLETE:" . $event['complete'] . "\n";
+            }
+            if($event['status']){
+              $ical .= "STATUS:" . $event['status'] . "\n";
+            }
+            if($event['due']){
+              if($use_utc){
+                $ical .= "DUE:" . gmdate('Ymd\THis\Z', $event['due']) . "\n";
+              }
+              else{
+                $ical .= "DUE;TZID=$ctz:" . date('Ymd\THis', $event['due']) . "\n";
+              }
+            }
+          }
+          if($event['priority']){
+            $ical .= "PRIORITY:" . $event['priority'] . "\n";
+          }
           if(
-              (!$event['end'] || ($event['end'] - $event['start'] >= 86340 && $event['end'] - $event['start'] <= 86400)) ||
+              ((!$event['end'] && $component == 'vevent') || ($event['end'] - $event['start'] >= 86340 && $event['end'] - $event['start'] <= 86400)) ||
               ($event['end'] - $event['start'] >= (86340 - 3600) && $event['end'] - $event['start'] <= (86400 - 3600) && date('I', $event['start']) < date('I', $event['end'])) ||
               ($event['end'] && $event['end'] - $event['start'] >= (86340 + 3600) && $event['end'] - $event['start'] <= (86400 + 3600) && date('I', $event['start']) > date('I', $event['end']))
             ){
-            $ical .= "DTSTART;VALUE=DATE:" . date('Ymd',$event['start']) . "\n";
+            if($event['start'] != 0 || $component == 'vevent'){
+              if($event['start']){
+                $ical .= "DTSTART;VALUE=DATE:" . date('Ymd', $event['start']) . "\n";
+              }
+            }
             if($event['end'] && $event['end'] != $event['start']){
               $end = $event['end'] + 86340;
               if(date('I', $event['start']) < date('I', $end)){
                 $end = $end - 3600;
               }
-              $ical .= "DTEND;VALUE=DATE:" . date('Ymd',$end) . "\n";
+              if($event['end'] != 0 || $component == 'vevent'){
+                $ical .= "$dtend;VALUE=DATE:" . date('Ymd', $end) . "\n";
+              }
             }
           }
           else if($event['clone']){
             if($use_utc){
-              $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['clone']) . "\n";
+              if($event['clone'] != 0 || $component == 'vevent'){
+                $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['clone']) . "\n";
+              }
             }
             else{
-              $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['clone']) . "\n";
+              if($event['clone'] != 0 || $component == 'vevent'){
+                $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['clone']) . "\n";
+              }
             }
             if($event['clone'] != $event['clone_end']) {
               if($use_utc){
-                $ical .= "DTEND:" . gmdate('Ymd\THis\Z',$event['clone_end']) . "\n";
+                if($event['clone_end'] != 0 || $component == 'vevent'){
+                  $ical .= "$dtend:" . gmdate('Ymd\THis\Z',$event['clone_end']) . "\n";
+                }
               }
               else{
-                $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['clone_end']) . "\n";
+                if($event['clone_end'] != 0 || $component == 'vevent'){
+                  $ical .= "$dtend;TZID=$ctz:" . date('Ymd\THis',$event['clone_end']) . "\n";
+                }
               }
             }
           }
           else{
             if($use_utc){
-              $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['start']) . "\n";
+              if($event['start'] != 0 || $component == 'vevent'){
+                $ical .= "DTSTART:" . gmdate('Ymd\THis\Z',$event['start']) . "\n";
+              }
             }
             else{
-              $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['start']) . "\n";
+              if($event['start'] != 0 || $component == 'vevent'){
+                $ical .= "DTSTART;TZID=$ctz:" . date('Ymd\THis',$event['start']) . "\n";
+              }
             }
-            if($event['start'] != $event['end']) {
+            if($event['start'] != $event['end'] && $event['end'] > 0) {
               if($use_utc){
-                $ical .= "DTEND:" . gmdate('Ymd\THis\Z',$event['end']) . "\n";
+                if($event['end'] != 0 || $component == 'vevent'){
+                  $ical .= "$dtend:" . gmdate('Ymd\THis\Z',$event['end']) . "\n";
+                }
               }
               else{
-                $ical .= "DTEND;TZID=$ctz:" . date('Ymd\THis',$event['end']) . "\n";
+                if($event['end'] != 0 || $component == 'vevent'){
+                  $ical .= "$dtend;TZID=$ctz:" . date('Ymd\THis',$event['end']) . "\n";
+                }
               }
             }
           }
@@ -741,7 +872,12 @@ class Utils
                (date('I', $event['start']) < date('I', $event['end']) && $event['start'] >= (86340 - 3600) && $event['end'] - $event['start'] <= (86400 - 3600)) ||
                (date('I', $event['start']) > date('I', $event['end']) && $event['start'] >= (86340 + 3600) && $event['end'] - $event['start'] <= (86400 + 3600))
             ){
-              $ical .= "RECURRENCE-ID;VALUE=DATE:" . date('Ymd',$event['recurrence_id']) . "\n";
+              if($event['component'] == 'vevent'){
+                $ical .= "RECURRENCE-ID;VALUE=DATE:" . date('Ymd',$event['recurrence_id']) . "\n";
+              }
+              else{
+                $ical .= "RECURRENCE-ID:" . gmdate('Ymd\THis\Z',$event['recurrence_id']) . "\n";
+              }
             }
             else{
               $ical .= "RECURRENCE-ID:" . gmdate('Ymd\THis\Z',$event['recurrence_id']) . "\n";
@@ -817,38 +953,18 @@ class Utils
             $ical .= 'TRIGGER;VALUE=DURATION:-P' . $t . $temp . $unit . "\n";
             $ical .= 'END:VALARM' . "\n";
           }
-          $ical .= "END:VEVENT\n";
+          if($event['component'] == 'vevent'){
+            $ical .= "END:VEVENT\n";
+          }
+          else{
+            if($event['start'] == 0){
+              $ical = str_replace("VTODO\nDTSTART", "VTODO\nX-DTSTART", $ical);
+            }
+            $ical .= "END:VTODO\n";
+          }
         }
       }
       $ical .= "END:VCALENDAR";
-/*$ical = 'BEGIN:VCALENDAR
-PRODID:-//Roundcube//NONSGML Calendar//EN\n";
-VERSION:2.0
-BEGIN:VTIMEZONE
-TZID:America/New_York
-BEGIN:DAYLIGHT
-DTSTART:20000404T020000
-RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=4
-TZNAME:EDT
-TZOFFSETFROM:-0500
-TZOFFSETTO:-0400
-END:DAYLIGHT
-BEGIN:STANDARD
-DTSTART:20001026T020000
-RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
-TZNAME:EST
-TZOFFSETFROM:-0400
-TZOFFSETTO:-0500
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-DTSTAMP:' . gmdate('Ymd\THis\Z',time()) . '
-DTSTART;TZID=America/New_York:20130522T140000
-DTEND;TZID=America/New_York:20130522T150000
-SUMMARY:Event #2 bis
-UID:' . md5(time()) . '@example.com
-END:VEVENT
-END:VCALENDAR';*/
       date_default_timezone_set($stz);
       return $ical;
     }

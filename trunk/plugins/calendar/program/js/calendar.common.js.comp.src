@@ -91,9 +91,12 @@ function calendar_common(){
       ext = ext + "<div><hr /><small>@" + event.location + "</small></div>";
     if(typeof event.classNameDisp != 'undefined' && event.classNameDisp != '')
       ext = ext + "<div><hr /><small><i>[" + event.classNameDisp + "]</i></small></div>";
-    var start = "<div style='white-space:nowrap'><small><img width='15' height='15' align='absmiddle' src='./plugins/calendar/skins/" + rcmail.env.skin + "/images/start.png' />&nbsp;" + this.localeTimeString(new Date(event.start)) + "</small></div>";
+    var start = '';
+    if(event.start != 0){
+      start = "<div style='white-space:nowrap'><small><img width='15' height='15' align='absmiddle' src='./plugins/calendar/skins/" + rcmail.env.skin + "/images/start.png' />&nbsp;" + this.localeTimeString(new Date(event.start)) + "</small></div>";
+    }
     var end = '';
-    if(event.end && new Date(event.end).getTime() > new Date(event.start).getTime()){
+    if(event.end && event.end > 0 && new Date(event.end).getTime() > new Date(event.start).getTime()){
       end = "<div style='white-space:nowrap'><small><img width='15' height='15' align='absmiddle' src='./plugins/calendar/skins/" + rcmail.env.skin + "/images/end.png' />&nbsp;" + this.localeTimeString(new Date(event.end)) + '</small></div>';
     }
     if(!event.title)

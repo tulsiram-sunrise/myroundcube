@@ -1,5 +1,4 @@
 /* calendar reminders */
-
 function calendar_reminders(){
   this.msgids = new Array();
   this.schedule = function(){
@@ -58,35 +57,42 @@ function calendar_reminders(){
           if(response[1][i].title != ''){
             title = response[1][i].title;
           }
-          if(!response[1][i].end_unix)
+          if(!response[1][i].end_unix){
             response[1][i].end_unix = response[1][i].start_unix;
-          if(response[1][i].start_unix < new Date().getTime()/1000 && response[1][i].end_unix >= new Date().getTime()/1000){
-            liclass = 'started';
-            title = title + ' (' + rcmail.gettext('calendar.started') + ')';
-            if(divclass == 'remindersconfirmation')
-              divclass = 'remindersnotice';
-          }
-          else if(response[1][i].start_unix < new Date().getTime()/1000 && response[1][i].end_unix < new Date().getTime()/1000){
-            liclass = 'terminated';
-            title = title + ' (' + rcmail.gettext('calendar.terminated') + ')';
-            if(divclass == 'remindersconfirmation' || divclass == 'remindersnotice')
-              divclass = 'reminderswarning';
           }
           startdate = new Date(response[1][i].start_unix * 1000);
           startdate = calendar_common.localeTimeString(startdate);
           enddate = new Date(response[1][i].end_unix * 1000); 
           enddate = calendar_common.localeTimeString(enddate);
+          duedate = false;
+          if(response[1][i].duereminder == true){
+            duedate = new Date(response[1][i].due * 1000);
+            duedate = calendar_common.localeTimeString(duedate);
+            startdate = false;
+          }
+          if(response[1][i].start_unix < new Date().getTime()/1000 && ((response[1][i].end_unix >= new Date().getTime()/1000 || response[1][i].end_unix <= response[1][i].start_unix))){
+            liclass = 'started';
+            title = title + ' (' + rcmail.gettext('calendar.started') + ')';
+            if(divclass == 'remindersconfirmation')
+              divclass = 'remindersnotice';
+          }
+          else if(response[1][i].start_unix < new Date().getTime()/1000 && response[1][i].end_unix < new Date().getTime()/1000 && response[1][i].end_unix > response[1][i].start_unix){
+            liclass = 'terminated';
+            title = title + ' (' + rcmail.gettext('calendar.terminated') + ')';
+            if(divclass == 'remindersconfirmation' || divclass == 'remindersnotice')
+              divclass = 'reminderswarning';
+          }
           content = content + 
                             '<tr id="rtr1' + id + '"><td colspan="4"><li id="rli' + i + '" class="' + liclass + '">' + 
                             title + '</td></tr>' + 
                             '<tr id="rtr2' + id + '">' +
                             '<td rowspan="2"><span title="' + rcmail.gettext('calendar.noticed') + '" ' + 
                             'onclick="setTimeout(function() {calendar_reminders.remove(\'' + id + '\', \'' + event_id + '\')},500)"><input type="checkbox" /></span></td>' + 
-                            '<td>' +  rcmail.gettext('calendar.starts') + '</td><td>' + rcmail.gettext('calendar.at') + '</td><td align="right">' +
-                            startdate + '</td>' + 
+                            '<td>' +  (startdate ? rcmail.gettext('calendar.starts') : rcmail.gettext('calendar.due')) + '</td><td>' + rcmail.gettext('calendar.at') + '</td><td align="right">' +
+                            (startdate ? startdate : duedate) + '</td>' + 
                             '</tr>' +
-                            '<tr id="rtr3' + id + '"><td>' +  rcmail.gettext('calendar.ends') + '</td><td>' + rcmail.gettext('calendar.at') + '</td><td align="right">' +
-                            enddate + '</td></tr>' + 
+                            (enddate > startdate ? ('<tr id="rtr3' + id + '"><td>' +  rcmail.gettext('calendar.ends') + '</td><td>' + rcmail.gettext('calendar.at') + '</td><td align="right">' +
+                            enddate + '</td></tr>') : '') +
                             '<tr id="rtr4' + id + '"><td colspan="4"><hr align="left" width="100%" /></li></td></tr>';
         }
       }      
