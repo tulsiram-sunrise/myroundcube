@@ -16,7 +16,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Calendar';
-$labels['plugindescription'] = 'Manage your events with the Webmail-Calendar. You can link the calendar with your Google Calendar...';
+$labels['plugindescription'] = 'Manage your events with the Webmail-Calendar.';
 $labels['calendarprovider'] = 'Provider';
 $labels['forinstance'] = 'f.e.';
 $labels['caldavserver'] = 'CalDAV Server';
@@ -151,7 +151,6 @@ $labels['removereminders'] = 'Remove Reminders';
 $labels['remindersloading'] = 'Loading Reminders...';
 $labels['show_upcoming_cal'] = 'Enable upcoming events preview';
 $labels['invalidresponse'] = 'Invalid response from';
-$labels['verifyexpiredate'] = 'The expiration date is implausible. Do you want to check it?';
 $labels['importconfirmation'] = 'Do you want to import attached event(s) into your calendar [%s item(s)]?';
 $labels['item'] = 'Item';
 $labels['run_tests'] = 'Test settings (accessible for calendar admin only)';
@@ -173,7 +172,7 @@ $labels['replicationfailed'] = 'Calendar replication failed definitely';
 $labels['replicationincomplete'] = 'Calendar replication is incomplete';
 $labels['reminders'] = 'Reminders';
 $labels['reminder'] = 'Reminder';
-$labels['externalreminders'] = 'External reminder service (f.e. Google Calendar)';
+$labels['externalreminders'] = 'External reminder service';
 $labels['remindertype'] = 'Remind by';
 $labels['email'] = 'Email';
 $labels['popup'] = 'Popup';

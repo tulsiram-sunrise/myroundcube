@@ -1,0 +1,41 @@
+$html = '<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://static.jappix.com/php/get.php?h=117cc54936d50c4eaac15793c3f43e09&amp;t=css&amp;g=desktop.xml" type="text/css" media="all" />
+  <script type="text/javascript" src="program/js/jquery.min.js"></script>
+  <script type="text/javascript" src="plugins/jappix4roundcube/gibberish.js"></script>
+  <!--script type="text/javascript" src="./?_task=jappix&_action=jappix.getfile&_file=desktop.js&_l=' . $lg . '"></script-->
+  <script type="text/javascript" src="https://static.jappix.com/php/get.php?h=117cc54936d50c4eaac15793c3f43e09&amp;l=de&amp;t=js&amp;g=desktop.xml"></script>
+</head>
+<body>
+  <div id="home">
+    <div class="main">
+      <div class="mainview">
+        <div class="right">
+          <div class="default homediv">
+            <button class="login buttons-images">
+              <span class="home-images"></span>
+              <span class="text"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript">
+$(document).ready(function(){
+  $.get("./", { _task : "jappix", _action : "jappix.return_loginkey" }, function(key){
+  $(".login").trigger("click");
+  //$(".main").hide();
+  $("#lnick").val("' . $rcmail->config->get('jabber_username') . '");
+  $("#lserver").val("' . $rcmail->config->get('jabber_domain') . '");
+    GibberishAES.size(256);
+    var dec = GibberishAES.dec("' . $rcmail->config->get('jabber_enc') . '", $.trim(key));
+    $("#lpassword").val(dec);
+    document.forms[0].action="' . $rcmail->config->get('jappix_url', 'https://jappix.com') . '";
+    setTimeout("document.forms[0].submit();", 10000);
+  });
+});
+</script>
+</body>
+</html>';

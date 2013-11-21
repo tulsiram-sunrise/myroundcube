@@ -60,7 +60,7 @@
       <div id='calendar'></div>
       <div id="tasks">
         <table cellspacing="0" cellpadding="0" width="100%">
-          <tr style="height:15px;"><th class="ui-widget-header">Tasks</th></tr>
+          <tr style="height:15px;"><th class="ui-widget-header"><roundcube:label name="calendar.tasks" /></th></tr>
         </table>
         <form name="taskquickinput" action="./?_task=dummy&_action=plugin.calendar" method="post">
         <table cellspacing="0" cellpadding="0" width="100%">
@@ -69,7 +69,7 @@
           </tr>
         </table>
         </form>
-        <table cellspacing="0" cellpadding="0" width="100%">
+        <table cellspacing="0" cellpadding="0" width="100%" id="tasksfilter">
           <tr style="height:25px;">
             <th nowrap id="overdue" onclick="$('#view').html('<roundcube:label name="calendar.overdue" />'); $('.selected').removeClass('selected'); $(this).addClass('selected'); $('#taskscontent tr').hide(); $('#taskscontent .percentage').show(); $('.overdue').show(); if(!$('#taskscontent tr').is(':visible')){ $('.notasks').show() } else { $('.notasks').hide() };" title="<roundcube:label name="calendar.overdue" />">&nbsp;<a href="#"><roundcube:label name="calendar.overdue" /></a>&nbsp;<div id="coverdue" class="count">(0)</div>&nbsp;</th>
             <th nowrap id="today" onclick="$('#view').html('<roundcube:label name="calendar.today" />'); $('.selected').removeClass('selected'); $(this).addClass('selected'); $('#taskscontent tr').hide(); $('#taskscontent .percentage').show(); $('.today').show(); if(!$('#taskscontent tr').is(':visible')){ $('.notasks').show() } else { $('.notasks').hide() };" class="selected" title="<roundcube:label name="calendar.today" />">&nbsp;<a href="#"><roundcube:label name="calendar.today" /></a>&nbsp;<div id="ctoday" class="count">(0)</div>&nbsp;</th>

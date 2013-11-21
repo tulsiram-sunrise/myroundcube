@@ -2,8 +2,8 @@
 /**
  * calendar
  *
- * @version 16.0.5 - 14.08.2013
- * @author Roland 'rosali' Liebl
+ * @version 16.1.24 - 18.11.2013
+ * @author Roland 'rosali'Liebl
  * @website http://myroundcube.com
  *
  **/
@@ -19,23 +19,6 @@
  * @licence GNU GPL
  * @copyright (c) 2010 Lazlo Westerhof - Netherlands
  */
- 
-/**
- *
- * Usage: http://mail4us.net/myroundcube/
- *
- * Requirements: (*) Roundcube v0.8
- *               (*) jqueryui plugin (do not register, plugin is loaded automatically)
- *               (*) qtip plugin (do not register, plugin is loaded automatically)
- *               (*) http_auth plugin (notice this is not equal with http_authentication which is shipped with Roundcube,
- *                                     do not register, plugin is loaded automatically)
- *
- * Notice:
- *  cron job / windows task event reminders (suggested interval 5 mins)
- *    <path_to_php.exe>/php.exe -f "<path_to_roundcube>/plugins/calendar/cron/reminders.php" (for sending reminder emails)
- *    <path_to_php.exe>/php.exe -f "<path_to_roundcube>/plugins/calendar/cron/sync_caldav_reminders.php" (for syncing CalDAV)
- *
- **/
  
 // application constants
 define('CALEOT', '2029-12-31 23:59:59');
@@ -79,9 +62,8 @@ class calendar extends rcube_plugin{
   static private $plugin = 'calendar';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'News: Tasks implemented (requires calendar_plus 3.0 or newer).<br />Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).';
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '16.0.5';
-  static private $date = '14-08-2013';
+  static private $version = '16.1.24';
+  static private $date = '18-11-2013';
   static private $db_version = array(
     'initial',
     '20130512',
@@ -165,6 +147,9 @@ class calendar extends rcube_plugin{
   
   function init() {
     $rcmail = rcmail::get_instance();
+    if($rcmail->action == 'jappix.loadmini'){
+      return;
+    }
     if(!in_array('global_config', $rcmail->config->get('plugins', array()))){
       $this->require_plugin('jqueryui');
       $this->load_config();
@@ -175,7 +160,9 @@ class calendar extends rcube_plugin{
         $v = calendar_plus::about(array('version'));
         $t = explode('.', $v['version']);
         if($t[0] >= '3'){
-          $rcmail->output->add_script('$("#taskstogglecontainer").show();', 'docready');
+          if($rcmail->action == 'plugin.calendar'){
+            $rcmail->output->add_script('$("#taskstogglecontainer").show();', 'docready');
+          }
         }
         else{
           $rcmail->output->add_script('rcmail.set_cookie("tasksvisible", 0);', 'head');
@@ -208,7 +195,7 @@ class calendar extends rcube_plugin{
     
     /* switch messagelist attachment icon and inject upcoming calendar */
     if(class_exists('calendar_plus') && !isset($_GET['_extwin'])){
-      $this->show_upcoming_cal = $rcmail->config->get('upcoming_cal', false);
+       $this->show_upcoming_cal = $rcmail->config->get('upcoming_cal', false);
     }
     if($rcmail->task == 'mail') {
       if(class_exists('calendar_plus')){
@@ -317,7 +304,6 @@ class calendar extends rcube_plugin{
     $this->register_action('plugin.calendar_fetchalllayers', array($this, 'fetchAllLayers'));
     $this->register_action('plugin.calendar_setfilters', array($this, 'setFilters'));
     $this->add_hook('template_object_event_dialog', array($this, 'event_dialog'));
-
     /* print */
     $this->register_action('plugin.calendar_print_events', array($this, 'calprintevents'));
     $this->register_action('plugin.calendar_print_tasks', array($this, 'calprinttasks'));
@@ -367,7 +353,6 @@ class calendar extends rcube_plugin{
     
     $skin = $rcmail->config->get('skin');
     $this->include_script('program/js/move_button.js');
-    $disp = 'inline';
     if(!file_exists($this->home . '/skins/' . $skin . '/calicon.css')) {
       $skin = "default";
     }
@@ -395,11 +380,9 @@ class calendar extends rcube_plugin{
       'content' => html::tag('span', array('class' => 'button-inner'), $this->gettext('calendar.calendar')),
       'href'    => './?_task=dummy&_action=plugin.calendar' . $token,
       'id'      => 'calendar_button',
-      'style'   => 'display: ' . $disp . ';'
       ), 'taskbar');
       
     $this->add_hook('render_page', array($this, 'planner_drag_drop'));
-
   }
   
  /************************
@@ -450,7 +433,6 @@ class calendar extends rcube_plugin{
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
@@ -579,7 +561,7 @@ class calendar extends rcube_plugin{
   *
   ****************************/
   
-    function event_dialog($args){
+  function event_dialog($args){
     if($content = @file_get_contents(INSTALL_PATH . 'plugins/calendar/skins/includes/event.html')){
       $args['content'] = rcmail::get_instance()->output->just_parse($content);
     }
@@ -780,7 +762,7 @@ class calendar extends rcube_plugin{
     if($template != 'print'){
       $this->require_plugin('qtip');
       if($rcmail->config->get('hide_agenda_day_basic', false)){
-        $rcmail->output->add_script('$("#upcoming").hide();', 'docready');
+        $rcmail->output->add_script('$("#upcoming-maincontainer").hide();', 'docready');
       }
       if(!class_exists('calendar_plus')){
         $rcmail->output->add_script('$("#calquicksearchbar").hide();', 'docready');
@@ -830,9 +812,9 @@ class calendar extends rcube_plugin{
     $css = "<style type=\"text/css\">\n";
     if($e){
       $css .= ".fc-event-skin {\n";
-      $css .= "background-color: #" . $rcmail->config->get('default_category') . ";\n";
+      $css .= "background-color: #" . $rcmail->config->get('default_category', 'C0C0C0') . ";\n";
       $css .= "border: 1px solid #" . $this->utils->getBorderColor($color)  . ";\n";
-      $css .= "color: #" . $this->utils->getFontColor($rcmail->config->get('default_category')) . ";\n";
+      $css .= "color: #" . $this->utils->getFontColor($rcmail->config->get('default_category', 'C0C0C0')) . ";\n";
       $css .="}\n";
       $categories = $rcmail->config->get('categories_preview', array());
       foreach($categories as $category => $color){
@@ -848,7 +830,7 @@ class calendar extends rcube_plugin{
     if(!empty($categories)) {
       foreach ($categories as $class => $color) {
         $rcmail->output->set_env('class_' . asciiwords($class, true, ''), $class);
-        $class = asciiwords($class,true,'');
+        $class = asciiwords($class, true, '');
         $css .= "." . $class . "{\n";
         $css .= "background-color: #" . $color . ";\n";
         $css .= "border: 1px solid #" . $this->utils->getBorderColor($color)  . ";\n";
@@ -986,6 +968,9 @@ class calendar extends rcube_plugin{
       $user = $ret;
     }
     $rcmail->user->ID = $user['user_id'];
+    if(!$_SESSION['password']){
+      $_SESSION['password'] = $user['password'];
+    }
     $preferences = unserialize($user['preferences']);
     if(is_array($preferences)){
       foreach($preferences as $key => $val){
@@ -994,9 +979,15 @@ class calendar extends rcube_plugin{
     }
     if($preferences['backend'] == 'caldav'){
       $this->setupBackend('caldav');
-      $start = time();
-      $end = $start + 86400;
-      $this->backend->replicateEvents($start, $end, array(), 'alarms');
+      //$start = time();
+      //$end = $start + 86400;
+      $start = 0;
+      $end = time() + 86400;
+      $this->backend->replicateEvents($start, $end, false, 'alarms');
+      $caldavs = $rcmail->config->get('caldavs', array());
+      foreach($caldavs as $caldav => $props){
+        $this->backend->replicateEvents($start, $end, $caldav, 'alarms');
+      }
     }
     exit;
   }
@@ -1511,7 +1502,7 @@ class calendar extends rcube_plugin{
     $stz = date_default_timezone_get();
     date_default_timezone_set($_SESSION['tzname']);
     if($start = trim(get_input_value('_planner_datetime', RCUBE_INPUT_POST))){
-      $start = strtotime($start) + planner::getTimezoneOffset();
+      $start = strtotime($start);
       $end = $start + (int) (60 * 60 * rcmail::get_instance()->config->get('default_duration',1));
     }
     else{
@@ -2437,14 +2428,7 @@ class calendar extends rcube_plugin{
     }
     if(!$properties['cat'])
       $properties['cat'] = $properties['url'];
-    $googleuser = $rcmail->config->get('googleuser', false);
-    if((strpos($properties['url'], '%gu') || $properties['user'] == '%gu') && $googleuser){
-      $properties['url'] = str_replace('%gu', $googleuser, $properties['cat']);
-      $properties['cat'] = str_replace('%gu', $googleuser, $properties['cat']);
-      $properties['user'] = $googleuser;
-      $properties['pass'] = 'GOOGLE';
-    }
-    else if(strpos($properties['url'], '%su') || $properties['user'] == '%su'){
+    if(strpos($properties['url'], '%su') || $properties['user'] == '%su'){
       list($u, $d) = explode('@', $rcmail->user->data['username']);
       $properties['url'] = str_replace('%su', $u, $properties['cat']);
       $properties['cat'] = str_replace('%su', $u, $properties['cat']);
@@ -2468,6 +2452,9 @@ class calendar extends rcube_plugin{
     $properties['max_caldavs'] = $rcmail->config->get('max_caldavs',3);
     $properties['cal_dont_save_passwords'] = $rcmail->config->get('cal_dont_save_passwords', false);
     $properties['show'] = $show;
+    if(class_exists('tabbed') && $rcmail->action == 'plugin.calendar_saveCalDAV'){
+      $properties['tabbed'] = true;
+    }
     $rcmail->output->command('plugin.calendar_getCalDAVs', $properties);
   }
   
@@ -2496,9 +2483,6 @@ class calendar extends rcube_plugin{
       }
       else if($pass == 'SESSION'){
         $pass = '%p';
-      }
-      else if($pass == 'GOOGLE'){
-        $pass = '%gp';
       }
       $pass = $rcmail->encrypt($pass);
       $save['caldavs'][$category]['pass'] = $pass;
@@ -2718,7 +2702,9 @@ class calendar extends rcube_plugin{
       $sort .= $task['uid'];
       $mytasks[$sort] = $task;
       $mytasks[$sort]['classNameDisp'] = $task['categories'];
-      $mytasks[$sort]['className'] = asciiwords($task['categories'],true,'');
+      $mytasks[$sort]['className'] = asciiwords($task['categories'], true, '');
+      $task['className'] = $task['categories'];
+      $task['classNameDisp'] = asciiwords($task['categories'], true, '');
     }
     ksort($mytasks);
     $html = '';
@@ -2822,10 +2808,10 @@ class calendar extends rcube_plugin{
         $task['clone'] = 'false';
       }
       $html .= html::tag('tr', array('class' => $class, 'style' => 'cursor: pointer;'),
-        html::tag('td', array('title' => $this->gettext('done'), 'class' => 'donecol ' . $task['categories'], 'style' => ($task['categories'] ? '' : ' background: #' . $rcmail->config->get('default_category'))), html::tag('input', array('onclick' => 'if(typeof calendar_gui.editTask == "function"){ calendar_gui.editTask(' . $task['event_id'] . ', "done", $(this).prop("checked")) }', 'type' => 'checkbox', 'class' => 'donechbox', 'checked' => $done ? true : false))) .
+        html::tag('td', array('title' => $this->gettext('done'), 'class' => 'donecol ' . asciiwords($task['categories'], true, ''), 'style' => ($task['categories'] ? '' : ' background: #' . $rcmail->config->get('default_category'))), html::tag('input', array('onclick' => 'if(typeof calendar_gui.editTask == "function"){ calendar_gui.editTask(' . $task['event_id'] . ', "done", $(this).prop("checked")) }', 'type' => 'checkbox', 'class' => 'donechbox', 'checked' => $done ? true : false))) .
         html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => $this->gettext($priority), 'class' => 'ui-widget-content', 'style' => 'width: 12px;'), '&nbsp;' . html::tag('font', array('color' => $color, 'size' => '3'), html::tag('b', null, $sign))) .
         html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => $task['summary'], 'class' => $done . 'ui-widget-content'), '&nbsp;' . $task['summary'] . '&nbsp;') .
-        html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => ($task['start'] ? date($rcmail->config->get('date_format', 'm/d/Y') . ' H:i:s', $task['start']) : ''), 'class' => 'ui-widget-content adjust'), ($task['start'] ? date($rcmail->config->get('date_format', 'm/d/Y') . ' H:i:s', $task['start']) : '') . '&nbsp;') .
+        html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => ($task['start'] ? date($rcmail->config->get('date_format', 'm/d/Y') . ' ' . $rcmail->config->get('time_format', 'h:i A'), $task['start']) : ''), 'class' => 'ui-widget-content adjust'), ($task['start'] ? date($rcmail->config->get('date_format', 'm/d/Y') . ' ' . $rcmail->config->get('time_format', 'h:i A'), $task['start']) : '') . '&nbsp;') .
         html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => $due, 'class' => 'ui-widget-content adjust'), '&nbsp;' . str_replace(' ', '&nbsp;', $due) . '&nbsp;') .
         html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => ($task['end'] ? date($rcmail->config->get('date_format', 'm/d/Y'), $task['end']) : ''), 'class' => 'ui-widget-content adjust'), ($task['end'] ? date($rcmail->config->get('date_format', 'm/d/Y'), $task['end']) : '') . '&nbsp;') .
         html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => $task['complete'] . '%', 'class' => 'ui-widget-content', 'style' => 'width: 60px;', 'nowrap' => 'nowrap'),
@@ -2958,6 +2944,25 @@ class calendar extends rcube_plugin{
     $settings['columnFormatDay'] = $rcmail->gettext('calendar.columnFormatDay') . ' ' . $ddatepart;
     $settings['columnFormatWeek'] = $rcmail->gettext('calendar.columnFormatWeek') . ' ' . $wdatepart;
     $settings['columnFormatMonth'] = $rcmail->gettext('calendar.columnFormatMonth');
+    //time formats
+    switch($rcmail->config->get('time_format', 'h:i A')){
+      case 'G:i':
+        $timeformat = 'H:mm';
+        break;
+      case 'H:i':
+        $timeformat = 'HH:mm';
+        break;
+      case 'g:i a':
+        $timeformat = 'h:mm tt';
+        break;
+      case 'h:i A':
+        $timeformat = 'hh:mm TT';
+        break;
+      default:
+        $timeformat = 'h:mm tt';
+        break;
+    }
+    $settings['FormatTime'] = $timeformat;
     // localisation
     $settings['days'] = array(
       rcube_label('sunday'),   rcube_label('monday'),
@@ -3014,6 +3019,7 @@ class calendar extends rcube_plugin{
     }
     if($args['section'] == 'calendarsharing'){
       if(class_exists('calendar_plus')){
+        $this->include_script('program/js/share.js');
         $args = calendar_plus::load_settings('sharing', $args);
       }
     }
@@ -3043,16 +3049,9 @@ class calendar extends rcube_plugin{
         }
       }
       else if($rcmail->config->get('backend') == 'caldav' && !$protected){
-        $googleuser = $rcmail->config->get('googleuser', false);
-        $googlepass= $rcmail->config->get('googlepass', false);
         $default_caldav = $rcmail->config->get('default_caldav_backend');
         $caldav_user = $rcmail->config->get('caldav_user');
-        if($caldav_user == '%gu'){
-          if($googleuser){
-            $caldav_user = str_replace('%gu', $googleuser, $caldav_user);
-          }
-        }
-        else if($caldav_user == '%su'){
+        if($caldav_user == '%su'){
           list($u, $d) = explode('@', $_SESSION['username']);
           $caldav_user = str_replace('%su', $u, $caldav_user);
         }
@@ -3061,12 +3060,7 @@ class calendar extends rcube_plugin{
         }
         $caldav_password = $rcmail->config->get('caldav_password');
         $caldav_url = $rcmail->config->get('caldav_url');
-        if(strpos($caldav_url, '%gu')){
-          if($googleuser){
-            $caldav_url = str_replace('%gu', $googleuser, $caldav_url);
-          }
-        }
-        else if(strpos($caldav_url, '%su')){
+        if(strpos($caldav_url, '%su')){
           list($u, $d) = explode('@', $_SESSION['username']);
           $caldav_url = str_replace('%su', $u, $caldav_url);
         }
@@ -3076,11 +3070,7 @@ class calendar extends rcube_plugin{
         $caldav_auth = $rcmail->config->get('caldav_auth', 'detect');
         if(is_array($default_caldav) && !$rcmail->config->get('caldav_user')){
           $default_caldav = $rcmail->config->get('default_caldav_backend');
-          if(strpos($default_caldav['url'], '%gu') && $googleuser){
-            $caldav_url = str_replace('%gu', $googleuser, $default_caldav['url']);
-            $caldav_user = $googleuser;
-          }
-          else if(strpos($default_caldav['url'], '%su')){
+          if(strpos($default_caldav['url'], '%su')){
             list($u, $d) = explode('@', $_SESSION['username']);
             $caldav_url = str_replace('%su', $u, $default_caldav['url']);
             $caldav_user = str_replace('%su', $u, $default_caldav['user']);
@@ -3089,15 +3079,12 @@ class calendar extends rcube_plugin{
             $caldav_url = str_replace('%u', $_SESSION['username'], $default_caldav['url']);
             $caldav_user = $_SESSION['username'];
           }
-          if($default_caldav['pass'] == '%gp' && $googlepass){
-            $caldav_password = '%gp';
-          }
-          else if($default_caldav['pass'] == '%p'){
+          if($default_caldav['pass'] == '%p'){
             $caldav_password = '%p';
           }
         }
         if(!$caldav_url)
-          $caldav_url = $rcmail->config->get('caldav_url','https://www.google.com/calendar/dav/john.doe@gmail.com/events');
+          $caldav_url = $rcmail->config->get('caldav_url','https://www.mydomain.tld/calendars/john.doe@mydomain.tld/events');
         
         $input = new html_inputfield(array('name' => '_caldav_user', 'id' => $field_id, 'value' => $caldav_user, 'size' => 28));
         $args['blocks']['calendar']['options']['caldav_user'] = array(
@@ -3131,33 +3118,9 @@ class calendar extends rcube_plugin{
         $input = new html_inputfield(array('name' => '_caldav_url', 'id' => $field_id, 'value' => $caldav_url, 'size' => 80));
         $args['blocks']['calendar']['options']['caldav_url'] = array(
           'title' => html::label($field_id, Q($this->gettext('caldavurl'))),
-          'content' => $input->show($caldav_url) . "<br /><span class='title'><small>&nbsp;" . $this->gettext('forinstance') . ": https://www.google.com/calendar/dav/john.doe@gmail.com/events</small></span>",
+          'content' => $input->show($caldav_url) . "<br /><span class='title'><small>&nbsp;" . $this->gettext('forinstance') . ": https://www.mydomain.tld/calendars/john.doe@mydomain.tld/events</small></span>",
         );
 
-        if(!in_array('googleuser', $rcmail->config->get('dont_override', array())) && class_exists('calendar_plus')){
-          $field_id = 'rcmfd_google_user';
-          $input_googleuser = new html_inputfield(array('name' => '_googleuser', 'id' => $field_id, 'size' => 35, 'placeholder' => $this->gettext('username')));
-          $args['blocks']['calendar']['options']['googleuser'] = array(
-            'title' => html::label($field_id, Q($this->gettext('googleuser'))),
-            'content' => $input_googleuser->show($rcmail->config->get('googleuser')),
-          );
-          $field_id = 'rcmfd_google_pass';
-          if($rcmail->config->get('googlepass')){
-            $title = $this->gettext('googlepassisset');
-          }
-          else{
-            $title = $this->gettext('googlepassisnotset');
-          }
-          $input_googlepass = new html_passwordfield(array('name' => '_googlepass', 'id' => $field_id, 'size' => 35, 'title' => $title, 'placeholder' => $title));
-          $args['blocks']['calendar']['options']['googlepass'] = array('title' => html::label($field_id, Q($this->gettext('googlepass'))),'content' => $input_googlepass->show());
-        }
-        
-        $field_id = 'rcmfd_google_captcha';
-        $args['blocks']['calendar']['options']['google_captcha'] = array(
-          'title' => html::label($field_id, Q($this->gettext('googlecaptcha'))),
-          'content' => html::tag('a', array('href' => 'https://accounts.google.com/DisplayUnlockCaptcha', 'target' => '_new'), $this->gettext('clickhere')),
-        );
-        
         $field_id = 'rcmfd_caldav_auth';
         $select = new html_select(array('name' => '_caldav_auth', 'id' => $field_id));
         $select->add($this->gettext('basic'), 'basic');
@@ -3459,7 +3422,7 @@ class calendar extends rcube_plugin{
         $radio_disabled = 'disabled';
       foreach($categories as $key => $val){
         $skey = str_replace(' ', '_', str_replace('"', '_', str_replace("'", '_', $key)));
-        $field_id = 'rcmfd_category_' . $key . '_' . $val;
+        $field_id = asciiwords('rcmfd_category_' . $key, true, '_');
         $readonly = array();
         $name = '_categories[]';
         if(isset($public[$key])){
@@ -3472,8 +3435,12 @@ class calendar extends rcube_plugin{
             $name = '_public_categories[]';
           }
         }
+        if(isset($caldavs[$key])){
+          $readonly = array('readonly' => true);
+        }
         $input_category = new html_inputfield(array_merge(array('name' => $name, 'id' => $field_id, 'size' => 30, 'title' => $key), $readonly));
         $disabled = '';
+        $field_id = asciiwords('rcmfd_color_' . $key . '_' . $val);
         $name = '_colors[]';
         if(isset($public[$key])){
           if($key == $rcmail->config->get('default_category_label', $this->gettext('defaultcategory'))){
@@ -3535,7 +3502,7 @@ class calendar extends rcube_plugin{
     return $args;
   }
   
-  function saveSettings($args) {
+  function saveSettings($args){
     $rcmail = rcmail::get_instance();
     if($_SESSION['tzname']){
       $args['prefs']['tzname'] = $_SESSION['tzname'];
@@ -3655,11 +3622,6 @@ class calendar extends rcube_plugin{
       $args['prefs']['ctags'] = array();
       if($rcmail->config->get('backend') == 'caldav'){
         $this->backend->truncateEvents(3);
-        $args['prefs']['googleuser'] = get_input_value('_googleuser', RCUBE_INPUT_POST);
-        $pass = get_input_value('_googlepass', RCUBE_INPUT_POST);
-        if($pass){
-          $args['prefs']['googlepass'] = $rcmail->encrypt($pass);
-        }
       }
       $caldav_user = trim(get_input_value('_caldav_user', RCUBE_INPUT_POST));
       $caldav_url = trim(get_input_value('_caldav_url', RCUBE_INPUT_POST));
@@ -3669,13 +3631,7 @@ class calendar extends rcube_plugin{
       }
       if(!$rcmail->config->get('caldav_user') && is_array($rcmail->config->get('default_caldav_backend'))){
         $default_caldav = $rcmail->config->get('default_caldav_backend', array());
-        $googleuser = $rcmail->config->get('googleuser', false);
-        $googlepass= $rcmail->config->get('googlepass', false);
-        if(strpos($default_caldav['url'], '%gu') && $googleuser){
-          $caldav_url = str_replace('%gu', $googleuser, $default_caldav['url']);
-          $caldav_user = $googleuser;
-        }
-        else if(strpos($default_caldav['url'], '%su')){
+        if(strpos($default_caldav['url'], '%su')){
           list($u, $d) = explode('@', $_SESSION['username']);
           $caldav_url = str_replace('%su', $u, $default_caldav['url']);
           $caldav_user = str_replace('%su', $u, $default_caldav['user']);
@@ -3683,9 +3639,6 @@ class calendar extends rcube_plugin{
         else if(strpos($default_caldav['url'], '%u')){
           $caldav_url = str_replace('%u', $_SESSION['username'], $default_caldav['url']);
           $caldav_user = $_SESSION['username'];
-        }
-        if($default_caldav['pass'] == '%gp' && $googlepass){
-          $caldav_password = '%gp';
         }
       }
       $args['prefs']['caldav_user'] = $caldav_user;
@@ -4029,45 +3982,8 @@ class calendar extends rcube_plugin{
     $max_execution_time = ini_get('max_execution_time');
     if(count($feeds) > 0)
       $max_execution_time = max(5, round(($max_execution_time - 20) / count($feeds)));
-    if($_SESSION['cal_cache'] == true){
-      foreach($feeds as $url => $className){
-        $className = explode('|', $className);
-        $className = $className[0];
-        $feedurl = $url;
-        preg_match('/rc\/[0-9]+\/[0-9a-z]+/', $feedurl, $matches);
-        if($matches[0]){
-          $temparr = explode('/', $matches[0]);
-          $feedurl = str_replace($matches[0], '', $feedurl);
-          $feedurl .= 'index.php?_task=dummy&_action=plugin.calendar_showlayer&_userid=' . $temparr[1] . '&_ct=' . $temparr[2];
-        }
-        $arr = parse_url($feedurl);
-        if($arr['path'] == './'){
-          if($_SERVER['HTTPS'])
-            $https = 's';
-          else
-            $https = '';
-          $feedurl = 'http' . $https . "://" . $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] . substr($feedurl,1);
-          $arr = parse_url($feedurl);
-        }
-        $con = '?';
-        if(strstr($feedurl,'?'))
-          $con = '&';
-        if(stripos($arr['query'],'plugin.calendar_showlayer')){
-          if(strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
-            if(strpos($feedurl, '&_userid=' . $rcmail->user->ID . '&') !== false){
-              continue;
-            }
-          }
-          $className = $feeds[$url];
-          $feedurl = $feedurl . $con . "start=$start&end=$end&_className=$className&_tz=" . $this->getClientTimezoneName($rcmail->config->get('timezone', 'auto')) . "&_btz=$btz&_from=".$rcmail->user->ID;
-          $content = $this->utils->curlRequest($feedurl, false, $max_execution_time);
-          $rc_layer = json_decode($content, true);
-          if(is_array($rc_layer)){
-            $rc_layers = array_merge($rc_layers, $rc_layer);
-          }
-        }
-      } 
-      $this->jsonEvents($start, $end, false, false, $_SESSION['cal_links'], $rc_layers);
+    if($_SESSION['cal_cache_events'][$start.$end] && time() - $_SESSION['cal_cache_events']['ts'] < 1800){
+      $this->jsonEvents($start, $end, false, false, $_SESSION['cal_links'], $_SESSION['cal_cache_events'][$start.$end]);
     }
     else{
       $this->clearCache();
@@ -4118,82 +4034,85 @@ class calendar extends rcube_plugin{
         else{ // default to ics
           $source = 'ics';
         }
-        $content = $this->utils->curlRequest($feedurl, false, $max_execution_time);
-        if(stripos($arr['query'],'plugin.calendar_showlayer') && strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
-          $rc_layer = json_decode($content, true);
-          if(is_array($rc_layer)){
-            $rc_layers = array_merge($rc_layers, $rc_layer);
+        if(!isset($urls[$feedurl])){
+          $content = $this->utils->curlRequest($feedurl, false, $max_execution_time);
+          if(stripos($arr['query'],'plugin.calendar_showlayer') && strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
+            $rc_layer = json_decode($content, true);
+            $urls[$feedurl] = true;
+            if(is_array($rc_layer)){
+              $rc_layers = array_merge($rc_layers, $rc_layer);
+            }
           }
-        }
-        if($source == 'ics'){
-          $this->utils->importEvents($content, $userid=false, $echo=false, $idoverwrite=$url, $item=false, $client=false, $className);
-        }
-        if($source == 'google'){
-          $events = json_decode($content, true);
-          if(is_array($events)){
-            $arr = array();
-            $stz = date_default_timezone_get();
-            date_default_timezone_set('UTC');
-            $content = "BEGIN:VCALENDAR\n";
-            $content .= "VERSION:2.0\n";
-            foreach($events as $key => $feed){
-              if(is_array($feed) && is_array($feed['entry'])){
-                $i = count($feed['entry']) - 1;
-                foreach($feed['entry'] as $key1 => $entry){
-                  if(isset($entry['gd$recurrence']) && isset($entry['gd$recurrence']['$t'])){
-                    $recur = $entry['gd$recurrence']['$t'];
-                    $temparr = explode('BEGIN:VTIMEZONE', $recur);
-                    $content .= "BEGIN:VEVENT\n";
-                    if(!empty($entry['gCal$uid']['value']))
-                      $content .= "UID:" . $entry['gCal$uid']['value'] . "\n";
-                    if(!empty($entry['title']['$t']))
-                      $content .= "SUMMARY:" . $entry['title']['$t'] . "\n";
-                    if(!empty($entry['gd$where'][0]['valueString']))
-                      $content .= "LOCATION:" . $entry['gd$where'][0]['valueString'] . "\n";
-                    if(!empty($entry['content']['$t']))
-                      $content .= "DESCRIPTION:" . $entry['content']['$t'] . "\n";
-                    $content .= $temparr[0];
-                    $content .= "END:VEVENT\n";
-                  }
-                  else if(isset($entry['gd$when'][0]['startTime'])){
-                    $content .= "BEGIN:VEVENT\n";
-                    if(!empty($entry['gCal$uid']['value']))
-                      $content .= "UID:" . $entry['gCal$uid']['value'] . "\n";
-                    if(strlen($entry['gd$when'][0]['startTime']) == 10){
-                      $content .= "DTSTART;VALUE=DATE:" . str_replace('-','',$entry['gd$when'][0]['startTime']) . "\n";
+          if($source == 'ics'){
+            $this->utils->importEvents($content, $userid=false, $echo=false, $idoverwrite=$url, $item=false, $client=false, $className);
+          }
+          if($source == 'google'){
+            $events = json_decode($content, true);
+            if(is_array($events)){
+              $arr = array();
+              $stz = date_default_timezone_get();
+              date_default_timezone_set('UTC');
+              $content = "BEGIN:VCALENDAR\n";
+              $content .= "VERSION:2.0\n";
+              foreach($events as $key => $feed){
+                if(is_array($feed) && is_array($feed['entry'])){
+                  $i = count($feed['entry']) - 1;
+                  foreach($feed['entry'] as $key1 => $entry){
+                    if(isset($entry['gd$recurrence']) && isset($entry['gd$recurrence']['$t'])){
+                      $recur = $entry['gd$recurrence']['$t'];
+                      $temparr = explode('BEGIN:VTIMEZONE', $recur);
+                      $content .= "BEGIN:VEVENT\n";
+                      if(!empty($entry['gCal$uid']['value']))
+                        $content .= "UID:" . $entry['gCal$uid']['value'] . "\n";
+                      if(!empty($entry['title']['$t']))
+                        $content .= "SUMMARY:" . $entry['title']['$t'] . "\n";
+                      if(!empty($entry['gd$where'][0]['valueString']))
+                        $content .= "LOCATION:" . $entry['gd$where'][0]['valueString'] . "\n";
+                      if(!empty($entry['content']['$t']))
+                        $content .= "DESCRIPTION:" . $entry['content']['$t'] . "\n";
+                      $content .= $temparr[0];
+                      $content .= "END:VEVENT\n";
                     }
-                    else{
-                      $content .= "DTSTART:" . date('Ymd\THis\Z',strtotime($entry['gd$when'][0]['startTime'])) . "\n";
-                    }
-                    if(!empty($entry['gd$when'][0]['endTime'])){
-                      if(strlen($entry['gd$when'][0]['endTime']) == 10){
-                        $content .= "DTEND;VALUE=DATE:" . str_replace('-','',$entry['gd$when'][0]['endTime']) . "\n";
+                    else if(isset($entry['gd$when'][0]['startTime'])){
+                      $content .= "BEGIN:VEVENT\n";
+                      if(!empty($entry['gCal$uid']['value']))
+                        $content .= "UID:" . $entry['gCal$uid']['value'] . "\n";
+                      if(strlen($entry['gd$when'][0]['startTime']) == 10){
+                        $content .= "DTSTART;VALUE=DATE:" . str_replace('-','',$entry['gd$when'][0]['startTime']) . "\n";
                       }
                       else{
-                        $content .= "DTEND:" . date('Ymd\THis\Z',strtotime($entry['gd$when'][0]['endTime'])) . "\n";
+                        $content .= "DTSTART:" . date('Ymd\THis\Z',strtotime($entry['gd$when'][0]['startTime'])) . "\n";
+                      }
+                      if(!empty($entry['gd$when'][0]['endTime'])){
+                        if(strlen($entry['gd$when'][0]['endTime']) == 10){
+                          $content .= "DTEND;VALUE=DATE:" . str_replace('-','',$entry['gd$when'][0]['endTime']) . "\n";
+                        }
+                        else{
+                          $content .= "DTEND:" . date('Ymd\THis\Z',strtotime($entry['gd$when'][0]['endTime'])) . "\n";
+                        }
+                      }
+                      if(!empty($entry['title']['$t']))
+                        $content .= "SUMMARY:" . $entry['title']['$t'] . "\n";
+                      if(!empty($entry['gd$where'][0]['valueString']))
+                        $content .= "LOCATION:" . $entry['gd$where'][0]['valueString'] . "\n";
+                      if(!empty($entry['content']['$t']))
+                        $content .= "DESCRIPTION:" . $entry['content']['$t'] . "\n";
+                      $content .= "END:VEVENT\n";
+                    }
+                    if(isset($entry['link']) && is_array($entry['link'])){
+                      foreach($entry['link'] as $key => $link){
+                        if(isset($entry['gCal$uid']['value']) && isset($link['type']) && $link['type'] == 'text/html'){
+                          $links[$entry['gCal$uid']['value']] = $link['href'];
+                        }
                       }
                     }
-                    if(!empty($entry['title']['$t']))
-                      $content .= "SUMMARY:" . $entry['title']['$t'] . "\n";
-                    if(!empty($entry['gd$where'][0]['valueString']))
-                      $content .= "LOCATION:" . $entry['gd$where'][0]['valueString'] . "\n";
-                    if(!empty($entry['content']['$t']))
-                      $content .= "DESCRIPTION:" . $entry['content']['$t'] . "\n";
-                    $content .= "END:VEVENT\n";
                   }
-                  if(isset($entry['link']) && is_array($entry['link'])){
-                    foreach($entry['link'] as $key => $link){
-                      if(isset($entry['gCal$uid']['value']) && isset($link['type']) && $link['type'] == 'text/html'){
-                        $links[$entry['gCal$uid']['value']] = $link['href'];
-                      }
-                    }
-                  }
+                  $content .= "END:VCALENDAR\n";
+                  $this->utils->importEvents($content,$userid=false,$echo=false,$idoverwrite=$url,$item=false,$client=false,$className);
                 }
-                $content .= "END:VCALENDAR\n";
-                $this->utils->importEvents($content,$userid=false,$echo=false,$idoverwrite=$url,$item=false,$client=false,$className);
               }
+              date_default_timezone_set($stz);
             }
-            date_default_timezone_set($stz);
           }
         }
       }
@@ -4201,6 +4120,8 @@ class calendar extends rcube_plugin{
       $rcmail->config->set('db_sequence_events',$events_table_ids);
     }
     $_SESSION['cal_cache'] = true;
+    $_SESSION['cal_cache_events'][$start.$end] = $rc_layers;
+    $_SESSION['cal_cache_events']['ts'] = time();
     $_SESSION['cal_links'] = $links;
     $_SESSION['cal_cache_config'] = md5(
       serialize($rcmail->config->get('public_categories')) .
@@ -4239,17 +4160,25 @@ class calendar extends rcube_plugin{
         $className = false;
       $rcmail->user->ID = $caluserid;
       $start = get_input_value('start', RCUBE_INPUT_GPC);
-      if(!$start)
+      if(!$start){
         $start = get_input_value('_start', RCUBE_INPUT_GPC);
+        if($start && !is_numeric($start)){
+          $start = strtotime($start);
+        }
+      }
       if(!$start)
-        $start = time() - 86400 * 62;
+        $start = time() - 86400 * 366;
       if($client)
         $start = 0;
       $end = get_input_value('end', RCUBE_INPUT_GPC);
-      if(!$end)
+      if(!$end){
         $end = get_input_value('_end', RCUBE_INPUT_GPC);
+        if($end && !is_numeric($end)){
+          $end = strtotime($end);
+        }
+      }
       if(!$end)
-        $end = time() + 86400 * 62;
+        $end = time() + 86400 * 366;
       if($client)
         $end = strtotime(CALEOT);
       $this->backend->replicateEvents($start, $end);
@@ -4337,14 +4266,16 @@ class calendar extends rcube_plugin{
     $webmail_url = $this->getURL();
     
     $arr = $this->getUser($caluserid);
-
-    // Send global XML output
+    
+    if(@ob_get_level() > 0){
+      @ob_end_clean();
+    }
+    
+    @ob_start();
     header('Content-type: text/xml');
-    header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+    header("Expires: " . gmdate("D, d M Y H:i:s") ." GMT");  // Date in past
     header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); 
     header("Cache-Control: no-store, no-cache, must-revalidate");  // HTTP/1.1
-    header("Cache-Control: post-check=0, pre-check=0", false);
-    header("Pragma: no-cache");                          // HTTP/1.0
 
     $head = '<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"
@@ -4352,36 +4283,34 @@ xmlns:dc="http://purl.org/dc/elements/1.1/"
 xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
 xmlns:admin="http://webns.net/mvcb/"
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-xmlns:content="http://purl.org/rss/1.0/modules/content/">';
-	 
-    $head .= '
+xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
-	<pubDate>'.date('r').'</pubDate>
-	<lastBuildDate>'.date('r').'</lastBuildDate>
-	<link>' . $this->rss_encode($webmail_url . '?_task=dummy&_action=plugin.calendar&_date=' . time()) . '</link>
-	<title>' . $this->rss_encode($rcmail->config->get('product_name')) . '</title>
-	<description>' . $this->rss_encode(ucwords($this->gettext('calendar'))) . '</description>
-	<generator>' . $this->rss_encode($rcmail->config->get('useragent')) . '</generator>
-';
+  <pubDate>'.date('r').'</pubDate>
+  <lastBuildDate>'.date('r').'</lastBuildDate>
+  <link>' . $this->rss_encode($webmail_url . '?_task=dummy&_action=plugin.calendar&_date=' . time()) . '</link>
+  <title>' . $this->rss_encode($rcmail->config->get('product_name')) . '</title>
+  <description>' . $this->rss_encode(ucwords($this->gettext('calendar'))) . '</description>
+  <generator>' . $this->rss_encode($rcmail->config->get('useragent')) . '</generator>';
 
     $footer = "\r\n</channel>\r\n</rss>";
 
-    echo $head;
+    echo trim($head);
     foreach($events as $key => $event){
-      $item = '<item>
-			<title>' . $this->rss_encode($event['title']) . '</title>
-				<description><![CDATA['."\n".nl2br($this->rss_encode($event['description']))."\n".']]></description>
-				<link>' . $this->rss_encode($webmail_url . '?_task=dummy&_action=plugin.calendar&_date=' . $event['start']) . '</link>
-				<author>' . $this->rss_encode($username).'</author>
-				<pubDate>'.date('r', $event['start']).'</pubDate>
-			</item>';
+      $item = "\r\n" . '  <item>
+    <title>' . $this->rss_encode($event['title']) . '</title>
+    <description><![CDATA['."\n".nl2br($this->rss_encode($event['description']))."\n".']]>
+    </description>
+    <link>' . $this->rss_encode($webmail_url . '?_task=dummy&_action=plugin.calendar&_date=' . $event['start']) . '</link>
+    <author>' . $this->rss_encode($username).'</author>
+    <pubDate>'.date('r', $event['start']).'</pubDate>
+  </item>';
 
       echo $item;
     }
     echo $footer;
+    @ob_end_flush();
     exit;
   }
-
  /**********************************************************
   *
   * HTTP Authentication to access calendar by external links

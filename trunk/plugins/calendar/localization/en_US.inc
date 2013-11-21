@@ -7,21 +7,22 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 08/13/2013 06:44:09
+ | Author: Yoni - 10/11/2013 11:47:23
  +-----------------------------------------------------------------------+
 */
 
 $labels = array();
 $labels['pluginname'] = 'Calendar';
-$labels['plugindescription'] = 'Manage your events with the Webmail-Calendar. You can link the calendar with your Google Calendar or with most CalDAV-Servers.';
+$labels['plugindescription'] = 'Manage your events with the Webmail Calendar.';
 $labels['view'] = 'View';
 $labels['calendarprovider'] = 'Provider';
 $labels['forinstance'] = 'f.e.';
 $labels['caldavserver'] = 'CalDAV Server';
 $labels['caldavsettings'] = 'CalDAV Settings';
 $labels['unlink_caldav'] = 'To delete this category, please unlink CalDAV server first';
-$labels['unlink_caldav_warning'] = 'Are you sure?';
-$labels['unlink_events_warning'] = 'Do you want to delete all events in this calendar permanently? This action can\'t be reverted! Choose CANCEL not to delete the events hold by this calendar.';
+$labels['unlink_caldav_warning'] = 'Are you sure you want to unlink this calendar?';
+$labels['unlink_events_warning'] = 'Do you want to delete all events in this calendar permanently? This action can\'t be reverted! Choose OK to delete this calendar and all events hold by this calendar. Choose CANCEL NOT to delete the events hold by this calendar.';
+$labels['unlink_events_warning_html'] = 'Do you want to delete all events in this calendar permanently?<br />This action can\'t be reverted!<br /><br />Choose YES to delete this calendar and all events hold by this calendar.<br />Choose NO not to delete the events hold by this calendar.';
 $labels['caldavurl'] = 'CalDAV Url';
 $labels['passwordisset'] = 'Password is set';
 $labels['passwordisnotset'] = 'Password is not set';
@@ -40,6 +41,20 @@ $labels['add_feed'] = 'Add Feed';
 $labels['remove_feed'] = 'Remove Feed';
 $labels['sharing'] = 'Sharing';
 $labels['share'] = 'Share';
+$labels['shareinvitation'] = 'Send invitation';
+$labels['send'] = 'Send';
+$labels['cancel'] = 'Cancel';
+$labels['resource'] = 'Resource';
+$labels['label'] = 'Label';
+$labels['url'] = 'URL';
+$labels['access'] = 'Access';
+$labels['username'] = 'User';
+$labels['tutorials'] = 'Tutorials';
+$labels['checkresources'] = 'Check resources';
+$labels['checkatleastoneresource'] = 'Please check at least one resource';
+$labels['invitationsubject'] = '%s invites you to access CalDAV calendars';
+$labels['copytoclipboard'] = 'Copy to clipboard';
+$labels['copiedtoclipboard'] = 'Copied to clipboard';
 $labels['resource'] = 'Resource';
 $labels['caltoken'] = 'Token';
 $labels['confidentialcaldavaccess'] = 'Confidential CalDAV access [%s]';
@@ -79,11 +94,6 @@ $labels['cal_notify'] = 'Send Email when events are changed by owner';
 $labels['caldav_notify'] = 'Send Email when events are changed by attendee';
 $labels['cal_notify_to'] = 'Recipient';
 $labels['showbirthdays'] = 'Show birthdays';
-$labels['googleuser'] = 'Google Account';
-$labels['googlepass'] = 'Google Password';
-$labels['googlepassisset'] = 'Google Password is been entered';
-$labels['googlepassisnotset'] = 'No Google Password entered yet';
-$labels['googlecaptcha'] = 'Grant access to your Google Account';
 $labels['clickhere'] = 'Click here';
 $labels['titleFormatMonth'] = 'MMMM yyyy';
 $labels['titleFormatDay'] = 'dddd,';
@@ -211,7 +221,7 @@ $labels['remindersloading'] = 'Loading Reminders...';
 $labels['reminderfooter'] = 'You are receiving this e-mail because you have requested to be reminded about this upcoming event/task in your calendar.';
 $labels['show_upcoming_cal'] = 'Enable upcoming events preview';
 $labels['invalidresponse'] = 'Invalid response from';
-$labels['verifyexpiredate'] = 'The expiration date is implausible. Do you want to check it?';
+$labels['verifyexpiredate'] = 'Please check expirations date. It has has been adjusted automatically.';
 $labels['importconfirmation'] = 'Do you want to import attached event(s) into your calendar [%s item(s)]?';
 $labels['item'] = 'Item';
 $labels['errorsaving'] = 'An error occured while saving';
@@ -226,7 +236,6 @@ $labels['calsearchnomatches'] = 'No matches';
 $labels['properties'] = 'Properties';
 $labels['reload'] = 'Reload Calendar';
 $labels['sync'] = 'Synchronize';
-$labels['unloadwarning'] = 'Database actions are incomplete. Please stay on this site!';
 $labels['backgroundreplication'] = 'Synchronization is running...';
 $labels['lastreplication'] = 'Last synchronization:';
 $labels['successfullyreplicated'] = 'Calendar has been replicated successfully';
@@ -236,7 +245,7 @@ $labels['replicationfailed'] = 'Calendar synchronization failed definitely';
 $labels['replicationincomplete'] = 'Calendar synchronization is incomplete';
 $labels['reminders'] = 'Reminders';
 $labels['reminder'] = 'Reminder';
-$labels['externalreminders'] = 'External reminder service (f.e. Google Calendar)';
+$labels['externalreminders'] = 'External reminder service';
 $labels['remindertype'] = 'Remind by';
 $labels['email'] = 'Email';
 $labels['popup'] = 'Popup';
@@ -249,6 +258,7 @@ $labels['other'] = 'other';
 $labels['reminderenable'] = 'Enable Reminder';
 $labels['reminderdisable'] = 'Disable Reminder';
 $labels['customreminder'] = 'User-defined';
+$labels['savefirst'] = 'Custom reminders can be added to existing items only. Please save item first.';
 $labels['starts'] = 'Starts';
 $labels['ends'] = 'Ends';
 $labels['at'] = 'at';

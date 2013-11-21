@@ -133,7 +133,6 @@ $labels['upcoming'] = 'Подія почнеться о';
 $labels['reminder_before'] = 'Нагадати про початок події';
 $labels['show_upcoming_cal'] = 'Включити перегляд майбутніх подій';
 $labels['invalidresponse'] = 'Невірна відповідь від';
-$labels['verifyexpiredate'] = 'Дата закінчення терміну неправдоподібна. Ви хочете перевірити це?';
 $labels['recurwarning'] = 'Це циклічна подія.';
 $labels['importconfirmation'] = 'Ви хочете імпортувати вкладені подія (ї) у ваш календар [% S пункт (ів)]?';
 $labels['item'] = 'Пункт';

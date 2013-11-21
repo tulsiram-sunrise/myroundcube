@@ -141,7 +141,6 @@ $labels['upcoming'] = 'Händelsen inträffar om';
 $labels['reminder_before'] = 'Påminn innan händelsen inträffar';
 $labels['show_upcoming_cal'] = 'Aktivera förhandsvisning för kommande händelser';
 $labels['invalidresponse'] = 'Felaktigt svar från';
-$labels['verifyexpiredate'] = 'Slutdatumet verkar osannolikt - vill du kontrollera det?';
 $labels['recurwarning'] = 'Det här är en återkommande händelse.';
 $labels['importconfirmation'] = 'Vill du importera bifogade händelser in i din kalender [%s st]?';
 $labels['item'] = 'st';

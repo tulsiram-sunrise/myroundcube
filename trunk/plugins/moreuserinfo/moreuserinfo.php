@@ -3,34 +3,27 @@
  * moreuserinfo
  *
  *
- * @version 4.0.15 - 22.07.2013
+ * @version 4.0.24 - 02.11.2013
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  *
  **/
-
-/**
- *
- * Usage: http://mail4us.net/myroundcube/
- *
- **/ 
 
 class moreuserinfo extends rcube_plugin
 {
 
-  public $task = 'mail|settings|addressbook|dummy';
+  public $task = 'mail|settings|addressbook|dummy|jappix';
   public $noajax = true;
   
   /* unified plugin properties */
   static private $plugin = 'moreuserinfo';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.0.15';
-  static private $date = '22-07-2013';
+  static private $version = '4.0.24';
+  static private $date = '02-11-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
+    'Roundcube' => '0.9',
     'PHP' => '5.2.1'
   );
   static private $prefs = null;
@@ -38,8 +31,11 @@ class moreuserinfo extends rcube_plugin
 
   function init()
   {
-    $this->add_texts('localization/');  
     $rcmail = rcmail::get_instance();
+    if($rcmail->action == 'jappix.loadmini'){
+      return;
+    }
+    $this->add_texts('localization/');
     if(!in_array('global_config', $rcmail->config->get('plugins'))){
       $this->load_config();
     }
@@ -84,7 +80,6 @@ class moreuserinfo extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
@@ -121,8 +116,18 @@ class moreuserinfo extends rcube_plugin
   {
     $rcmail = rcmail::get_instance();
     if($rcmail->config->get('skin') == 'larry'){
-      $href = './?_task=settings&_action=plugin.moreuserinfo_show';
-      $rcmail->output->add_script('$(".topleft").html($(".topleft").html() + "<a id=\'accountinformationlink\' href=\'' . $href . '\'>' . $this->gettext('accountinformation') . '</a>");', 'docready');
+      if(class_exists('tabbed')){
+        $href = '#';
+        $onclick = 'parent.location.href=\"./?_task=settings&_action=plugin.moreuserinfo_show\"';
+
+      }
+      else{
+        $href = './?_task=settings&_action=plugin.moreuserinfo_show';
+        $onclick = '';
+      }
+      if(!isset($_GET['_extwin'])){
+        $rcmail->output->add_script('$(".topleft").html($(".topleft").html() + "<a onclick=\'' . $onclick . '\'' . ' id=\'accountinformationlink\' href=\'' . $href . '\'>' . $this->gettext('accountinformation') . '</a>");', 'docready');
+      }
     }
     if($p['template'] == 'settingsedit'){
       $rcmail->output->add_script('if(parent.rcmail.env.action == "plugin.moreuserinfo_show"){ parent.rcmail.env.action = ""; document.location.href="./?_task=settings&_action=plugin.moreuserinfo&_framed=1" };', 'docready');
@@ -174,15 +179,21 @@ class moreuserinfo extends rcube_plugin
     $temp = explode('@', $username);
     $domainpart = $temp[1] ? $temp[1] : 'default';
     $skin = $rcmail->config->get('skin', 'classic');
-    $icon = '&nbsp;' . html::tag('img', array('src' => 'plugins/moreuserinfo/skins/' . $skin . '/images/clipboard.png', 'title' => $this->gettext('copytoclipboardtitle'), 'alt' => $this->gettext('copytoclipboardtitle'), 'align' => 'baseline', 'onclick' => 'window.prompt ("'. $this->gettext('copytoclipboard') . '", $(this).prev().text())'));
+    $this->include_script('flashclipboard.js');
+    $rcmail->output->add_footer(html::tag('div', array('id' => 'zclipdialog', 'title' => $this->gettext('copiedtoclipboard'))));
+    $icon = '&nbsp;' . html::tag('img', array('class' => 'zclip', 'src' => 'plugins/moreuserinfo/skins/' . $skin . '/images/clipboard.png', 'title' => $this->gettext('copytoclipboard'), 'alt' => $this->gettext('copytoclipboard'), 'align' => 'baseline'));
+
+
     $table = new html_table(array('cols' => 2, 'cellpadding' => 3));
     
     $table->add('title', html::tag('h3', null, Q($this->gettext('mainoptions') . ':')));
     $table->add('', '');
     $date_format = $rcmail->config->get('date_format', 'm/d/Y') . ' ' . $rcmail->config->get('time_format', 'H:i');
-    $created = new DateTime($user->data['created']);
-    $table->add('title', '&raquo;&nbsp;' . Q($this->gettext('created') . ':'));
-    $table->add('', Q(date_format($created, $date_format)));
+    if(date('Y', strtotime($user->data['created'])) > 1970){
+      $created = new DateTime($user->data['created']);
+      $table->add('title', '&raquo;&nbsp;' . Q($this->gettext('created') . ':'));
+      $table->add('', Q(date_format($created, $date_format)));
+    }
     $lastlogin = new DateTime($user->data['last_login']);
     $table->add('title', '&raquo;&nbsp;' . Q($this->gettext('lastlogin') . ':'));
     $table->add('', Q(date_format($lastlogin, $date_format)));
@@ -192,7 +203,7 @@ class moreuserinfo extends rcube_plugin
     
     $table->add('title', html::tag('h3', null, Q($this->gettext('mailbox') . ':')));
     $table->add('', '');
-    $conf = $rcmail->config->get('moreuserinfo');
+    $conf = $rcmail->config->get('moreuserinfo', array());
     foreach($conf as $service => $domains){
       $table->add('title', html::tag('b', null, '&raquo;&nbsp;' . Q($service . ':')));
       $table->add('', '&nbsp;');

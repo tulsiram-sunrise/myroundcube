@@ -36,7 +36,7 @@
   <span id="taskstogglecontainer" style="display: none;"><div style="display: inline; float: right; margin-top: -20px;">[<a href="#" id="taskstoggle" title="<roundcube:label name="calendar.hide_tasks" />" style="text-decoration: none;">&minus;</a>]&nbsp;</div></span>
 </div>
 <div id="mainscreen">
-  <div id="sectionslist" class="ui-widget-header">
+  <div id="sectionslist">
     <div id="datepicker-title" class="boxtitle ui-widget-header"></div>
     <div id="weeknumber" class="boxtitle ui-widget-header"></div>
     <div class="boxtitle ui-widget-header">
@@ -61,7 +61,7 @@
       <div id="calendar"></div>
       <div id="tasks">
         <table cellspacing="0" cellpadding="0" width="100%" id="tasksheader">
-          <tr style="height:15px;"><th class="ui-widget-header">Tasks</th></tr>
+          <tr style="height:15px;"><th class="ui-widget-header"><roundcube:label name="calendar.tasks" /></th></tr>
         </table>
         <form name="taskquickinput" action="./?_task=dummy&_action=plugin.calendar" method="post">
         <table cellspacing="0" cellpadding="0" width="100%">
@@ -70,7 +70,7 @@
           </tr>
         </table>
         </form>
-        <table cellspacing="0" cellpadding="0" width="100%">
+        <table cellspacing="0" cellpadding="0" width="100%" id="tasksfilter">
           <tr style="height:25px;">
             <th nowrap id="overdue" onclick="$('#view').html('<roundcube:label name="calendar.overdue" />'); $('.selected').removeClass('selected'); $(this).addClass('selected'); $('#taskscontent tr').hide(); $('#taskscontent .percentage').show(); $('.overdue').show(); if(!$('#taskscontent tr').is(':visible')){ $('.notasks').show() } else { $('.notasks').hide() };" class="ui-widget-header" title="<roundcube:label name="calendar.overdue" />">&nbsp;<a href="#"><roundcube:label name="calendar.overdue" /></a>&nbsp;<div id="coverdue" class="count">(0)</div></th>
             <th nowrap id="today" onclick="$('#view').html('<roundcube:label name="calendar.today" />'); $('.selected').removeClass('selected'); $(this).addClass('selected'); $('#taskscontent tr').hide(); $('#taskscontent .percentage').show(); $('.today').show(); if(!$('#taskscontent tr').is(':visible')){ $('.notasks').show() } else { $('.notasks').hide() };" class="ui-widget-header selected" title="<roundcube:label name="calendar.today" />">&nbsp;<a href="#"><roundcube:label name="calendar.today" /></a>&nbsp;<div id="ctoday" class="count">(0)</div></th>

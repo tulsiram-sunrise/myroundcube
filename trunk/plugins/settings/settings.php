@@ -2,18 +2,10 @@
 /**
  * settings
  *
- * @version 4.2.7 - 20.07.2013
+ * @version 4.2.13 - 15.11.2013
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  */
-
-/**
- *
- * Usage: http://mail4us.net/myroundcube
- *
- * Requirements: qtip plugin (do not register, plugin is loaded automatically)
- *
- **/
 
 class settings extends rcube_plugin
 {
@@ -26,9 +18,8 @@ class settings extends rcube_plugin
   static private $plugin = 'settings';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '';
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '4.2.7';
-  static private $date = '20-07-2013';
+  static private $version = '4.2.13';
+  static private $date = '15-11-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
     'Roundcube' => '0.8',
@@ -113,7 +104,6 @@ class settings extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
@@ -140,7 +130,7 @@ class settings extends rcube_plugin
       $this->load_config();
     }
   }
-
+  
   function account_link($args)
   {
     $rcmail = rcmail::get_instance();
@@ -159,6 +149,7 @@ class settings extends rcube_plugin
     $args['list']['addressbook'] = $temparr['addressbook'];
     $args['list']['addressbookcarddavs'] = array();
     $args['list']['addressbooksharing'] = array();
+    $args['list']['jabber'] = array();
     $args['list']['folderslink'] = array();
     $args['list']['folders'] =  $temparr['folders'];
     if($skin == 'classic'){
@@ -176,15 +167,56 @@ class settings extends rcube_plugin
     $args['list']['plugin_manager_update'] = array();
     $args['list']['accountslink'] = array();
     $args['list']['server'] = $temparr['server'];
-    $parts = $GLOBALS['settingsnav'];
-    if(is_array($rcmail->config->get('settingsnav')))
-      $parts = array_merge($parts, $rcmail->config->get('settingsnav'));
+
+    $parts = (array) $GLOBALS['settingsnav'];
+    $temp = array();
+    foreach($parts as $plugin => $props){
+      if(class_exists($plugin)){
+        $temp[$this->gettext($plugin . '.' . $props['label'])][$plugin] = $props;
+      }
+      else{
+        unset($GLOBALS['settingsnav'][$plugin]);
+      }
+    }
+    ksort($temp);
+    $parts = $temp;
+    $GLOBALS['settingsnav'] = array();
+    foreach($parts as $label => $props){
+      foreach($props as $plugin => $settings){
+        if(class_exists($plugin)){
+          $GLOBALS['settingsnav'][$plugin] = $settings;
+        }
+      }
+    }
+    $parts = (array) $rcmail->config->get('settingsnav', $GLOBALS['settingsnav']);
+    foreach($parts as $plugin => $props){
+      if(!class_exists($plugin)){
+        unset($parts[$plugin]);
+      }
+    }
+    $active = $rcmail->config->get('plugin_manager_active', array());
+    $defaults = $_SESSION['plugin_manager_defaults'];
+    if(is_array($defaults)){
+      foreach($defaults as $section => $plugins){
+        foreach($plugins as $plugin => $props){
+          if($props['protected'] && $props['active']){
+            $active[$plugin] = 1;
+          }
+        }
+      }
+    }
+    foreach($parts as $plugin => $props){
+      if($active[$plugin] != 1){
+        unset($parts[$plugin]);
+      }
+    }
     if(count($parts) > 0){
+      $_SESSION['settingsnav'] = $parts;
       $args['list']['accountlink']['id'] = 'accountlink';
       $args['list']['accountlink']['section'] = $this->gettext('account');
-    }
-    if(strtolower($rcmail->user->data['username']) != strtolower($_SESSION['username'])){
-      unset($args['list']['accountlink']);
+      if(strtolower($rcmail->user->data['username']) != strtolower($_SESSION['username'])){
+        unset($args['list']['accountlink']);
+      }
     }
     return $args;
   } 
@@ -197,13 +229,13 @@ class settings extends rcube_plugin
     if(isset($_GET['_msg'])){
       $rcmail->output->command('display_message', urldecode($_GET['_msg']), $_GET['_type']);
     }
-    $parts = (array) $GLOBALS['settingsnav'];
-    if(is_array($rcmail->config->get('settingsnav')))
-      $parts = array_merge($parts, $rcmail->config->get('settingsnav'));
+    $parts = (array) $_SESSION['settingsnav'];
     $out = "<div id=\"userprefs-accountblocks\">\n";
+    
     foreach($parts as $key => $part){
-      if(!class_exists($key))
+      if(!class_exists($key)){
         continue;
+      }
       if(!empty($part['descr'])){
         $i++;
         $out .= "<div class=\"userprefs-accountblock\" id='accountsblock_$i'>\n";
@@ -308,8 +340,9 @@ element.qtip({
   function preferences_save($prefs){
     $rcmail = rcmail::get_instance();
     if($prefs['section'] == 'general'){
-      if($prefs['prefs']['skin'] != $rcmail->config->get('skin','classic'))
+      if($prefs['prefs']['skin'] != $rcmail->config->get('skin','classic')){
         $rcmail->output->add_script("parent.location.href = './?_task=settings';");
+      }
     }
     return $prefs;
   }

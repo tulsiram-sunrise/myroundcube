@@ -134,7 +134,6 @@ $labels['upcoming'] = 'Etkinlik başlar';
 $labels['reminder_before'] = 'Etkinlik başlamadan önce hatırlat';
 $labels['show_upcoming_cal'] = 'Yaklaşan etkinlik önizlemesini etkinleştir';
 $labels['invalidresponse'] = 'Geçersiz yanıt';
-$labels['verifyexpiredate'] = 'Süre bitim tarihi mantıksız. Kontrol etmek istermisiniz?';
 $labels['recurwarning'] = 'Bu tekrar eden bir etkinlik.';
 $labels['importconfirmation'] = 'Ekli etkinliği(leri) takviminize [%s item(s)] aktarmak istermisiniz?';
 $labels['item'] = 'Öğe';

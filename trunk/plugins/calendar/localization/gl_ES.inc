@@ -124,7 +124,6 @@ $labels['upcoming'] = 'O evento comezará en';
 $labels['reminder_before'] = 'Lembrar antes do comezo do evento';
 $labels['show_upcoming_cal'] = 'Mostrar a previsualización dos eventos próximos';
 $labels['invalidresponse'] = 'Resposta inválida remitida por';
-$labels['verifyexpiredate'] = 'A data de expiración non é válida. Desexa comprobala?';
 $labels['recurwarning'] = 'Este é un evento recurrente.';
 $labels['importconfirmation'] = 'Desexa importar o(s) evento(s) anexo(s) no seu calendario [%s ítem(s)]?';
 $labels['item'] = 'Ítem';

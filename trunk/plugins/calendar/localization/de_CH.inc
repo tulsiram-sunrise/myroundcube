@@ -14,7 +14,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Kalender';
-$labels['plugindescription'] = 'Verwalten Sie Ihre Termine mit einen Kalendar. Sie können den Kalender z.B. auch mit Ihrem Google-Kalender oder vielen anderen CalDAV-Servern verknüpfen.';
+$labels['plugindescription'] = 'Verwalten Sie Ihre Termine mit einen Kalendar.';
 $labels['feeds'] = 'Feeds';
 $labels['prevrange'] = 'Vorheriger Zeitraum';
 $labels['nextrange'] = 'Nächster Zeitraum';
@@ -141,7 +141,6 @@ $labels['reminder_before'] = 'Erinnerung vor Beginn';
 $labels['removereminders'] = 'Erinnerungen löschen';
 $labels['show_upcoming_cal'] = 'Kleinen Kalender anzeigen';
 $labels['invalidresponse'] = 'Ungültige Antwort von';
-$labels['verifyexpiredate'] = 'Das Ablaufdatum ist unplausibel. Wollen Sie es überprüfen?';
 $labels['importconfirmation'] = 'Möchten Sie diese(n) Termin(e) in Ihren Kalender importieren [%s Objekt(e)]?';
 $labels['item'] = 'Ereignis';
 $labels['run_tests'] = 'Einstellungen testen';
@@ -169,7 +168,7 @@ $labels['basic'] = 'BASIC';
 $labels['detect'] = 'automatisch erkennen';
 $labels['reminders'] = 'Erinnerungen';
 $labels['reminder'] = 'Erinnerung';
-$labels['externalreminders'] = 'Externer Dienst (z.B. Google Kalender)';
+$labels['externalreminders'] = 'Externer Dienst';
 $labels['remindertype'] = 'Erinnern mittels';
 $labels['email'] = 'Email';
 $labels['popup'] = 'Popup';

@@ -97,7 +97,7 @@ class Utils
       $clone_end_formatted = gmdate('Y-m-d\TH:i:s.000+00:00',$event['clone_end']);
     $jevent=array( 
       'id'                  => $event['event_id'],
-      'hash'                => (string) hexdec(substr(sha1(serialize($event)),0,15)),
+      'hash'                => (string) hexdec(substr(sha1(serialize($event)), 0, 15)),
       'component'           => (string) $event['component'],
       'uid'                 => $event['uid'],
       'user_id'             => $this->rcmail->user->ID,
@@ -113,7 +113,8 @@ class Utils
       'title'               => $event['summary'],
       'description'         => stripcslashes($event['description']),
       'location'            => $event['location'],
-      'className'           => asciiwords($event['categories'],true,''),
+      'categories'          => $event['categories'],
+      'className'           => asciiwords($event['categories'], true, ''),
       'classNameDisp'       => $event['categories'],
       'classProtected'      => $event['classProtected'],
       'color_save'          => $color_save,

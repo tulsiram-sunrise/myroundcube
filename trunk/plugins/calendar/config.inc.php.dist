@@ -45,21 +45,8 @@ $rcmail_config['cal_short_urls'] = false;
 /* default CalDAV backend (null = no default settings)
    %u  will be replaced by $_SESSION['username']
    %su will be replaced by the user part (string before @ from $_SESSION['username'])
-   %gu will be replaced by google calendar user (requires google_contacts or carddav plugin)
    %p  will be replaced by Roundcube Login Password
-   %gp will be replaced by google calendar password (requires google_contacts or carddav plugin)
    %c  will be replaced by the category a CalDAV is associated with
-*/
-/* Google example */
-/*
-  $rcmail_config['default_caldav_backend'] = array(
-    'user' => '%gu',
-    'pass' => '%gp',
-    'url' => 'https://www.google.com/calendar/dav/%gu/events',
-    'cat' => 'https://www.google.com/calendar/dav/%gu/%c',
-    'auth' => 'basic', //basic or detect
-    'extr' => true, // external reminder service (Google calendar reminders)
-  );
 */
 /* SabreDAV example */
 $rcmail_config['default_caldav_backend'] = array(
@@ -82,7 +69,7 @@ $rcmail_config['caldavs'] = array(
                    'url' => 'http://dav.mydomain.tld/calendars/%u/work',
                    'auth' => 'detect',
                    'readonly' => false,
-                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                   'extr' => false, // external reminder service
                  ),
   'Holidays' => array(
                    'user' => '%u',
@@ -90,7 +77,7 @@ $rcmail_config['caldavs'] = array(
                    'url' => 'http://dav.mydomain.tld/calendars/%u/holidays',
                    'auth' => 'detect',
                    'readonly' => false,
-                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                   'extr' => false, // external reminder service
                  ),
   'Personal' => array(
                    'user' => '%u',
@@ -98,7 +85,7 @@ $rcmail_config['caldavs'] = array(
                    'url' => 'http://dav.mydomain.tld/calendars/%u/personal',
                    'auth' => 'detect',
                    'readonly' => false,
-                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                   'extr' => false, // external reminder service
                  ),
   'Family' => array(
                    'user' => '%u',
@@ -106,7 +93,7 @@ $rcmail_config['caldavs'] = array(
                    'url' => 'http://dav.mydomain.tld/calendars/%u/family',
                    'auth' => 'detect',
                    'readonly' => false,
-                   'extr' => false, // external reminder service (f.e. google calendar reminders)
+                   'extr' => false, // external reminder service
                  ),
 );
 */
@@ -186,7 +173,6 @@ $rcmail_config['cron_log'] = true;
 $rcmail_config['cron_smtp_user'] = 'dummy@mydomain.tld'; //smtp user
 $rcmail_config['cron_smtp_pass'] = 'pass'; //smtp password
 $rcmail_config['cron_rc_url'] = 'http://where_is_roundcube/'; //trailing slash !!!
-$rcmail_config['cron_ip'] = '127.0.0.1'; //please use real IP
 $rcmail_config['cron_sender'] = 'noreply@mydomain.tld';
 
 /* link colors for jquery-ui accordions 

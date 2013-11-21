@@ -8,7 +8,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Kalendář';
-$labels['plugindescription'] = 'Kalendář pro správu událostí. Umožňuje načíst data i z Google kalendáře nebo z CalDAV serverů.';
+$labels['plugindescription'] = 'Kalendář pro správu událostí.';
 $labels['calendarprovider'] = 'Poskytovatel';
 $labels['forinstance'] = 'např.';
 $labels['caldavserver'] = 'CalDAV Server';
@@ -144,7 +144,6 @@ $labels['removereminders'] = 'Odstraňuji upomínky';
 $labels['remindersloading'] = 'Načítám Upomínky...';
 $labels['show_upcoming_cal'] = 'Zobrazit přehled událostí v hlavním okně';
 $labels['invalidresponse'] = 'Neplatná odpověď od';
-$labels['verifyexpiredate'] = 'Nevhodné datum vypršení. Přejete si ho zkontrolovat?';
 $labels['importconfirmation'] = 'Chcete tuto událost(i) importovat do kalendáře [%s položka/y]?';
 $labels['item'] = 'Položka';
 $labels['run_tests'] = 'Test nastavení (přístupné pouze pro administrátora)';
@@ -167,7 +166,7 @@ $labels['replicationfailed'] = 'Replikace kalendáře se nezdařila';
 $labels['replicationincomplete'] = 'Replikace kalendáře je nekompletní';
 $labels['reminders'] = 'Upomínky';
 $labels['reminder'] = 'Upomínka';
-$labels['externalreminders'] = 'Externí služba pro upomínky (např. Google Calendar)';
+$labels['externalreminders'] = 'Externí služba pro upomínky';
 $labels['remindertype'] = 'Jak upomínat';
 $labels['email'] = 'E-mail';
 $labels['popup'] = 'Popup okno';

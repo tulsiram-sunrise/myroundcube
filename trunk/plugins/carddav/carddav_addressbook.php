@@ -86,6 +86,19 @@ class carddav_addressbook extends rcube_addressbook
 		$carddav_addressbook_contacts	= array();
     
     $order = $rcmail->config->get('addressbook_sort_col', 'name');
+    switch($order){
+      case 'name':
+        $sortby = 'name, surname, firstname, email';
+        break;
+      case 'surname':
+        $sortby = 'surname, firstname, name, email';
+        break;
+      case 'firstname':
+        $sortby = 'firstname, surname, name, email';
+        break;
+      default:
+        'name'; 
+    }
 		$query = "
 			SELECT
 				*
@@ -97,7 +110,7 @@ class carddav_addressbook extends rcube_addressbook
 				carddav_server_id = ?
 				".$this->get_search_set()."
 			ORDER BY
-				" . $order . " ASC
+				" . $sortby . " ASC
 		";
 		if (empty($limit))
 		{
@@ -236,7 +249,9 @@ class carddav_addressbook extends rcube_addressbook
 	 */
 	public function set_search_set($filter)
 	{
-		$this->filter = $filter;
+		if(is_string($filter)){
+      $this->filter = $filter;
+    }
 	}
 
 	/**
@@ -258,12 +273,15 @@ class carddav_addressbook extends rcube_addressbook
       }
     }
 
-    if(!is_array($fields)){
+    if(!is_array($fields) && is_array($value)){
       $value[$fields] = $value;
       $fields = array($fields);
     }
     $where = $and_where = array();
     $WS = ' ';
+    if(!is_array($fields)){
+      $fields = array();
+    }
     foreach ($fields as $idx => $col){
       if($col == '*'){
         $words = array();
@@ -277,7 +295,7 @@ class carddav_addressbook extends rcube_addressbook
         $val = is_array($value) ? $value[$idx] : $value;
         // table column
         if(in_array($col, $this->table_cols)){
-          if(is_array($value[$col])){
+          if(is_array($value) && is_array($value[$col])){
             foreach($value[$col] as $or){
               $concat[] = $this->db->ilike($col, '%' . $or . '%');
             }
@@ -318,8 +336,9 @@ class carddav_addressbook extends rcube_addressbook
     if(!empty($and_where)){
       $where = ($where ? "($where) AND " : '') . join(' AND ', $and_where);
     }
-
-    $this->set_search_set(' AND ' . $where);
+    if(is_string($where)){
+      $this->set_search_set(' AND (' . $where . ')');
+    }
   }
 
 	/**
@@ -396,7 +415,7 @@ class carddav_addressbook extends rcube_addressbook
             $rcmail->user->save_prefs($a_prefs);
           }
 				}
-				else if($carddav_contact_id !== null)
+				else if($carddav_contact_id)
 				{
 					$carddav_addressbook_contact = $this->get_carddav_addressbook_contact($carddav_contact_id);
 					$carddav_addressbook_contacts = array(
@@ -989,7 +1008,6 @@ class carddav_addressbook extends rcube_addressbook
 	{
 		$rcmail = rcmail::get_instance();
 		$this->result = $this->count();
-
 		$query = "
 			SELECT
 				*
@@ -1055,12 +1073,24 @@ class carddav_addressbook extends rcube_addressbook
 	 */
   public function search($fields, $value, $mode = 0, $select = true, $nocount = false, $required = array())
   {
-    $this->set_filter($fields, $value, $required);
-    $contacts = $this->search_carddav_addressbook_contacts($fields);
+    $rcmail = rcmail::get_instance();
+    if($rcmail->action == 'copy'){
+      $this->result = new rcube_result_set(0);
+      return $this->result;
+    }
+    else if($fields == 'email'){
+      $this->set_search_set(" AND " . $rcmail->db->quoteIdentifier($fields) . " = " . $rcmail->db->quote($value));
+      $contacts = $this->search_carddav_addressbook_contacts();
+      return $contacts;
+    }
+    else{
+      $this->set_filter($fields, $value, $required);
+      $contacts = $this->search_carddav_addressbook_contacts();
+    }
     if(count($contacts->records) > 0){
       $mode = intval($mode);
-      // advanced search
-      if(isset($_POST['_adv'])){
+      // advanced search and saved search
+      if(isset($_POST['_adv']) || isset($_GET['_sid'])){
         foreach($contacts->records as $key => $contact){
           $vcard = new rcube_vcard();
           $vcard->extend_fieldmap(array('categories' => 'CATEGORIES'));
@@ -1122,13 +1152,13 @@ class carddav_addressbook extends rcube_addressbook
         $this->result = $contacts;
       }
       // quick search
-      else if((rcmail::get_instance()->action == 'search' && isset($_GET['_q'])) ||(rcmail::get_instance()->action == 'autocomplete' && isset($_POST['_search']))){
+      else if((($rcmail->action == 'search' || $rcmail->action == 'search-contacts') && isset($_GET['_q'])) ||($rcmail->action == 'autocomplete' && isset($_POST['_search']))){
         $search_value = get_input_value('_q', RCUBE_INPUT_GET);
         if(!$search_value){
           $search_value = get_input_value('_search', RCUBE_INPUT_POST);
         }
         if($fields == '*'){
-          $fields = array ('name', 'firstname', 'surname', 'email');
+          $fields = array('name', 'firstname', 'surname', 'email');
         }
         foreach($contacts->records as $key => $contact){
           foreach($contact as $field => $value){

@@ -15,7 +15,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Kalendár';
-$labels['plugindescription'] = 'Spravuj svoje udalosti cez Webmail-Kalendár. Svoj kalendár môžeš spojiť so svojím Google kalendárom alebo s väčšinou CalDAV serverov.';
+$labels['plugindescription'] = 'Spravuj svoje udalosti cez Webmail-Kalendár.';
 $labels['calendarprovider'] = 'Poskytovateľ';
 $labels['forinstance'] = 'napr.';
 $labels['caldavserver'] = 'CalDAV Server';
@@ -63,7 +63,6 @@ $labels['cal_notify'] = 'Pošli email pri zmene udalostí vlastníkom';
 $labels['caldav_notify'] = 'Pošli email pri zmene udalostí účastníkom';
 $labels['cal_notify_to'] = 'Adresát';
 $labels['showbirthdays'] = 'Zobraz narodeniny';
-$labels['googlecaptcha'] = 'Prideľ prístup Tvojmu Google účtu';
 $labels['clickhere'] = 'Klikni sem';
 $labels['timeOnlyTitle'] = 'Zvoľ čas';
 $labels['timeText'] = 'Čas';
@@ -185,7 +184,7 @@ $labels['replicationfailed'] = 'Synchronizácia kalendára kompletne zlyhala';
 $labels['replicationincomplete'] = 'Synchronizácia kalendára nie je kompletná';
 $labels['reminders'] = 'Upozornenia';
 $labels['reminder'] = 'Upozornenie';
-$labels['externalreminders'] = 'Externá služba upozornení (napr. Google Kalendár)';
+$labels['externalreminders'] = 'Externá služba upozornení';
 $labels['remindertype'] = 'Upozorni';
 $labels['email'] = 'Email';
 $labels['popup'] = 'Popup';

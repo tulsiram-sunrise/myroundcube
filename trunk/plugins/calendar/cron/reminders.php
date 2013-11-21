@@ -2,6 +2,7 @@
 chdir(dirname(__FILE__));
 $time_start = microtime_float();
 $time_start_s = time();
+@ini_set('error_reporting', E_ERROR);
 
 /* Configuration */
 if(isset($_SERVER['SCRIPT_FILENAME']))
@@ -28,10 +29,6 @@ else{
   if(file_exists(INSTALL_PATH . 'plugins/calendar/config.inc.php'))
     $ext = "";
   include INSTALL_PATH . 'plugins/calendar/config.inc.php' . $ext;
-}
-
-if(isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] != $rcmail_config['cron_ip']){
-  die("Access denied");
 }
 
 define('RCMAIL_URL', $rcmail_config['cron_rc_url']);
@@ -268,9 +265,37 @@ function compose($val,$tz,$labels,$rcmail,$ical){
 
 /* Program */
 
+if(!is_dir($rcmail_config['log_dir']))
+  ini_set('error_log', INSTALL_PATH.'logs/errors');
+
 include INSTALL_PATH . 'program/include/iniset.php';
 
 $rcmail = rcmail::get_instance();
+
+$result = $rcmail->db->query(
+  "SELECT * FROM " . dbtable(get_table_name('system'),$rcmail) . " 
+  WHERE ".dbq('name',$rcmail)."=?",
+  'myrc_db_config'
+);
+
+$db_config = $rcmail->db->fetch_assoc($result);
+
+$srcmail_config = $rcmail_config;
+$rcmail_config = array();
+
+if(is_array($db_config)){
+  $result = $rcmail->db->query(
+    "SELECT * FROM " . dbtable(get_table_name('db_config'),$rcmail) . " 
+    WHERE ".dbq('env',$rcmail)."=?",
+    'calendar'
+  );
+  $db_config = $rcmail->db->fetch_assoc($result);
+  if(is_array($db_config)){
+    eval($db_config['conf']);
+  }
+}
+
+$rcmail_config = array_merge($srcmail_config, $rcmail_config);
 
 foreach($rcmail_config as $key => $val){
   $rcmail->config->set($key, $val);
@@ -282,12 +307,11 @@ if($rcmail->config->get('smtp_pass') != ''){
   $rcmail->config->set('smtp_pass',$rcmail->config->get('cron_smtp_pass'));
 }
 
-if(!is_dir($rcmail_config['log_dir']))
-  ini_set('error_log', INSTALL_PATH.'logs/errors');
 include_once INSTALL_PATH . 'plugins/calendar/program/utils.php';
 include_once INSTALL_PATH . 'plugins/http_request/class.http.php';
 $utils = new Utils($rcmail);
 
+@ini_set('max_execution_time', 0);
 $nupcoming = 0;
 
 $result = $rcmail->db->query(
@@ -388,6 +412,10 @@ if($rcmail->config->get('cron_log') == true){
 }
 
 $rcmail->session->destroy(session_id());
+$maxlifetime = @ini_get('session.gc_maxlifetime');
+if(is_numeric($maxlifetime)){
+  $rcmail->session->db_gc($maxlifetime);
+}
 print "done [$time seconds runtime] " . date('Y-m-d H:i:s',time()) . "\n";
 exit;
 /* End Program */

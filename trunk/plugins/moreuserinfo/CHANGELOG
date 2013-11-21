@@ -14,3 +14,9 @@ VERSION                COMMENT
 4.0.12 - 4.1.13        - Compatibility with latest calendar release
 4.0.14                 - Fix: https://code.google.com/p/myroundcube/issues/detail?id=532
 4.0.15                 - Plugin Manager related adjustments
+4.0.16 - 4.0.18        - Added flash based copy to clipboard
+4.0.19                 - Binded to jappix task
+4.0.20                 - Jappix4Roundcube adjustments
+4.0.21                 - Fixed invalid foreach argument
+4.0.22 - 4.0.23        - Hide top menu link on popups
+4.0.23                 - Bind zclip on $(window).load event

@@ -37,7 +37,6 @@ $labels['addressbook_contacts'] = 'Contactos CardDAV';
 $labels['settings_empty_values'] = 'Por favor complete todos los campos y URL';
 $labels['settings_saved'] = 'Configuración del servidor CardDAV y vCards guardados';
 $labels['settings_save_failed'] = 'No se pudo guardar la configuración del servidor CardDAV';
-$labels['settings_delete_loading'] = 'Eliminar la configuración del servidor CardDAV y los contactos locales relacionados';
 $labels['settings_deleted'] = 'Configuración de servidor CardDAV eliminada';
 $labels['settings_delete_failed'] = 'No se pudo eliminar la configuración del servidor CardDAV';
 $labels['settings_no_connection'] = 'No se puede conectar al servidor CardDAV';

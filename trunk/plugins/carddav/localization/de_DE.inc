@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 05/08/2013 06:16:48
+ | Author: myroundcube@mail4us.net - 09/08/2013 08:35:21
  +-----------------------------------------------------------------------+
 */
 
@@ -19,6 +19,8 @@ $labels['sharing'] = 'Freigaben';
 $labels['share'] = 'Freigeben';
 $labels['resource'] = 'CardDAV-Adressbuch';
 $labels['confidentialcarddavaccess'] = 'Vertraulicher CardDAV-Zugang [%s]';
+$labels['copytoclipboard'] = 'In die Zwischenablage kopieren';
+$labels['copiedtoclipboard'] = 'Die Zwischenablage enthält';
 $labels['sharehint'] = 'Geben Sie die obigen Informationen (Benutzername, Passwort (Token) und URLs) an Personen weiter, denen Sie Schreibzugriff auf Ihr Adressbuch gewähren möchten.<br />Ändern oder entfernen Sie den Token, um den Zugang zu schließen.';
 $labels['sharehint_readonly'] = 'Geben Sie die obigen Informationen (Benutzername, Passwort (Token) und URLs) an Personen weiter, mit denen Sie Lesezugriff auf Ihr Adressbuch gewähren möchten.<br />Ändern oder entfernen Sie den Token, um den Zugang zu schließen.';
 $labels['readwrite'] = 'Schreibzugriff';
@@ -38,8 +40,9 @@ $labels['settings_empty_values'] = 'Bitte geben Sie eine Kategorie und die URL a
 $labels['settings_saved'] = 'CardDAV Server Einstellungen und vCards erfolgreich gespeichert';
 $labels['settings_save_failed'] = 'Beim Speichern der CardDAV Server Einstellungen ist ein Fehler aufgetreten';
 $labels['settings_delete_loading'] = 'CardDAV Server Einstellungen und dazugehörige Kontakte werden gelöscht';
-$labels['settings_delete_warning'] = 'Sind Sie sicher?';
-$labels['settings_delete_contacts_warning'] = 'Wollen Sie alle Kontakte in diesem Adressbuch endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden! Wählen Sie ABBRECHEN, um nur das Adressbuch, nicht aber die Kontakte zu löschen.';
+$labels['settings_delete_warning'] = 'Sind Sie sicher, dass Sie dieses Adressbuch entfernen möchten?';
+$labels['settings_delete_contacts_warning'] = 'Wollen Sie alle Kontakte in diesem Adressbuch endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden! Wählen Sie OK, um das Adressbuch und die Kontakte zu löschen. Wählen Sie ABBRECHEN, um nur das Adressbuch, nicht aber die Kontakte zu löschen.';
+$labels['settings_delete_contacts_warning_html'] = 'Wollen Sie alle Kontakte in diesem Adressbuch endgültig löschen?<br />Diese Aktion kann nicht rückgängig gemacht werden!<br /><br />Wählen Sie JA, um das Adressbuch und die Kontakte zu löschen.<br />Wählen Sie NEIN, um nur das Adressbuch, nicht aber die Kontakte zu löschen.';
 $labels['settings_deleted'] = 'CardDAV Server Einstellungen wurden erfolgreich gelöscht';
 $labels['settings_delete_failed'] = 'Beim Löschen der CardDAV Server Einstellungen ist ein Fehler aufgetreten';
 $labels['settings_no_connection'] = 'Es konnte keine Verbindung zum CardDAV Server aufbauen';

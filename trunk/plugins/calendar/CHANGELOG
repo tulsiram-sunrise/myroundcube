@@ -48,4 +48,26 @@ VERSION                COMMENT
 15.0.13                - Compatibility fix for Kolab tasklist
 15.0.14                - Prepare database for tasks
 15.0.15                - Save CalDAV even if MKCOL fails
-16.0 - 16.0.5          - Implemented tasks
+16.0 - 16.0.7          - Implemented tasks
+16.0.8 - 16.0.9        - Roundcube 0.9.3
+16.0.10                - Planner plugin adjustments
+16.1                   - Removed Google CalDAV related stuff (old CalDAV access for public will be deprectated in Sept. 2013)
+16.1.1                 - cPanel related adjustments
+16.1.2                 - Roundcube 0.9.3 fixes (cron)
+16.1.3                 - Added start & end params support for (RSS-)feeds
+16.1.4                 - Improved cron for sync'ing reminders
+16.1.5                 - If minical in calendar view is disabled use space for subscription table
+16.1.6                 - Cron sync_caldav_reminders runs now even if user has not saved settings in Webmail
+16.1.7                 - No timelimit for cron runtime
+16.1.8                 - Prevent category editing if a CalDAV calendar is linked
+16.1.9 - 16.1.10       - Added database session garbage collection to crons
+16.1.11 - 16.1.13      - Binded Popup reminders to tasks mail, addressbook, settings, dummy (comptibility with Kolab tasklist
+                         and jappix4roundcube plugins) and further Jappix4Roundcube adjustments
+16.1.14                - Removed jsdialogs specific things
+16.1.15                - Fixed duplicate events display for feeds
+16.1.16                - Improved feeds cache
+16.1.17 - 16.1.19      - Implemented tabbed plugin
+16.1.20 - 16.1.21      - Fixed filters (default category was not filtered)
+16.1.22                - Implemented calendar sharing invitations
+16.1.23                - Improved custom reminders dialog
+16.1.24                - Implemented output buffering for feeds

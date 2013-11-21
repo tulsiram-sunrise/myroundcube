@@ -14,13 +14,13 @@ $rcmail_config['show_empty_database_addressbooks'] = false;
 /* CardDAV database tables */
 $rcmail_config['db_table_carddav_server'] = 'carddav_server';
 $rcmail_config['db_table_carddav_contacts'] = 'carddav_contacts';
-$rcmail_config['db_table_carddav_contactproups'] = 'carddav_contactgroups';
-$rcmail_config['db_table_carddav_contactproupmembers'] = 'carddav_contactgroupmembers';
+$rcmail_config['db_table_carddav_contactgroups'] = 'carddav_contactgroups';
+$rcmail_config['db_table_carddav_contactgroupmembers'] = 'carddav_contactgroupmembers';
 
 /* CardDAV database tables sequences (PostgreSQL) */
 $rcmail_config['db_sequence_carddav_server'] = 'carddav_server_carddav_server_id_seq';
 $rcmail_config['db_sequence_carddav_contacts'] = 'carddav_contacts_carddav_contact_id_seq';
-$rcmail_config['db_sequence_carddav_contactproups'] = 'carddav_contactgroups_contactgroup_id_seq';
+$rcmail_config['db_sequence_carddav_contactgroups'] = 'carddav_contactgroups_contactgroup_id_seq';
 
 /* Debug (extended logging) */
 $rcmail_config['carddav_debug'] = false;

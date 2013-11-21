@@ -124,7 +124,6 @@ $labels['upcoming'] = 'Събитието започва в:';
 $labels['reminder_before'] = 'Напомни преди да започне събитието';
 $labels['show_upcoming_cal'] = 'Разреши преглед на предстоящи събития';
 $labels['invalidresponse'] = 'Невалиден отговор от';
-$labels['verifyexpiredate'] = 'Крайният срок е неприемлив. Искате ли да го проверите?';
 $labels['recurwarning'] = 'Това е повтарящо се събитие.';
 $labels['importconfirmation'] = 'Искате лида импортирате всички прикачени събитие/я във вашия календар [%s item(s)]?';
 $labels['item'] = 'Позиция';

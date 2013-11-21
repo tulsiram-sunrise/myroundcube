@@ -33,6 +33,8 @@ $(document).ready(function() {
     });
   }
   
+  $('#planner_button').addClass('button-selected');
+  
   // disable right click
   $(document).bind('contextmenu', function(){
     //return false;
@@ -42,14 +44,14 @@ $(document).ready(function() {
   if(rcmail.env.skin == 'larry'){
     $('#planner_button').children().css('color','#3cf');
     if(rcmail.get_cookie('minimalmode') == 1){
-      $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
+      $('#taskbar a.button-planner span.button-inner').css('background', '#2c2c2c url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
     }
     $(window).resize(function(){
       if(rcmail.get_cookie('minimalmode') == 1){
-        $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
+        $('#taskbar a.button-planner span.button-inner').css('background', '#2c2c2c url(plugins/planner/skins/larry/images/planner.png) 4px -43px no-repeat');
       }
       else{
-        $('#taskbar a.button-planner span.button-inner').css('background', 'url(plugins/planner/skins/larry/images/planner.png) 4px -45px no-repeat');
+        $('#taskbar a.button-planner span.button-inner').css('background', '#2c2c2c url(plugins/planner/skins/larry/images/planner.png) 4px -45px no-repeat');
       }
     });
   }
@@ -74,6 +76,9 @@ $(document).ready(function() {
   });
   rcmail.addEventListener('plugin.planner_replace', function(response) {
     $('#' + response[0]).html(response[1]);
+    $('#' + response[0]).removeClass('drag_nodate');
+    $('#' + response[0]).removeClass('drag_datetime');
+    $('#' + response[0]).addClass(response[3]);
     if(response[2] === true){
       $('#' + response[0]).addClass('today');
     }

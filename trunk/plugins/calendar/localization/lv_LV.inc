@@ -138,7 +138,6 @@ $labels['upcoming'] = 'Notikums sākas';
 $labels['reminder_before'] = 'Atgādināt pirms notikuma sākuma';
 $labels['show_upcoming_cal'] = 'Ieslēgt gaidāmajiem notikumiem priekšskatījums';
 $labels['invalidresponse'] = 'Invalid response from';
-$labels['verifyexpiredate'] = 'The expiration date is implausible. Do you want to check it?';
 $labels['recurwarning'] = 'This is a recurring event.';
 $labels['importconfirmation'] = 'Do you want to import attached event(s) into your calendar [%s item(s)]?';
 $labels['item'] = 'Item';

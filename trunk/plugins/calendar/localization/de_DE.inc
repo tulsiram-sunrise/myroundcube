@@ -7,21 +7,22 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 08/13/2013 06:43:11
+ | Author: myroundcube@mail4us.net - 09/08/2013 08:36:35
  +-----------------------------------------------------------------------+
 */
 
 $labels = array();
 $labels['pluginname'] = 'Kalender';
-$labels['plugindescription'] = 'Verwalten Sie Ihre Termine mit einen Kalendar. Sie können den Kalender z.B. auch mit Ihrem Google-Kalender oder mit vielen anderen CalDAV-Servern verknüpfen.';
+$labels['plugindescription'] = 'Verwalten Sie Ihre Termine mit einen Kalendar.';
 $labels['view'] = 'Ansicht';
 $labels['calendarprovider'] = 'Dienst';
 $labels['forinstance'] = 'z.B.';
 $labels['caldavserver'] = 'CalDAV-Server';
 $labels['caldavsettings'] = 'CalDAV Einstellungen';
 $labels['unlink_caldav'] = 'Um diese Kategorie zu löschen müssen Sie zuerst den CalDAV-Server entfernen';
-$labels['unlink_caldav_warning'] = 'Sind Sie sicher?';
-$labels['unlink_events_warning'] = 'Wollen Sie alle Ereignisse in diesem Kalender endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden! Wählen Sie ABBRECHEN, um nur den Kalender, nicht aber die Ereignisse zu löschen.';
+$labels['unlink_caldav_warning'] = 'Sind Sie sicher, dass Sie diesen Kalendar löschen wollen?';
+$labels['unlink_events_warning'] = 'Wollen Sie alle Ereignisse in diesem Kalender endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden! Wählen Sie OK, um den Kalender und alle Ereignisse zu löschen. Wählen Sie ABBRECHEN, um nur den Kalender, nicht aber die Ereignisse zu löschen.';
+$labels['unlink_events_warning_html'] = 'Wollen Sie alle Ereignisse in diesem Kalender endgültig löschen?<br />Diese Aktion kann nicht rückgängig gemacht werden!<br /><br />Wählen Sie JA, um den Kalender und alle Ereignisse zu löschen.<br />Wählen Sie NEIN, um nur den Kalender, nicht aber die Ereignisse zu löschen.';
 $labels['caldavurl'] = 'CalDAV-Url';
 $labels['passwordisset'] = 'Passwort ist gesetzt';
 $labels['passwordisnotset'] = 'Password ist nicht gesetzt';
@@ -40,6 +41,8 @@ $labels['add_feed'] = 'Feed hinzufügen';
 $labels['remove_feed'] = 'Feed entfernen';
 $labels['sharing'] = 'Freigaben';
 $labels['share'] = 'Freigeben';
+$labels['copytoclipboard'] = 'In die Zwischenablage kopieren';
+$labels['copiedtoclipboard'] = 'Die Zwischenablage enthält';
 $labels['resource'] = 'CalDAV-Kalender';
 $labels['caltoken'] = 'Token';
 $labels['confidentialcaldavaccess'] = 'Vertraulicher CalDAV-Zugang [%s]';
@@ -79,11 +82,6 @@ $labels['cal_notify'] = 'Email bei Änderung von Einträgen durch den Kalenderbe
 $labels['caldav_notify'] = 'Email bei Änderung von Einträgen durch andere Nutzer versenden';
 $labels['cal_notify_to'] = 'Empfänger';
 $labels['showbirthdays'] = 'Geburtstage anzeigen';
-$labels['googleuser'] = 'Google Konto';
-$labels['googlepass'] = 'Google Passwort';
-$labels['googlepassisset'] = 'Google Passwort ist gesetzt';
-$labels['googlepassisnotset'] = 'Google Passwort ist nicht gesetzt';
-$labels['googlecaptcha'] = 'Zugriff auf Ihr Google-Konto gewähren';
 $labels['clickhere'] = 'Hier klicken';
 $labels['titleFormatMonth'] = 'MMMM yyyy';
 $labels['titleFormatDay'] = 'dddd,';
@@ -211,7 +209,7 @@ $labels['remindersloading'] = 'Erinnerungen werden geladen ...';
 $labels['reminderfooter'] = 'Sie erhalten diese Email, weil Sie diese Option in Ihrem Kalender ausgewählt haben.';
 $labels['show_upcoming_cal'] = 'Kleinen Kalender anzeigen';
 $labels['invalidresponse'] = 'Ungültige Antwort von';
-$labels['verifyexpiredate'] = 'Das Ablaufdatum ist unplausibel. Wollen Sie es überprüfen?';
+$labels['verifyexpiredate'] = 'Das Ablaufdatum wurde autmatisch angepasst. Bitte überprüfen Sie es.';
 $labels['importconfirmation'] = 'Möchten Sie diese(n) Termin(e) in Ihren Kalender importieren [%s Objekt(e)]?';
 $labels['item'] = 'Ereignis';
 $labels['errorsaving'] = 'Beim Speichern ist ein Fehler aufgetreten';
@@ -226,7 +224,6 @@ $labels['calsearchnomatches'] = 'Keine Übereinstimmung';
 $labels['properties'] = 'Eigenschaften';
 $labels['reload'] = 'Kalender neu laden';
 $labels['sync'] = 'Abgleich';
-$labels['unloadwarning'] = 'Datenbankaktionen sind noch nicht abgeschlossen. Bitte bleiben Sie auf dieser Seite!';
 $labels['backgroundreplication'] = 'Synchronisierung läuft im Hintergrund ...';
 $labels['lastreplication'] = 'Letzter Abgleich:';
 $labels['successfullyreplicated'] = 'Kalender wurde erfolgreich abgeglichen';
@@ -236,7 +233,7 @@ $labels['replicationfailed'] = 'Abgleich des Kalenders ist endgültig gescheiter
 $labels['replicationincomplete'] = 'Abgleich des Kalenders ist unvollständig';
 $labels['reminders'] = 'Erinnerungen';
 $labels['reminder'] = 'Erinnerung';
-$labels['externalreminders'] = 'Externer Dienst (z.B. Google Kalender)';
+$labels['externalreminders'] = 'Externer Dienst';
 $labels['remindertype'] = 'Erinnern mittels';
 $labels['email'] = 'Email';
 $labels['popup'] = 'Popup';

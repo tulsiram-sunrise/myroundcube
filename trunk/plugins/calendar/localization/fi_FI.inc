@@ -15,7 +15,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Kalenteri';
-$labels['plugindescription'] = 'Hallitse tapahtumiasi kalenterissa. Voit linkittää kalenterisi Googlen kalenteriin...';
+$labels['plugindescription'] = 'Hallitse tapahtumiasi kalenterissa.';
 $labels['calendarprovider'] = 'Tarjoaja';
 $labels['forinstance'] = 'esim.';
 $labels['caldavserver'] = 'CalDAV palvelin';
@@ -150,7 +150,6 @@ $labels['removereminders'] = 'Poista muistutukset';
 $labels['remindersloading'] = 'Ladataan muistutuksia...';
 $labels['show_upcoming_cal'] = 'Ota käyttöön tulevien tapahtumien esikatselu';
 $labels['invalidresponse'] = 'Epäkelpo vastaus: ';
-$labels['verifyexpiredate'] = 'Voimassaolon päättymisaika on epäuskottava. Haluatko tarkistaa sen?';
 $labels['importconfirmation'] = 'Haluatko tuoda tapahtumat omaan kalenteriisi [%s tapahtumaa]?';
 $labels['item'] = 'Kohde';
 $labels['run_tests'] = 'Kokeile asetuksia(ainoastaan kalenterin ylläpidolle)';
@@ -172,7 +171,7 @@ $labels['replicationfailed'] = 'Kalenterin replikointi epäonnistui';
 $labels['replicationincomplete'] = 'Kalenteria ei ole kokonaan replikoitu';
 $labels['reminders'] = 'Muistutukset';
 $labels['reminder'] = 'Muistutus';
-$labels['externalreminders'] = 'Ulkoinen muistutuspalvelu(esim. Google Calendar)';
+$labels['externalreminders'] = 'Ulkoinen muistutuspalvelu';
 $labels['remindertype'] = 'Muistuta';
 $labels['email'] = 'Sähköposti';
 $labels['popup'] = 'Ponnahdusikkuna';

@@ -27,6 +27,7 @@ function calendar_gui(){
       }
       calendar_gui.adjustRight();
     }
+    
     if(rcmail.env.skin == 'classic'){
        $('#taskscontent').height($('#prefs-box').height() - $('#taskscontent').position().top);
     }
@@ -54,7 +55,10 @@ function calendar_gui(){
       return;
     }
     rcmail.env.calendar_gui_initialized = true;
-
+    
+    /* background */
+    $('#calendar_button').addClass('button-selected');
+    
     /* change date/view if passed by URL */
     if(queryString('_view') != 'false'){
       $('#calendar').fullCalendar( 'changeView', queryString('_view'));
@@ -83,8 +87,10 @@ function calendar_gui(){
     }
     
     /* print menu */
-    $('#printmenu').css('top', $('#calendar-header').offset().top + 'px');
-    $('#printmenu').css('left', $('#calprintprevbut').offset().left + 'px');
+    if($('#calprintrevbut').get(0)){
+      $('#printmenu').css('top', $('#calendar-header').offset().top + 'px');
+      $('#printmenu').css('left', $('#calprintprevbut').offset().left + 'px');
+    }
     
     /* subscriptions */
     $('#subscriptiontoggle').click(function(){
@@ -633,19 +639,19 @@ function calendar_gui(){
     }
 
     // custom email
-    this.custommail = function(){
-      if($('#summary').val()){
+    this.custommail = function(mode){
+      if(mode == 'new'){
+        rcmail.display_message($('#custommail').attr('label'), 'error');
+      }
+      else{
         var t = $('#startdate').val() + ' ' + $('#starttime').val() + ':00';
         var regex=/^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9]) (?:([0-2][0-9]):([0-5][0-9]):([0-5][0-9]))?$/;
         var parts = t.replace(regex,"$1 $2 $3 $4 $5 $6").split(' ');
         var d = new Date(parts[0],parts[1]-1,parts[2],parts[3],parts[4],parts[5]).getTime() / 1000;
         var url = './?_task=mail&_action=compose' + '&_subject=' + encodeURIComponent($('#summary').val()) + '&_date=' + (Math.round(d) - (86400 * 0));
-        if(typeof opencomposewindow == 'function'){
-          opencomposewindow(url);
-        }
-        else{
-          window.open(url);
-        }
+        rcmail.env.compose_extwin = true;
+        rcmail.env.extwin = false;
+        rcmail.open_compose_step(url);
       }
     }
     
@@ -776,7 +782,11 @@ function calendar_gui(){
   this.adjustLeft = function(){
     if(rcmail.env.skin != 'classic'){
       if($('#filters-table-content').get(0)){
-        var availh = $('#sectionslist').height() - $('#sectionslist').position().top - $('#subscriptions-table').position().top - 150;
+        var smallcal = 0;
+        if($('#upcoming-maincontainer').is(':visible')){
+          smallcal = 150;
+        }
+        var availh = $('#sectionslist').height() - $('#sectionslist').position().top - $('#subscriptions-table').position().top - smallcal;
         if(availh > $('#subscriptions-table').height()){
           var fudge = (Math.max($('#filters-table-content').position().top - $('#subscriptions-table').position().top, $('#subscription-table-content').position().top - $('#subscriptions-table').position().top)) + 1;
           $('#subscriptions-table').css('max-height', availh + 'px');
@@ -846,20 +856,40 @@ function calendar_gui(){
       currentText: rcmail.gettext('currentText','calendar'),
       closeText: rcmail.gettext('closeText','calendar'),
       onClose: function(dateText){
+        var temparr = $('#starttime').val().split(':');
+        var h = temparr[0];
+        temparr = temparr[1].split(' ');
+        var m = temparr[0];
+        if(temparr[1]){
+          temparr[1] = temparr[1].toLowerCase();
+          if(temparr[1].substr(0, 1) == 'p'){
+            h = parseInt(h) + 12;
+          }
+        }
+        if(h.length < 2){
+          h = '0' + h;
+        }
+        if(m.length < 2){
+          m = '0' + m;
+        }
+        $('#starttime').val(h+":"+m);
         if(($('#enddate').val() + $('#endtime').val()) <= ($('#startdate').val() + $('#starttime').val())){
-          var temparr = $('#starttime').val().split(':');
+          temparr = $('#starttime').val().split(':');
           var nt = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), parseFloat(temparr[0]), parseFloat(temparr[1]), 0);
           var endtime = new Date((nt.getTime() / 1000 + parseInt(response.settings['duration'])) * 1000);
-          var h = endtime.getHours() + '';
-          var m = endtime.getMinutes() + '';
+          h = endtime.getHours() + '';
+          m = endtime.getMinutes() + '';
           if(h.length < 2)
             h = '0' + h;
           if(m.length < 2)
             m = '0' + m;
           $('#endtime').val(h+":"+m);
         }
+        temparr = $('#startdate').val() + '-' + $('#starttime').val().replace(':', '-');
+        temparr = temparr.split('-');
+        $('#startfulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
       },
-      ampm: false
+      timeFormat: response.settings['FormatTime']
     });
     $("#endtime").timepicker({
       timeOnlyTitle: rcmail.gettext('timeOnlyTitle', 'calendar'),
@@ -870,20 +900,40 @@ function calendar_gui(){
       currentText: rcmail.gettext('currentText','calendar'),
       closeText: rcmail.gettext('closeText','calendar'),
       onClose: function(dateText){
+        var temparr = $('#endtime').val().split(':');
+        var h = temparr[0];
+        temparr = temparr[1].split(' ');
+        var m = temparr[0];
+        if(temparr[1]){
+          temparr[1] = temparr[1].toLowerCase();
+          if(temparr[1].substr(0, 1) == 'p'){
+            h = parseInt(h) + 12;
+          }
+        }
+        if(h.length < 2){
+          h = '0' + h;
+        }
+        if(m.length < 2){
+          m = '0' + m;
+        }
+        $('#endtime').val(h+":"+m);
         if(($('#enddate').val() + $('#endtime').val()) <= ($('#startdate').val() + $('#starttime').val())){
-          var temparr = $('#starttime').val().split(':');
+          temparr = $('#starttime').val().split(':');
           var nt = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), parseFloat(temparr[0]), parseFloat(temparr[1]), 0);
           var endtime = new Date((nt.getTime() / 1000 + parseInt(response.settings['duration'])) * 1000);
-          var h = endtime.getHours() + '';
-          var m = endtime.getMinutes() + '';
+          h = endtime.getHours() + '';
+          m = endtime.getMinutes() + '';
           if(h.length < 2)
             h = '0' + h;
           if(m.length < 2)
             m = '0' + m;
           $('#endtime').val(h+":"+m);
         }
+        temparr = $('#enddate').val() + '-' + $('#endtime').val().replace(':', '-');
+        temparr = temparr.split('-');
+        $('#endfulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
       },
-      ampm: false
+      timeFormat: response.settings['FormatTime']
     });
     $("#duetime").timepicker({
       timeOnlyTitle: rcmail.gettext('timeOnlyTitle', 'calendar'),
@@ -894,20 +944,40 @@ function calendar_gui(){
       currentText: rcmail.gettext('currentText','calendar'),
       closeText: rcmail.gettext('closeText','calendar'),
       onClose: function(dateText){
+        var temparr = $('#duetime').val().split(':');
+        var h = temparr[0];
+        temparr = temparr[1].split(' ');
+        var m = temparr[0];
+        if(temparr[1]){
+          temparr[1] = temparr[1].toLowerCase();
+          if(temparr[1].substr(0, 1) == 'p'){
+            h = parseInt(h) + 12;
+          }
+        }
+        if(h.length < 2){
+          h = '0' + h;
+        }
+        if(m.length < 2){
+          m = '0' + m;
+        }
+        $('#duetime').val(h+":"+m);
         if(($('#duedate').val() + $('#duetime').val()) < ($('#startdate').val() + $('#starttime').val())){
-          var temparr = $('#starttime').val().split(':');
+          temparr = $('#starttime').val().split(':');
           var nt = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), parseFloat(temparr[0]), parseFloat(temparr[1]), 0);
           var endtime = new Date((nt.getTime() / 1000 + parseInt(response.settings['duration'])) * 1000);
-          var h = endtime.getHours() + '';
-          var m = endtime.getMinutes() + '';
+          h = endtime.getHours() + '';
+          m = endtime.getMinutes() + '';
           if(h.length < 2)
             h = '0' + h;
           if(m.length < 2)
             m = '0' + m;
           $('#duetime').val(h+":"+m);
         }
+        temparr = $('#duedate').val() + '-' + $('#duetime').val().replace(':', '-');
+        temparr = temparr.split('-');
+        $('#duefulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
       },
-      ampm: false
+      timeFormat: response.settings['FormatTime']
     });
   }
   
@@ -1000,6 +1070,9 @@ function calendar_gui(){
           $('#expires').val($('#enddate').val());
         // find me: adjust when startdate and starttime widgets are merged
         calendar_gui.initReminderDatepicker(new Date($('#startdate').datepicker('getDate').getTime() + 86399000), response);
+        temparr = $('#startdate').val() + '-' + $('#starttime').val().replace(':', '-');
+        temparr = temparr.split('-');
+        $('#startfulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
       }
     });
     if(day.length < 2)
@@ -1030,6 +1103,9 @@ function calendar_gui(){
         }
         if($('#expires').val() < $('#enddate').val())
           $('#expires').val($('#enddate').val());
+        temparr = $('#enddate').val() + '-' + $('#endtime').val().replace(':', '-');
+        temparr = temparr.split('-');
+        $('#endfulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
       }
     });
     if(day.length < 2)
@@ -1056,6 +1132,9 @@ function calendar_gui(){
         if(($('#duedate').val() + $('#duetime').val()) < ($('#startdate').val() + $('#starttime').val())){
           $('#duedate').val($('#startdate').val());
         }
+        temparr = $('#duedate').val() + '-' + $('#duetime').val().replace(':', '-');
+        temparr = temparr.split('-');
+        $('#duefulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
       }
     });
     if(day.length < 2)

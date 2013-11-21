@@ -1,35 +1,39 @@
 <?php
-
 /*
-+-----------------------------------------------------------------------+
-| language/hu_HU/labels.inc                                             |
-|                                                                       |
-| Language file of the RoundCube Webmail client                         |
-| Copyright (C) 2008-2012, RoundQube Dev. - Switzerland                 |
-|                                                                       |
-+-----------------------------------------------------------------------+
-| Author:                                                               |
-+-----------------------------------------------------------------------+
-
+ +-----------------------------------------------------------------------+
+ | ./plugins/calendar/localization/hu_HU.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: Mihaly Vukovics - 09/18/2013 13:09:50
+ +-----------------------------------------------------------------------+
 */
 
 $labels = array();
 $labels['pluginname'] = 'Calendar';
-$labels['plugindescription'] = 'Kezeld az eseményeket a Webmail-naptárával. Összekötheted a naptárat Google naptárával vagy a legtöbb CalDAV kiszolgáló.';
+$labels['plugindescription'] = 'Kezeld az eseményeket a Webmail-naptárával.';
+$labels['view'] = 'Nézet';
 $labels['calendarprovider'] = 'Szolgáltató';
 $labels['forinstance'] = 'pl.:';
 $labels['caldavserver'] = 'CalDAV kiszolgáló';
+$labels['caldavsettings'] = 'CalDAV beállítások';
 $labels['unlink_caldav'] = 'A kategória törléséhez előbb csatlakozz le a CalDAV kiszolgálóról.';
+$labels['unlink_caldav_warning'] = 'Biztos benne?';
+$labels['unlink_events_warning'] = 'Biztos, hogy minden eseményt végleghesen törölni akar ebből a naptárból? A törlés nem visszavonható. Kattintson a  Mégsem gombra az események megtartásához!';
+$labels['unlink_events_warning_html'] = 'Biztos, hogy az összes eseményt véglegesen törölni akarja ebből a naptárból? Kattintson az IGEN-re a naptár és benne lévő összes esemény törléséhez, a NEM-re az események megtartásához.';
 $labels['caldavurl'] = 'CalDAV Url';
 $labels['passwordisset'] = 'Jelszó beállítva';
 $labels['passwordisnotset'] = 'Jelszó nincs beállítva';
 $labels['default_view'] = 'Alapértelmezett nézet';
-$labels['timeslots'] = 'Óránkénti időszeletek száma';
+$labels['timeslots'] = 'Óránkénti időegységek száma';
 $labels['duration'] = 'Esemény hossza (alapértelmezetten)';
 $labels['workdays'] = 'Munkanapok';
 $labels['first_day'] = 'Első munkanap';
 $labels['categories'] = 'Kategóriák';
 $labels['add_category'] = 'Kategória hozzáadása';
+$labels['add_caldav'] = 'CalDAV erőforrás csatlakoztatása';
 $labels['remove_category'] = 'Kategória eltávolítása';
 $labels['calendar_feeds'] = 'Források';
 $labels['feeds'] = 'Naptár források';
@@ -37,6 +41,8 @@ $labels['add_feed'] = 'Forrás hozzáadása';
 $labels['remove_feed'] = 'Forrás eltávolítása';
 $labels['sharing'] = 'Megosztás';
 $labels['share'] = 'Megoszt';
+$labels['copytoclipboard'] = 'Vágólapra helyezés';
+$labels['copiedtoclipboard'] = 'Vágólapra helyezve';
 $labels['resource'] = 'Erőforrás';
 $labels['caltoken'] = 'Azonosító';
 $labels['confidentialcaldavaccess'] = 'Bizalmas naptár elérés [%s]';
@@ -57,9 +63,18 @@ $labels['event_deleted'] = 'Egy esemény törölve ';
 $labels['regards'] = 'Üdvözlettel,';
 $labels['administrator'] = 'Adminisztrátor';
 $labels['notify_footer'] = 'Azért kapod ezt az e-mailt, mert beállítottad, hogy értesítsünk ha egy résztvevő módosít egy eseményt a naptáradban. Ne válaszolj erre a levélre! Szüntesse meg a naptár megosztását, ha nem jogosult hozzáférést vagy visszaélést tapasztal. Erről értesítse a résztvevőket is!   ';
+$labels['notify_details'] = 'Esemény részletei:';
 $labels['minutes'] = 'perc';
 $labels['replicateautomatically'] = 'CalDAV adatbázis szinkronizálása';
 $labels['caldavreplicationrange'] = 'CalDAV adatbázis szinkronizálásának terjedelme(év)';
+$labels['caldavreplicationrangetasks'] = 'Heti feladatok';
+$labels['twoweeks'] = 'két hét';
+$labels['threeweeks'] = 'három hét';
+$labels['onemonth'] = 'hónap';
+$labels['twomonths'] = 'két hónap';
+$labels['threemonths'] = 'három hónam';
+$labels['sixmonths'] = 'hat hónap';
+$labels['oneyear'] = 'év';
 $labels['caldavauthentication'] = 'Azonosítási eljárás';
 $labels['basic'] = 'BASIC tipusú';
 $labels['detect'] = 'automatikus felismerés';
@@ -67,10 +82,9 @@ $labels['cal_notify'] = 'E-mail küldése, ha az eseményt a tulajdonosa módos�
 $labels['caldav_notify'] = 'E-mail küldése, ha az eseményt egy résztvevő módosítja';
 $labels['cal_notify_to'] = 'Címzett';
 $labels['showbirthdays'] = 'Születésnapok mutatása';
-$labels['googlecaptcha'] = 'Google fiókhoz való hozzáférés engedélyezése';
 $labels['clickhere'] = 'Kattintson ide';
-$labels['titleFormatMonth'] = 'yyyy MMMM';
-$labels['titleFormatDay'] = 'yyyy MMM d,  dddd';
+$labels['titleFormatMonth'] = 'yyyy. MMMM';
+$labels['titleFormatDay'] = 'yyyy. MMM d,  dddd';
 $labels['columnFormatMonth'] = 'ddd';
 $labels['columnFormatWeek'] = 'M d, ddd';
 $labels['columnFormatDay'] = 'yyyy. M. d. dddd';
@@ -81,8 +95,8 @@ $labels['minuteText'] = 'Perc';
 $labels['currentText'] = 'Most';
 $labels['closeText'] = 'Kész';
 $labels['calendar'] = 'Naptár';
-$labels['prevrange'] = 'Következő idő szelet';
-$labels['nextrange'] = 'Előző idő szelet';
+$labels['prevrange'] = 'Következő időegység';
+$labels['nextrange'] = 'Előző időegység';
 $labels['yes'] = 'igen';
 $labels['no'] = 'nem';
 $labels['day'] = 'Nap';
@@ -94,6 +108,9 @@ $labels['year'] = 'Év';
 $labels['new_event'] = 'Esemény létrehozása';
 $labels['new_event_short'] = 'Új esemény';
 $labels['edit_event'] = 'Esemény szerkesztése';
+$labels['edit_task'] = 'Feladat szerkesztése';
+$labels['hide_tasks'] = 'Feladat elrejtése';
+$labels['show_tasks'] = 'Feladatok nézet';
 $labels['save'] = 'Mentés';
 $labels['remove'] = 'Eltávolítás';
 $labels['cancel'] = 'Mégsem';
@@ -136,13 +153,15 @@ $labels['switch_calendar'] = 'Naptár váltása';
 $labels['user'] = 'Felhasználók';
 $labels['cal_user'] = 'Naptár felhasználó';
 $labels['submit'] = 'Elküld';
-$labels['filter_events'] = 'Események szűrése';
 $labels['filter'] = 'Szűrők';
 $labels['allevents'] = 'minden esemény';
-$labels['removefilters'] = 'Szűrők eltávolítása';
+$labels['defaultcategorylabel'] = 'Alapértelmezett naptár címke';
 $labels['defaultcategory'] = 'Alpértelmezett';
+$labels['backgroundcolor'] = 'Háttérszín';
 $labels['general'] = 'Általános';
-$labels['schedule'] = 'Időbeosztás';
+$labels['event'] = 'Esemény';
+$labels['events'] = 'Események';
+$labels['schedule'] = 'Ismétlődés';
 $labels['every'] = 'Minden';
 $labels['bydays'] = 'Napi';
 $labels['byweekdays'] = 'Heti';
@@ -179,6 +198,7 @@ $labels['45_min'] = '45 perc';
 $labels['90_min'] = 'másfél óra';
 $labels['60_min'] = '1 óra';
 $labels['120_min'] = '2 óra';
+$labels['in'] = 'ben';
 $labels['export_as_file'] = 'Fájlként';
 $labels['send_invitation'] = 'Meghívó küldése';
 $labels['invitation_subject'] = 'Esemény meghívás';
@@ -189,13 +209,15 @@ $labels['remindersloading'] = 'Emlékeztetők betöltése...';
 $labels['reminderfooter'] = 'Azért kaptad ezt az e-mailt, mert beállítottad, hogy figyelmeztessen a naptárad erről a közelgő eseményről.';
 $labels['show_upcoming_cal'] = 'Közelgő események előnézetének engedélyezése';
 $labels['invalidresponse'] = 'Érvénytelen válasz érkezett';
-$labels['verifyexpiredate'] = 'A lejárat időpontja valószínűtlen. Akarja ellenőrizni?';
+$labels['verifyexpiredate'] = 'Kérlü ellnőrizze a záró dátumot, mivel automatikusan került beállításra.';
 $labels['importconfirmation'] = 'Akarja importálni a csatolt esemény(eket) a naptárába [%s tétel]?';
 $labels['item'] = 'Tétel';
 $labels['errorsaving'] = 'Hiba lépett fel a mentés közben';
 $labels['calreadonly'] = 'Ez a natár csak olvasható';
-$labels['mycalendar'] = 'személyes naptár';
 $labels['allcalendars'] = 'minden naptár';
+$labels['subscriptions'] = 'Feliratkozások';
+$labels['feed'] = 'feed';
+$labels['caldav'] = 'CalDAV';
 $labels['protected'] = 'védett';
 $labels['calsearch'] = 'Keresés eredménye';
 $labels['calsearchnomatches'] = 'Nincs találat';
@@ -212,8 +234,8 @@ $labels['replicationfailed'] = 'A naptár szinkronizálása valószínüleg megs
 $labels['replicationincomplete'] = 'A naptár szinkronizálása befejezetlen';
 $labels['reminders'] = 'Emlékeztetők';
 $labels['reminder'] = 'Emlékeztető';
-$labels['externalreminders'] = 'Külső emlékeztető szolgáltatás(pl.: Google Naptár)';
-$labels['remindertype'] = 'Emlékeztetve';
+$labels['externalreminders'] = 'Külső emlékeztető szolgáltatás';
+$labels['remindertype'] = 'Emlékeztetés módja';
 $labels['email'] = 'E-mail';
 $labels['popup'] = 'Felugró ablak';
 $labels['minutesbefore'] = 'Perccel a kezdete előtt';
@@ -227,6 +249,7 @@ $labels['reminderdisable'] = 'Emlékeztető kikapcsolása';
 $labels['customreminder'] = 'Felhasználó által meghatározott';
 $labels['starts'] = 'kezdődik';
 $labels['ends'] = 'végződik';
+$labels['at'] = 'kor';
 $labels['started'] = 'elkezdődött';
 $labels['terminated'] = 'végződött';
 $labels['noticed'] = 'Emlékezető elküldve. Vegye ki a listából.';
@@ -239,6 +262,39 @@ $labels['editfuture'] = 'csak ez és az ez után következő események';
 $labels['applyrecurring'] = 'Változtatások mentése...';
 $labels['birthday'] = 'Születésnap';
 $labels['happybirthday'] = 'Születésnapi udvözletek!';
+$labels['tasks'] = 'Feladatok';
+$labels['task'] = 'Feladat';
+$labels['due'] = 'Határidő';
+$labels['completed'] = 'Kész';
+$labels['status'] = 'Státusz';
+$labels['done'] = 'Kész';
+$labels['percentage'] = 'Százalék';
+$labels['priority'] = 'Prioritás';
+$labels['IN-PROCESS'] = 'folyamatban';
+$labels['NEEDS-ACTION'] = 'beavatkozást igényel';
+$labels['COMPLETED'] = 'kész';
+$labels['CANCELLED'] = 'törölve';
+$labels['years'] = 'év(ek)';
+$labels['months'] = 'hónap';
+$labels['weeks'] = 'hét';
+$labels['days'] = 'nap';
+$labels['hours'] = 'óra';
+$labels['all'] = 'Mind';
+$labels['overdue'] = 'Túlhúzodott';
+$labels['today'] = 'Ma';
+$labels['tomorrow'] = 'Holnap';
+$labels['sevendays'] = 'Következő 7 nap';
+$labels['later'] = 'Később';
+$labels['complete'] = 'Kész';
+$labels['high'] = 'Magas';
+$labels['highpriority'] = 'Magas prioritás';
+$labels['low'] = 'Alacsony';
+$labels['lowpriority'] = 'Alacsony prioritás';
+$labels['nodate'] = 'Nincs dátum';
+$labels['notasks'] = 'Nincs a megadott kriériumoknak megfelelő feladat.';
+$labels['mowthelawn'] = 'Lenyírni a füvet';
+$labels['component'] = 'Komponens';
+$labels['submenuprefix'] = '->';
 $labels['undefined'] = '---';
 
 ?>

@@ -4,22 +4,11 @@
  *
  * Plugin to add expandall and collapseall links to mailboxoptions container
  *
- * @version 1.6.1 - 27.08.2012
- * @author Mike Maraghy, Roland 'rosali' Liebl (http://myroundcube.googlecode.com)
+ * @version 1.6.3 - 26.09.2013
+ * @author Mike Maraghy, Roland 'rosali' Liebl (http://myroundcube.com)
  * 
  **/
  
-/**
- *
- * Usage: http://mail4us.net/myroundcube/
- *
- **/
- 
-/**
- * 
- * Notice: This plugin is redundant if you use contextmenu plugin
- *
- **/
 class folderbuttons extends rcube_plugin
 {
   public $task = 'mail|settings';
@@ -28,12 +17,11 @@ class folderbuttons extends rcube_plugin
   static private $plugin = 'folderbuttons';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/folderbuttons-plugin" target="_new">Documentation</a>';
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.6.1';
-  static private $date = '27-08-2012';
+  static private $version = '1.6.3';
+  static private $date = '26-09-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.7.1',
+    'Roundcube' => '0.9',
     'PHP' => '5.2.1'
   );
   static private $prefs = null;
@@ -81,7 +69,6 @@ class folderbuttons extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
@@ -102,9 +89,11 @@ class folderbuttons extends rcube_plugin
 
   function html_output($p) {
     if ($p['name'] == "mailboxoptions") {
-      $c .= "<li class=' separator_above'><a href='#' class='active' onclick='return expandall()'>" . $this->gettext("expandall") . "</a></li>\r\n";
-      $d .= "<li><a href='#' class='active' onclick='return collapseall()'>" .$this->gettext("collapseall") . "</a></li>";
-      $p['content'] = $c . $d . $p['content'];
+      if(rcmail::get_instance()->task == 'mail'){
+        $c .= "<li class=' separator_above'><a href='#' class='active folderbuttons' onclick='return expandall()'>" . $this->gettext("expandall") . "</a></li>\r\n";
+        $d .= "<li><a href='#' class='active folderbuttons' onclick='return collapseall()'>" .$this->gettext("collapseall") . "</a></li>";
+        $p['content'] = $c . $d . $p['content'];
+      }
     }
     return $p;
   }

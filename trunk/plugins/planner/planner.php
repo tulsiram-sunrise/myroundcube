@@ -2,7 +2,7 @@
 /**
  * planner
  *
- * @version 3.0.6 - 10.07.2013
+ * @version 3.0.11 - 20.09.2013
  * @author Roland 'rosali' Liebl (forked from: see below)
  * @website http://myroundcube.com
  *
@@ -56,8 +56,8 @@ class planner extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.0.6';
-  static private $date = '10-07-2013';
+  static private $version = '3.0.11';
+  static private $date = '20-09-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',
@@ -74,6 +74,9 @@ class planner extends rcube_plugin
 
   function init() {
     $this->rc = rcmail::get_instance();
+    if($this->rc->action == 'jappix.loadmini'){
+      return;
+    }
     $this->user = $this->rc->user->ID;
     
     /* DB versioning */
@@ -376,7 +379,9 @@ class planner extends rcube_plugin
       );
       $plan = array();
       $today = false;
+      $class = 'drag_nodate';
       if($datetime){
+        $class = 'drag_datetime';
         $plan['timestamp'] = $this->toUserTime(strtotime($datetime));
         if(date('Ymd', $plan['timestamp']) === date('Ymd')){
           $today = true;
@@ -389,7 +394,7 @@ class planner extends rcube_plugin
       $plan['created'] = $created;
       $plan['id'] = $id;
       $ret = $this->html_list_item($plan, $id);
-      $this->rc->output->command('plugin.planner_replace', array($id, $ret[0], $today));
+      $this->rc->output->command('plugin.planner_replace', array($id, $ret[0], $today, $class));
     }
   }
   

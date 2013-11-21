@@ -1,10 +1,10 @@
 <div id="event">
   <ul>
-    <li><a href="#event-1" id="tab1"><span class="vevent"><roundcube:label name="calendar.event" /></span><span class="vtodo"><roundcube:label name="calendar.task" /></span></a></li>
-    <li><a href="#event-2" id="tab2"><roundcube:label name="calendar.schedule" /></a></li>
-    <li><a href="#event-3" id="tab3"><roundcube:label name="import" /></a></li>
-    <li><a href="#event-4" id="tab4"><roundcube:label name="export" /></a></li>
-    <li><a href="#event-5" id="tab5"><roundcube:label name="calendar.reminders" /></a><li>
+    <li><a href="#event-1" id="tab1" class="dialoglink"><span class="vevent"><roundcube:label name="calendar.event" /></span><span class="vtodo"><roundcube:label name="calendar.task" /></span></a></li>
+    <li><a href="#event-2" id="tab2" class="dialoglink"><roundcube:label name="calendar.schedule" /></a></li>
+    <li><a href="#event-3" id="tab3" class="dialoglink"><roundcube:label name="import" /></a></li>
+    <li><a href="#event-4" id="tab4" class="dialoglink"><roundcube:label name="export" /></a></li>
+    <li><a href="#event-5" id="tab5" class="dialoglink"><roundcube:label name="calendar.reminders" /></a><li>
   </ul>
   <form autocomplete="off" id="form" target="uploader" name="form" method="post" enctype="multipart/form-data" action="./?_task=dummy&_action=plugin.calendar_upload">
     <input type="hidden" name="component" id="component" value="vevent" />
@@ -22,6 +22,7 @@
             <input type="text" name="startdate" size="14" id="startdate" readonly="readonly" />
             <span class="vtodo">&nbsp;</span>
             <input class="vtodo" type="radio" name="startactive" size="14" id="startactive" value="1" />
+            <span>&nbsp;</span><span id="startfulltext"></span>
         </td>
       </tr>
       <tr class="vtodo">
@@ -32,6 +33,7 @@
             <input type="text" name="duedate" size="14" id="duedate" readonly="readonly" />
             <span>&nbsp;</span>
             <input type="radio" name="dueactive" size="14" id="dueactive" value="1" />
+            <span>&nbsp;</span><span id="duefulltext"></span>
         </td>
       </tr>
       <tr>
@@ -42,6 +44,7 @@
             <input type="text" name="enddate" size="14" id="enddate" readonly="readonly" />
             <span class="vtodo">&nbsp;</span>
             <input class="vtodo" type="radio" name="endactive" size="14" id="endactive" value="1" />
+            <span>&nbsp;</span><span id="endfulltext"></span>
         </td>
       </tr>
       <tr class="vtodo">
@@ -582,7 +585,7 @@
         <td nowrap colspan="2"><roundcube:label name="calendar.mailto" />:&nbsp;<roundcube:object name="reminders_mailto" /></td>
       </tr>
       <tr>
-        <td nowrap colspan="3" id="custommail" onclick="calendar_gui.custommail()" style="display: none;"><a href="#"><roundcube:label name="calendar.custommail" /></a></td>
+        <td nowrap colspan="3" id="custommail" label="<roundcube:label name="calendar.savefirst" />" onclick="calendar_gui.custommail()" style="display: none;"><a href="#"><roundcube:label name="calendar.custommail" /></a></td>
       </tr>
     </table>
     </div>

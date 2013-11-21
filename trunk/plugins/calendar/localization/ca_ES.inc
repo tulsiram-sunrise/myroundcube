@@ -16,7 +16,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Calendari';
-$labels['plugindescription'] = 'Manega els teus esdeveniments. Pots enllaçar el calendari amb el teu calendari google o altres servidors CalDAV';
+$labels['plugindescription'] = 'Manega els teus esdeveniments.';
 $labels['calendarprovider'] = 'Proveïdor';
 $labels['forinstance'] = 'p.e.';
 $labels['caldavserver'] = 'Servidor CalDAV';
@@ -163,7 +163,6 @@ $labels['removereminders'] = 'Esborrar recordatoris';
 $labels['remindersloading'] = 'Carregant recordatoris...';
 $labels['show_upcoming_cal'] = 'Activar previsualització de esdeveniments';
 $labels['invalidresponse'] = 'Resposta invàlida de';
-$labels['verifyexpiredate'] = 'La data d\'expiració és sospitosa. La vols revisar?';
 $labels['importconfirmation'] = 'Vols importar els avents adjunts al teu calendari [%s art(s)]?';
 $labels['item'] = 'Article';
 $labels['run_tests'] = 'Provar ajustos (només administrador del calendari)';
@@ -186,7 +185,7 @@ $labels['replicationfailed'] = 'La replicació ha fallat definitivament';
 $labels['replicationincomplete'] = 'Replicació incompleta';
 $labels['reminders'] = 'Recordatoris';
 $labels['reminder'] = 'Recordatori';
-$labels['externalreminders'] = 'Servei extern de recordatoris (p.e. Google Calendar)';
+$labels['externalreminders'] = 'Servei extern de recordatoris';
 $labels['remindertype'] = 'Recordar per';
 $labels['email'] = 'Correu';
 $labels['popup'] = 'Finestra emergent';

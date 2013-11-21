@@ -835,14 +835,6 @@ EOFILTER;
 *   do_something_with_event_data( $event['data'] );
 * }
 * $acc = array();
-* $acc["google"] = array(
-* "user"=>"kunsttherapie@gmail.com",
-* "pass"=>"xxxxx",
-* "server"=>"ssl://www.google.com",
-* "port"=>"443",
-* "uri"=>"https://www.google.com/calendar/dav/kunsttherapie@gmail.com/events/",
-* );
-*
 * $acc["davical"] = array(
 * "user"=>"some_user",
 * "pass"=>"big secret",

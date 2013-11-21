@@ -16,7 +16,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Koledar';
-$labels['plugindescription'] = 'Upravljajte s svojimi dogodki s spletnim koledarjem. Ta koledar lahko povežete s svojim Google koledarjem oz. z večino CalDAV strežniki.';
+$labels['plugindescription'] = 'Upravljajte s svojimi dogodki s spletnim koledarjem.';
 $labels['calendarprovider'] = 'Ponudnik';
 $labels['forinstance'] = 'npr.';
 $labels['caldavserver'] = 'Strežnik CalDAV';
@@ -152,7 +152,6 @@ $labels['removereminders'] = 'Odstrani opomnik';
 $labels['remindersloading'] = 'Nalaganje opomnikov...';
 $labels['show_upcoming_cal'] = 'Omogoči predogled prihajajočih dogodkov';
 $labels['invalidresponse'] = 'Neveljaven odziv od';
-$labels['verifyexpiredate'] = 'Čas zapadlosti dogodka je nerazumen. Želite to preveriti?';
 $labels['importconfirmation'] = 'Želite uvoziti pripete dogodke v svoj koledar (%s)';
 $labels['item'] = 'Predmet';
 $labels['run_tests'] = 'Preiskus nastavitev (dostopno samo skrbniku)';
@@ -175,7 +174,7 @@ $labels['replicationfailed'] = 'Replikacija koledarja dokončno NI uspela';
 $labels['replicationincomplete'] = 'Replikacija koledarja je nedokončana';
 $labels['reminders'] = 'Opomniki';
 $labels['reminder'] = 'Opomnik';
-$labels['externalreminders'] = 'Zunanje storitve opomnikov (npr. Google koledar)';
+$labels['externalreminders'] = 'Zunanje storitve opomnikov';
 $labels['remindertype'] = 'Opomni preko';
 $labels['email'] = 'e-pošta';
 $labels['popup'] = 'pojavno okno';

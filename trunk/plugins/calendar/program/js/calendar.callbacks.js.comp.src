@@ -30,12 +30,14 @@ function calendar_callbacks(){
       var width, dayCol;
       if(curCalView.name == "agendaWeek"){
         dayCol = $("#calendar .fc-today:visible");
-        try{
-          left = dayCol.position().left;
-          width = dayCol.width() + 'px';
-        }
-        catch(e){
-          timeline.hide();
+        if(dayCol && dayCol.position()){
+          try{
+            left = dayCol.position().left;
+            width = dayCol.width() + 'px';
+          }
+          catch(e){
+            timeline.hide();
+          }
         }
       }
       if(curCalView.name == "agendaDay"){
@@ -370,6 +372,7 @@ function calendar_callbacks(){
     $('#event .vevent').show();
     $('#component').val('vevent');
     $('#catprotected').remove();
+    $('#custommail').attr('onclick', "calendar_gui.custommail('new')");
     var $dialogContent = $("#event");
     try{
       if($dialogContent.dialog('isOpen') === true)
@@ -423,6 +426,15 @@ function calendar_callbacks(){
     }
     $('#endtime').val(end_val);
     var s_end = $('#endtime').val();
+    var temparr = $('#startdate').val() + '-' + $('#starttime').val().replace(':', '-');
+    temparr = temparr.split('-');
+    $('#startfulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
+    temparr = $('#enddate').val() + '-' + $('#endtime').val().replace(':', '-');
+    temparr = temparr.split('-');
+    $('#endfulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
+    temparr = $('#duedate').val() + '-' + $('#duetime').val().replace(':', '-');
+    temparr = temparr.split('-');
+    $('#duefulltext').html('(' + new Date(parseInt(temparr[0]), parseInt(temparr[1]) - 1, parseInt(temparr[2]), parseInt(temparr[3]), parseInt(temparr[4]), 0).toLocaleString() + ')');
     $('#occurrences').val(0);
     var recur = $('#recursel');
     recur.val(0);
@@ -468,12 +480,11 @@ function calendar_callbacks(){
       if(recur.val() != 0){
         temparr = expires.val().split(" ");
         if(temparr[0] <= _enddate && $('#occurrences').val() == 0){
-          if(confirm(rcmail.gettext('calendar.verifyexpiredate'))){
-            $('#tab2').trigger('click');
-            expires.val(temparr[0]);
-            expires.focus();
-            return false;
-          }
+          alert(rcmail.gettext('calendar.verifyexpiredate'));
+          $('#tab2').trigger('click');
+          expires.val(temparr[0]);
+          expires.focus();
+          return false;
         }
       }     
       var eyear = date.getFullYear();
@@ -662,6 +673,7 @@ function calendar_callbacks(){
       $('#event .vtodo').hide();
       $('#event .vevent').show();
     }
+    $('#custommail').attr('onclick', "calendar_gui.custommail('edit')");
     if(event.onclick){
       if(event.onclick.indexOf('?_task=mail&_action=compose') > -1){
         if(typeof opencomposewindow == 'function'){
@@ -707,6 +719,16 @@ function calendar_callbacks(){
         event.start = new Date(event.start * 1000);
         var startactive = true;
       }
+    }
+    //display date/time
+    if(event.start != 0){
+      $('#startfulltext').html('(' + event.start.toLocaleString() + ')');
+    }
+    if(event.end != 0){
+      $('#endfulltext').html('(' + event.end.toLocaleString() + ')');
+    }
+    if(event.due != 0){
+      $('#duefulltext').html('(' + new Date(event.due * 1000).toLocaleString() + ')');
     }
     //recurring event
     if((event.clone || event.rr != 0) && event.editable){

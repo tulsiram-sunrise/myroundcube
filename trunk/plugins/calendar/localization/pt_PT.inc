@@ -16,7 +16,7 @@
 
 $labels = array();
 $labels['pluginname'] = 'Calendário';
-$labels['plugindescription'] = 'Gerir os seus eventos com o Webmail Calendário. Pode vincular o calendário com o seu Google Calendar...';
+$labels['plugindescription'] = 'Gerir os seus eventos com o Webmail Calendário.';
 $labels['calendarprovider'] = 'Fornecedor';
 $labels['forinstance'] = 'por exemplo';
 $labels['caldavserver'] = 'Servidor CalDAV';
@@ -152,7 +152,6 @@ $labels['removereminders'] = 'Remover lembretes';
 $labels['remindersloading'] = 'Carregar lembretes...';
 $labels['show_upcoming_cal'] = 'Ativar visualização de próximos eventos';
 $labels['invalidresponse'] = 'Resposta inválida de';
-$labels['verifyexpiredate'] = 'A data de expiração não é plausível. Deseja verificá-la?';
 $labels['importconfirmation'] = 'Deseja importar o(s) evento(s) anexado(s) no seu [%s item(ns)] de calendário?';
 $labels['item'] = 'Item';
 $labels['run_tests'] = 'Definições de teste (acessível apenas a administradores do calendário)';
@@ -175,7 +174,7 @@ $labels['replicationfailed'] = 'A replicação do calendário falhou';
 $labels['replicationincomplete'] = 'A replicação do calendário está incompleta';
 $labels['reminders'] = 'Lembretes';
 $labels['reminder'] = 'Lembrete';
-$labels['externalreminders'] = 'Serviço de lembretes externo (ex: Google Calendar)';
+$labels['externalreminders'] = 'Serviço de lembretes externo';
 $labels['remindertype'] = 'Lembrar por';
 $labels['email'] = 'Email';
 $labels['popup'] = 'Popup';

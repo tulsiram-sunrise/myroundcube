@@ -7,7 +7,7 @@
  * To move messages to a special archive folder.
  * Based on Mark As Junk sample plugin.
  *
- * @version 2.8.6 - 15.05.2013
+ * @version 2.9 - 16.09.2013
  * @author Andre Rodier, Thomas Bruederli, Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com 
  */
@@ -27,13 +27,13 @@ class archivefolder extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'archivefolder';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_new">Documentation</a>';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_new">Documentation</a><br /><a href="http://trac.roundcube.net/ticket/1489423" target="_new">Related Roundcube Ticket</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.8.6';
-  static private $date = '15-05-2013';
+  static private $version = '2.9';
+  static private $date = '16-09-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
+    'Roundcube' => '0.9',
     'PHP' => '5.2.1',
   );
   static private $prefs = array('archive_mbox');

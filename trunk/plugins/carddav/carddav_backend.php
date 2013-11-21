@@ -241,6 +241,21 @@ class carddav_backend
 	public function get($include_vcards = true, $raw = false)
 	{
     $this->headers = array('Depth: 1');
+    //begin patch: https://github.com/graviox/Roundcube-CardDAV/issues/28
+    /*$xml = new XMLWriter();
+    $xml->openMemory();
+    $xml->setIndent(4);
+    $xml->startDocument('1.0', 'utf-8');
+    $xml->startElement('D:propfind');
+    $xml->writeAttribute('xmlns:D', 'DAV:');
+    $xml->startElement('D:prop');
+    $xml->writeElement('D:resourcetype');
+    $xml->endElement();
+    $xml->endElement();
+    $xml->endDocument();
+    $response = $this->query($this->url, 'PROPFIND', $xml->outputMemory());
+    */
+    //end patch
     $response = $this->query($this->url, 'PROPFIND');
     if(!$response){
       //Davical ??? https://github.com/graviox/Roundcube-CardDAV/issues/29
@@ -717,6 +732,9 @@ class carddav_backend
 		$return = curl_exec($this->curl);
     if(class_exists('rcmail') && rcmail::get_instance()->config->get('carddav_debug', false)){
       write_log('CardDAV-timeline', "$method $url $content_type $return_boolean");
+      if($this->headers){
+        write_log('CardDAV-timeline', $this->headers);
+      }
       write_log('CardDAV-timeline', time() - $start);
       write_log('CardDAV-timeline', $return);
     }

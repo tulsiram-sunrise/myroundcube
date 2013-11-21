@@ -29,6 +29,9 @@ fieldset
   /*-moz-box-shadow: 1px 1px 12px #999;
   -webkit-box-shadow: #999 1px 1px 12px;*/
 }
+a.ui-state-highlight{
+  background: #111;
+}
 .buttonborder {
   border: 1px solid #AAA;
 }
@@ -67,13 +70,16 @@ fieldset
   z-index: 4000;
 }
 #taskbar a.button-planner span.button-inner{
-  background: url(images/planner.png) 4px -45px no-repeat;
+  background: #2c2c2c url(images/planner.png) 4px -45px no-repeat;
+}
+#taskbar a.button-planner{
+  background-color: #2c2c2c;
 }
 #taskbar{
-  z-index: 4999;
+  z-index: 4998;
 }
 #planner_drag_container{
-  z-index: 4998;
+  z-index: 4999;
   position: absolute;
   top: 0;
   width: 670px;

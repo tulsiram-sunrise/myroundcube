@@ -4,7 +4,7 @@
  * Save password plugin
  *
  *
- * @version 2.0 - 30.05.2013
+ * @version 2.0.1 - 10.11.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -34,8 +34,8 @@ class savepassword extends rcube_plugin
     static private $author = 'myroundcube@mail4us.net';
     static private $authors_comments = null;
     static private $download = 'http://myroundcube.googlecode.com';
-    static private $version = '2.0';
-    static private $date = '30-05-2012';
+    static private $version = '2.0.1';
+    static private $date = '10-11-2012';
     static private $licence = 'GPL';
     static private $requirements = array(
       'Roundcube' => '0.9',
@@ -54,12 +54,10 @@ class savepassword extends rcube_plugin
     function init()
     {
       /* DB versioning */
-      if(!isset(rcmail::get_instance()->user->data['password'])){
-        if(is_dir(INSTALL_PATH . 'plugins/db_version')){
-          $this->require_plugin('db_version');
-          if(!$load = db_version::exec(self::$plugin, self::$tables, self::$db_version)){
-            return;
-          }
+      if(is_dir(INSTALL_PATH . 'plugins/db_version')){
+        $this->require_plugin('db_version');
+        if(!$load = db_version::exec(self::$plugin, self::$tables, self::$db_version)){
+          return;
         }
       }
       $this->add_hook('login_after', array($this, 'savepw'));

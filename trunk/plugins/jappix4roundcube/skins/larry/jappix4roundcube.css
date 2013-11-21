@@ -1,0 +1,53 @@
+﻿#sections-table #rcmrowjabber td.section{
+  background-position: 6px -478px;
+}
+
+#taskbar a.button-jappix4roundcube span.button-inner
+{
+  background: url(chat.png) 5px 0 no-repeat;
+  height: 18px;
+}
+
+#taskbar a.button-jappix4roundcube:hover span.button-inner,
+#taskbar a.button-jappix4roundcube.button-selected span.button-inner
+{
+  background: url(chat.png) 5px -43px no-repeat;
+  height: 18px;
+}
+
+#preferences-details .propform
+{
+  font-weight: normal;
+  font-size: 11px;
+}
+
+#header
+{
+  overflow: hidden;
+}
+
+#hidelogout
+{
+  border-bottom-left-radius: 20px;
+  background-color: #111;
+  position: absolute;
+  top: 68px;
+  right: 0;
+  height: 22px;
+  width: 80px;
+  z-Index: 10000;
+  text-align: right;
+  padding-top: 3px;
+  color: #eee;
+}
+
+#hidelogout a{
+  text-decoration: none;
+  font-weigth: normal 14.6px 'PT Sans', sans-serif !important;
+  white-space: nowrap;
+  color: #eee;
+}
+
+#hidelogout a:hover{
+  text-decoration: underline;
+}

@@ -5,9 +5,9 @@
  *
  * Plugin provides a captcha challenge
  *
- * @version 3.2.9 - 29.01.2013
+ * @version 3.2.10 - 07.10.2013
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  *
  **/
  
@@ -37,12 +37,11 @@ class captcha extends rcube_plugin {
   static private $plugin = 'captcha';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = 'Since version 3.2 the captcha image is save in the session. The temporary folder (temp) can be removed.<br /><a href="http://myroundcube.com/myroundcube-plugins/captcha-plugin" target="_new">Documentation</a>';
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.2.9';
-  static private $date = '29-01-2013';
+  static private $version = '3.2.10';
+  static private $date = '07-10-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
+    'Roundcube' => '0.9',
     'PHP' => '5.2.1'
   );
   static private $prefs = null;
@@ -102,7 +101,6 @@ class captcha extends rcube_plugin {
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
@@ -330,7 +328,7 @@ class captcha extends rcube_plugin {
               <img onclick="show_riddle()" name="captcha_image" id="captcha_image" src="' .$img_fn.'" alt="' .$alt. '" title="' . $title . '"/>
               <div style="display:inline;margin-left:-20px;"><img onclick="hide_riddle();captcha_ajax()" src="plugins/captcha/' . $this->local_skin_path() . '/refresh.png" title="' . $this->gettext('captcha.reload') . '" /></div>
             </td>
-            <td nowrap>&nbsp;
+            <td nowrap>
               <input name="captcha_input" type="text" size="7" maxlength="16" autocomplete="off" />
               <input id="captcha_hash" name="captcha_hash" type="hidden" value="'.$hash. '" />
             </td></tr>

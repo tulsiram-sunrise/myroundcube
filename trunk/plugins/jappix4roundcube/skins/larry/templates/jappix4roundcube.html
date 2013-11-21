@@ -1,0 +1,37 @@
+﻿<roundcube:object name="doctype" value="html5" />
+<html>
+<head>
+<title><roundcube:object name="pagetitle" /></title>
+<roundcube:include file="/includes/links.html" />
+<style type="text/css">
+#header
+{
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+#mainscreen
+{
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+</style>
+</head>
+<body>
+<roundcube:include file="/includes/header.html" />
+<roundcube:include file="/includes/taskbar.html" />
+
+<div id="mainscreen" class="box jappix4roundcube-box">
+  <roundcube:object name="jappix4roundcubeframe" />
+</div>
+<roundcube:include file="/includes/footer.html" />
+<script type="text/javascript">
+$(window).on('beforeunload', function(){
+  $('iframe').hide();
+});
+</script>
+</body>
+</html>

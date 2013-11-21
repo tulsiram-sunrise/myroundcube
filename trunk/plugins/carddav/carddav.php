@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 5.4.10 - 12.08.2013
+ * @version 5.4.40 - 18.11.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -41,9 +41,8 @@ class carddav extends rcube_plugin{
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '5.4.10';
-  static private $date = '12-08-2013';
+  static private $version = '5.4.40';
+  static private $date = '18-11-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '0.9',
@@ -65,6 +64,8 @@ class carddav extends rcube_plugin{
   );
   static private $db_version = array(
     'initial',
+    '20130903',
+    '20131110',
   );
   static private $prefs = array(
     'automatic_addressbook',
@@ -101,6 +102,7 @@ class carddav extends rcube_plugin{
       $this->require_plugin('settings');
     }
     $this->add_hook('render_page', array($this, 'render_page'));
+    $this->add_hook('user_create', array($this, 'user_create'));
     switch($rcmail->task){
       case 'settings':
         $this->register_action('plugin.carddav-server-save', array($this, 'carddav_server_save'));
@@ -186,7 +188,7 @@ class carddav extends rcube_plugin{
         $this->add_hook('message_sent', array($this, 'register_recipients'));
         if($this->carddav_server_available()){
           $this->register_action('plugin.carddav-addressbook-sync', array($this, 'carddav_addressbook_sync'));
-          if($rcmail->action != 'compose'){
+          if($rcmail->action != 'compose' && !class_exists('tabbed')){
             $this->include_script('carddav_addressbook.js');
             $rcmail->output->set_env('sync_carddavs_interval', $rcmail->config->get('sync_carddavs_interval', 0));
           }
@@ -247,7 +249,6 @@ class carddav extends rcube_plugin{
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
@@ -281,8 +282,21 @@ class carddav extends rcube_plugin{
     $rcmail->output->command('plugin.plugin_manager_success', '');
   }
   
+  function user_create($args){
+    $_SESSION['carddav_newuser'] = true;
+    return $args;
+  }
+  
   public function render_page($p){
-    if($p['template'] == 'addressbook'){
+    if($p['template'] != 'addressbook' && $_SESSION['carddav_newuser']){
+      $rcmail = rcmail::get_instance();
+      $rcmail->output->add_footer(html::tag('iframe', array('src' => './?_task=settings&_action=edit-prefs&_section=addressbookcarddavs&_framed=1', 'height' => 0, 'width' => 0)));
+      $rcmail->session->remove('carddav_newuser');
+    }
+    else if($p['template'] == 'compose'){
+      $this->include_script('compose.js');
+    }
+    else if($p['template'] == 'addressbook'){
       if(class_exists('automatic_addressbook')){
         $error = html::tag('h3', null, 'ERROR - CardDAV (Roundcube v' . RCMAIL_VERSION . ')<hr />') .
           html::tag('p', null, 'Misconfiguration: Unregister <b>automatic_addressbook</b> in your configuration.') .
@@ -294,7 +308,54 @@ class carddav extends rcube_plugin{
     else if($p['template'] == 'contactedit'){
       $rcmail = rcmail::get_instance();
       $rcmail->output->add_footer(html::tag('div', array('id' => 'carddavoverlay')));
-      $rcmail->output->add_script('$(".mainaction").click(function(){if($(this).attr("onclick").indexOf("save") > -1) {$("#carddavoverlay").show();}});', 'docready');
+      $rcmail->output->add_script('
+        $(".mainaction").click(function(){if($(this).attr("onclick").indexOf("save") > -1) {$("#carddavoverlay").show();}});
+        if(typeof parent.rcmail.env.contactgroupmembership != "undefined" && parent.rcmail.env.contactgroupmembership != ""){
+          $("#sourcename").html($("#sourcename").html() + "<span id=\"groupmembership\"> - ' . $this->gettext('group') . ': " + parent.rcmail.env.contactgroupmembership + "</span>");
+        }
+        else{
+          $("#sourcename").html($("#sourcename").html() + "<span id=\"groupmembership\"></span>");
+        }',
+        'docready'
+      );
+    }
+    else if($p['template'] == 'contact'){
+      $rcmail = rcmail::get_instance();
+      $rcmail->output->add_script('
+        if(parent.$(".contactgroup.selected").get(0)) {
+          var groupmembership = "";
+          $(".groupmember").each(function(){
+            if($(this).prop("checked")){
+              groupmembership = groupmembership + $.trim($(this).parent().parent().text()) + ", ";
+            }
+          });
+          groupmembership = groupmembership.substr(0, groupmembership.length - 2);
+          parent.rcmail.env.contactgroupmembership = groupmembership;
+          if(groupmembership != ""){
+            $("#sourcename").html($("#sourcename").html() + "<span id=\"groupmembership\"> - ' . $this->gettext('group') . ': " + groupmembership + "</span>");
+          }
+          else{
+            $("#sourcename").html($("#sourcename").html() + "<span id=\"groupmembership\"></span>");
+          }
+          $(".groupmember").click(function(){
+            groupmembership = "";
+            $(".groupmember").each(function(){
+              if($(this).prop("checked")){
+                groupmembership = groupmembership + $.trim($(this).parent().parent().text()) + ", ";
+              }
+            });
+            groupmembership = groupmembership.substr(0, groupmembership.length - 2);
+            if(groupmembership != ""){
+              $("#groupmembership").html(" - ' . $this->gettext('groups') . ': " + groupmembership);
+            }
+            else{
+              $("#groupmembership").html(groupmembership);
+            }
+            parent.rcmail.env.contactgroupmembership = groupmembership;
+          });
+        }',
+        'docready'
+      );
     }
     else{
       $rcmail = rcmail::get_instance();
@@ -311,16 +372,18 @@ class carddav extends rcube_plugin{
   public function contact_copied($args){
     $rcmail = rcmail::get_instance();
     $CONTACTS = $rcmail->get_address_book($args['source'], true);
-    if($CONTACTS->delete(array($args['record']['ID']))){
-      $this->moved ++;
-      $message = $this->gettext('contact_moved_single');
-      if($this->moved > 1){
-        $message = $this->gettext('contact_moved_multiple');
+    if(method_exists($CONTACTS, 'delete')){
+      if($CONTACTS->delete(array($args['record']['ID']))){
+        $this->moved ++;
+        $message = $this->gettext('contact_moved_single');
+        if($this->moved > 1){
+          $message = $this->gettext('contact_moved_multiple');
+        }
+        $rcmail->output->command('plugin.carddav_addressbook_message_copied', array(
+          'message' => $this->moved . ' ' . $message
+          )
+        );
       }
-      $rcmail->output->command('plugin.carddav_addressbook_message_copied', array(
-        'message' => $this->moved . ' ' . $message
-        )
-      );
     }
     return $args;
   }
@@ -357,12 +420,12 @@ class carddav extends rcube_plugin{
             $book_types = (array)$rcmail->config->get('autocomplete_addressbooks', 'sql');
             foreach($book_types as $id){
               $abook = $rcmail->get_address_book($id);
-              $previous_entries = $abook->search('email', $contact['email'], false, false);
+              $previous_entries = $abook->search('email', $contact['email'], 1, false);
               if($previous_entries->count){
                 break;
               }
             }
-            if(!$previous_entries->count){
+             if(!$previous_entries->count){
               $plugin = $rcmail->plugins->exec_hook('contact_create', array('record' => $contact, 'source' => $this->abook_id));
               if(!$plugin['abort']){
                 $CONTACTS->insert($contact, false);
@@ -590,7 +653,7 @@ class carddav extends rcube_plugin{
         }
         $img = $autocomplete ? 'checked.png' : 'blank.gif';
         $table->add(array('align' => 'center'), html::tag('p', array('style' => 'width: 15px; height: 15px; border: 1px solid #B2B2B2; border-radius: 4px;'), html::tag('img', array('height' => '12', 'width' => '12', 'onclick' => $onclick, 'title' => $title, 'src' => $skin_path . '/' . $img))));
-        $delete = html::tag('a', array('href' => '#del', 'class' => 'deletebutton', 'title' => $this->gettext('delete'), 'onclick' => "if(confirm('" . addslashes($this->gettext('settings_delete_warning')) . "')) { if(confirm('" . addslashes($this->gettext('settings_delete_contacts_warning')) . "')) { rcmail.command('plugin.carddav-server-remove', '" . $server['carddav_server_id'] ."', this) } else { rcmail.command('plugin.carddav-server-delete', '" . $server['carddav_server_id'] ."', this)} }"), $this->gettext('delete'));
+        $delete = html::tag('a', array('href' => '#del', 'class' => 'deletebutton', 'title' => $this->gettext('delete'), 'onclick' => "if(window.confirm('" . addslashes($this->gettext('settings_delete_warning')) . "', '" . addslashes($this->gettext('settings_delete_contacts_warning_html')) . "', 'rcmail.command(\'plugin.carddav-server-remove\', \'" . $server['carddav_server_id'] ."\', this)', 'rcmail.command(\'plugin.carddav-server-delete\', \'" . $server['carddav_server_id'] ."\', this)', true)) { if(window.confirm('" . addslashes($this->gettext('settings_delete_contacts_warning')) . "')) { rcmail.command('plugin.carddav-server-remove', '" . $server['carddav_server_id'] ."', this) } else { rcmail.command('plugin.carddav-server-delete', '" . $server['carddav_server_id'] ."', this)} }"), $this->gettext('delete'));
         if(isset($urls[$server['url']]) || ($this->carddav_addressbook . $server['carddav_server_id']) == $autoabook){
           unset($urls[$server['url']]);
           $delete = '&nbsp;';
@@ -777,7 +840,7 @@ class carddav extends rcube_plugin{
 
   public function carddav_server_check_connection(){
     $rcmail = rcmail::get_instance();
-    $url = get_input_value('_server_url', RCUBE_INPUT_POST);
+    $url = trim(get_input_value('_server_url', RCUBE_INPUT_POST));
     $username = parse_input_value(base64_decode($_POST['_username']));
     $password = parse_input_value(base64_decode($_POST['_password']));
     if($password == '%p'){
@@ -796,30 +859,34 @@ class carddav extends rcube_plugin{
   }
 
   public function carddav_link($args){
-    $args['list']['addressbookcarddavs']['section'] = $this->gettext('submenuprefix') . $this->gettext('settings');
-    $args['list']['addressbookcarddavs']['id'] = 'addressbookcarddavs';
-    $args['list']['addressbooksharing']['id'] = 'addressbooksharing';
-    $args['list']['addressbooksharing']['section'] = $this->gettext('submenuprefix') . $this->gettext('sharing');
+    if(class_exists('carddav_plus') && !rcmail::get_instance()->config->get('carddav_protect', false)){
+      $args['list']['addressbookcarddavs']['section'] = $this->gettext('submenuprefix') . $this->gettext('settings');
+      $args['list']['addressbookcarddavs']['id'] = 'addressbookcarddavs';
+    }
+    if(class_exists('carddav_plus') && class_exists('sabredav')){
+      $args['list']['addressbooksharing']['id'] = 'addressbooksharing';
+      $args['list']['addressbooksharing']['section'] = $this->gettext('submenuprefix') . $this->gettext('sharing');
+    }
     return $args;
   }
 
   public function carddav_settings($args){
-    if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('addressbook')) == 'addressbook' && class_exists('carddav_plus')){
-      $args['blocks'][$args['section']]['options'] = array(
-        'title'   => '',
-        'content' => html::tag('div', array('id' => 'pm_dummy'), '')
-      );
-      return $args;
-    }
-    $addressbooks = array();
-    if($args['section'] == 'addressbook'){
-      $addressbooks = (array) $this->get_carddav_addressbook_sources(false);
-    }
-    $list = false;
-    if($args['section'] == 'addressbookcarddavs'){
-      $list = $this->get_carddav_server_list();
-    }
-    if(class_exists('carddav_plus') && !rcmail::get_instance()->config->get('carddav_protect', false)){
+    if(class_exists('carddav_plus')){
+      if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('addressbook')) == 'addressbook'){
+        $args['blocks'][$args['section']]['options'] = array(
+          'title'   => '',
+          'content' => html::tag('div', array('id' => 'pm_dummy'), '')
+        );
+        return $args;
+      }
+      $addressbooks = array();
+      if($args['section'] == 'addressbook'){
+        $addressbooks = (array) $this->get_carddav_addressbook_sources(false);
+      }
+      $list = false;
+      if($args['section'] == 'addressbookcarddavs'){
+        $list = $this->get_carddav_server_list();
+      }
       $args = carddav_plus::carddav_settings($args, $addressbooks, $list);
     }
     return $args;
@@ -835,13 +902,13 @@ class carddav extends rcube_plugin{
 
   public function carddav_server_save(){
     $rcmail = rcmail::get_instance();
-    if($this->carddav_server_check_connection()){
+    if($ret = $this->carddav_server_check_connection()){
       $user_id = $rcmail->user->data['user_id'];
       //https://code.google.com/p/myroundcube/issues/detail?id=411
-      $url = get_input_value('_server_url', RCUBE_INPUT_POST);
+      $url = trim(get_input_value('_server_url', RCUBE_INPUT_POST));
       $parsed = parse_url($url);
       $parsed['path'] = $this->sanitize(urldecode($parsed['path']));
-      $url = $parsed['scheme'] . '://' . $parsed['host'] . $parsed['path'] . ($parsed['query'] ? ('?' . $parsed['query']) : '');
+      $url = $parsed['scheme'] . '://' . $parsed['host'] . ($parsed['port'] ? (':' . $parsed['port']) : '') . $parsed['path'] . ($parsed['query'] ? ('?' . $parsed['query']) : '');
       $username = parse_input_value(base64_decode($_POST['_username']));
       $password = parse_input_value(base64_decode($_POST['_password']));
       $label = parse_input_value(base64_decode($_POST['_label']));
@@ -884,20 +951,23 @@ class carddav extends rcube_plugin{
         $rcmail->output->command('plugin.carddav_server_message', array(
           'server_list' => $this->get_carddav_server_list(),
           'message' => $this->gettext('settings_saved'),
-          'check' => true
+          'check' => true,
+          'tabbed' => true,
         ));
       }
       else{
         $rcmail->output->command('plugin.carddav_server_message', array(
           'message' => $this->gettext('settings_save_failed'),
-          'check' => false
+          'check' => false,
+          'tabbed' => true,
         ));
       }
     }
     else{
       $rcmail->output->command('plugin.carddav_server_message', array(
         'message' => $this->gettext('settings_no_connection'),
-        'check' => false
+        'check' => false,
+        'tabbed' => true,
       ));
     }
   }
@@ -912,6 +982,7 @@ class carddav extends rcube_plugin{
     if($rcmail->db->affected_rows()){
       $rcmail->output->command('plugin.carddav_server_success', array(
         'message' => $this->gettext('successfullysaved'),
+        'tabbed' => true,
       ));
     }
   }
@@ -926,6 +997,7 @@ class carddav extends rcube_plugin{
     if($rcmail->db->affected_rows()){
       $rcmail->output->command('plugin.carddav_server_success', array(
         'message' => $this->gettext('successfullysaved'),
+        'tabbed' => true,
       ));
     }
   }
@@ -940,6 +1012,7 @@ class carddav extends rcube_plugin{
     if($rcmail->db->affected_rows()){
       $rcmail->output->command('plugin.carddav_server_success', array(
         'message' => $this->gettext('successfullysaved'),
+        'tabbed' => true,
       ));
     }
   }
@@ -1050,13 +1123,15 @@ class carddav extends rcube_plugin{
       $rcmail->output->command('plugin.carddav_server_message', array(
         'server_list' => $this->get_carddav_server_list(),
         'message' => $this->gettext('settings_deleted'),
-        'check' => true
+        'check' => true,
+        'tabbed' => true,
       ));
     }
     else{
       $rcmail->output->command('plugin.carddav_server_message', array(
         'message' => $this->gettext('settings_delete_failed'),
-        'check' => false
+        'check' => false,
+        'tabbed' => true
       ));
     }
   }
