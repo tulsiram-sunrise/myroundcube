@@ -256,6 +256,7 @@ table.records-table {
   position: absolute;
   top: 20px;
   left: 0;
+  bottom: 0;
   right: 450px;
   /*height: 100%;*/
   overflow: auto;

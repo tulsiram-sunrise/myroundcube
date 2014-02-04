@@ -71,3 +71,20 @@ VERSION                COMMENT
 16.1.22                - Implemented calendar sharing invitations
 16.1.23                - Improved custom reminders dialog
 16.1.24                - Implemented output buffering for feeds
+16.1.25                - Bugfix: https://code.google.com/p/myroundcube/issues/detail?id=601
+16.1.26                - Implemented mysqladmin support
+16.1.27                - Added User-Agent header to cURL requests
+16.1.28 - 16.1.29      - GUI improvement: https://code.google.com/p/myroundcube/issues/detail?id=597
+16.1.30                - Fix import ToDo's
+16.1.31                - Make sure to display birthdays in the right color when Roundcube localization is changed
+16.1.32                - CalDAV replication timeout is now configurable
+                         ($rcmail_config['caldav_replication_timeout'] = 60 [seconds per year])
+17.0                   - Implemented Google oAuth2
+17.0.1 - 17.0.2        - Bugfix: PHP Warning:  array_merge() [<a href='function.array-merge'>function.array-merge</a>]:
+                                 Argument #2 is not an array in \plugins\calendar\program\utils.php on line 79
+17.0.3                 - Fix missing scrollbars in month view
+17.0.4                 - Recoded notifications (https://code.google.com/p/myroundcube/issues/detail?id=626)
+17.0.5                 - Prevent deleting of entire CalDAV resources
+17.0.6                 - Make it possible to use Google as default CalDAV (requires google_oauth2)
+17.0.7 - 17.0.8        - Remember default CalDAV to make it easier to switch between Google CalDAV backend and other CalDAVs
+17.0.9                 - Bugfix: http://code.google.com/p/myroundcube/issues/detail?id=630

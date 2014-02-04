@@ -38,7 +38,7 @@ class CalDAVClient {
   *
   * @var string
   */
-  var $user_agent = 'DAViCalClient';
+  var $user_agent = 'MyRoundcube PHP/5.0';
 
   var $headers = array();
   var $body = "";
@@ -61,6 +61,9 @@ class CalDAVClient {
   * @param bool $debug       Debug logging
   */
   function CalDAVClient( $base_url, $user, $pass, $auth = 'basic', $debug = false ) {
+    if(!$base_url || $base_url == '/'){
+      return false;
+    }
     $this->user = $user;
     $this->pass = $pass;
     $this->auth = $auth;
@@ -114,9 +117,9 @@ class CalDAVClient {
   }
 
   /**
-  * Add a Depth: header.  Valid values are 1 or infinity
+  * Add a User-Agent: header.
   *
-  * @param int $depth  The depth, default to infinity
+  * @param sring $user_agent  The User Agent identifier
   */
   function SetUserAgent( $user_agent = null ) {
     if ( !isset($user_agent) ) $user_agent = $this->user_agent;
@@ -190,14 +193,22 @@ class CalDAVClient {
   */
   function DoRequest( $relative_url = "" ) {
     if(!defined("_FSOCK_TIMEOUT")){ define("_FSOCK_TIMEOUT", 10); }
+    if(!$this->base_url){
+      return false;
+    }
     if(!function_exists('curl_init')){
-      $headers[] = $this->requestMethod." ". slashify($this->base_url) . $relative_url . $this->query_string . " HTTP/1.1";
+      $headers[] = $this->requestMethod." ". slashify(str_replace("//", "/", $this->base_url)) . $relative_url . $this->query_string . " HTTP/1.1";
       if($this->auth == 'detect'){
-        if($auth = $this->GetAuthHeader())
+        if($auth = $this->GetAuthHeader()){
           $headers[] = $auth;
+        }
       }
-      else if($this->auth == 'basic')
-        $headers[] = "Authorization: Basic ".base64_encode($this->user .":". $this->pass );
+      else if($this->auth == 'basic'){
+        $headers[] = "Authorization: Basic " . base64_encode($this->user . ":" . $this->pass );
+      }
+      else if($this->auth == 'bearer'){
+        $headers[] = "Authorization: Bearer " . $_SESSION['access_token'];
+      }
       $headers[] = "Host: ".$this->server .":".$this->port;
 
       foreach( $this->headers as $ii => $head ) {
@@ -207,7 +218,7 @@ class CalDAVClient {
       $headers[] = "User-Agent: " . $this->user_agent;
       $headers[] = "http" . (rcube_https_check() ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
       $headers[] = 'Connection: close';
-      $this->httpRequest = join("\r\n",$headers);
+      $this->httpRequest = join("\r\n", $headers);
     
       $this->xmlRequest = $this->body;
 
@@ -231,7 +242,7 @@ class CalDAVClient {
       if($this->protocol == ssl)
         $s = 's';
       $ch = curl_init();
-      curl_setopt($ch, CURLOPT_URL, 'http'.$s.'://'.$this->server.':'.$this->port.slashify($this->base_url).$relative_url.$this->query_string);
+      curl_setopt($ch, CURLOPT_URL, 'http'.$s.'://'.$this->server.':'.$this->port.slashify(str_replace("//", "/", $this->base_url)).$relative_url.$this->query_string);
       if($this->debug){
         write_log('cURL', "\r\nMethod: ".$this->requestMethod);
         write_log('cURL', "\r\nRequest:\r\n__________\r\n" . 'http'.$s.'://'.$this->server.':'.$this->port.slashify($this->base_url).$relative_url.$this->query_string."\r\n\r\n" .$this->body);
@@ -240,14 +251,21 @@ class CalDAVClient {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
       curl_setopt($ch, CURLOPT_HEADER, TRUE);
       curl_setopt($ch, CURLOPT_TIMEOUT, _FSOCK_TIMEOUT);
-      if($this->auth == 'basic')
+      if($this->auth == 'basic'){
         $auth = CURLAUTH_BASIC;
-      else
+      }
+      else if($this->auth == 'bearer'){
+        $this->headers[] = 'Authorization: Bearer ' . $_SESSION['access_token'];
+      }
+      else{
         $auth = CURLAUTH_ANY;
+      }
       curl_setopt($ch, CURLOPT_HTTPAUTH, $auth);
       curl_setopt($ch, CURLOPT_USERPWD, $this->user.':'.$this->pass);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->requestMethod);
       curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
+      $this->headers[] = 'User-Agent: ' . $this->user_agent;
+      $this->headers = array_values(array_unique($this->headers));
       curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
       curl_setopt($ch, CURLOPT_REFERER, 'http' . (rcube_https_check() ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF']);
       $rsp = curl_exec($ch);

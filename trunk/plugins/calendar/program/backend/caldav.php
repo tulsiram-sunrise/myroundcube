@@ -206,9 +206,6 @@ final class calendar_caldav extends Backend{
       }
       if(strpos($url, '?') === false)
         $url = slashify($url);
-      if($url == "/"){
-        $url = 'https://www.google.com/calendar/dav/john.doe@gmail.com/events/';
-      }
       if(!$auth){
         $auth = 'detect';
       }
@@ -269,12 +266,17 @@ final class calendar_caldav extends Backend{
         }
       }
       if($request == 'DELETE'){
-        $code = $this->caldav->DoDELETERequest($caldav_props[0]);
-        if(substr($code, 0, 1) != 2){
-          return false;
+        if($caldav_props[0] && strlen($caldav_props[0]) > 0){
+          $code = $this->caldav->DoDELETERequest($caldav_props[0]);
+          if(substr($code, 0, 1) != 2){
+            return false;
+          }
+          else{
+            return true;
+          }
         }
         else{
-          return true;
+          return false;
         }
       }
       else if($request == 'PUT'){
@@ -285,7 +287,7 @@ final class calendar_caldav extends Backend{
         if($ret){
           if(stripos($ret, 'HTTP/1.1') !== false){
             $code = $this->caldav->resultcode;
-            if($code == 403 || $code == 404 || $code == 412){
+            if($code == 403 || $code == 404 || $code == 412 || $code == 401){
               return false;
             }
             if($code == 201 || $code == 204 || $caldav_props[2] == '*'){
@@ -1014,6 +1016,7 @@ PROPP;
         $this->url,
         date('Y-m-d H:i:s', time())
       );
+
       $events = $this->getEventsByUID($uid);
       //find me: investigate why this is here ...
       if(
@@ -1028,6 +1031,7 @@ PROPP;
       ){
         $events[0]['sync'] = $this->syncCalDAV($events,'PUT',$categories,$component);
       }
+
       $this->scheduleReminders($events[0]);
       return $events[0];
     }
@@ -1451,7 +1455,7 @@ PROPP;
         $query = $this->rcmail->db->query(
           "UPDATE " . $this->table('events') . " 
           SET ".$this->q('del')."=?, ".$this->q('timestamp')."=?
-          WHERE ".$this->q('user_id')."=? AND " . $this->q('url') . "IS NULL",
+          WHERE ".$this->q('user_id')."=? AND " . $this->q('url') . " IS NULL",
           2,
           date('Y-m-d H:i:s', time()),
           $this->rcmail->user->ID
@@ -1743,7 +1747,6 @@ PROPP;
     $component = 'vevent'
   ) {
     if (!empty($this->rcmail->user->ID)) {
-    if($component == 'vtodo')
        // find me: memory exhaustion?
       $start = strtotime(date('Y', strtotime('-100 years')) . '-01-01') - 1;
       $end = $eend + 1;

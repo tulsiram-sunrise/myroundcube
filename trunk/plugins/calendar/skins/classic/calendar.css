@@ -154,7 +154,7 @@ ul.caltoolbarmenu li input {
   margin: 0 auto;
   position: absolute;
   top: 20px;
-  height: 100%;
+  bottom: 0;
   left: 0;
   right: 450px;
   overflow: auto;

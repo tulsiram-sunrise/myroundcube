@@ -161,6 +161,7 @@ $labels['edited_by'] = 'Calendar has been modified by';
 $labels['addicalmsg'] = 'Import all events into calendar';
 $labels['icalsavefailed'] = 'Unable to import calendar file';
 $labels['importedsuccessfully'] = 'Successfully imported';
+$labels['importedsuccessfullycnt'] = 'Successfully imported (%s item[s])';
 $labels['switch_calendar'] = 'Switch calendar';
 $labels['user'] = 'Users';
 $labels['cal_user'] = 'Calendar user';
@@ -243,6 +244,7 @@ $labels['replicationtimeout'] = 'Calendar synchronization timed out';
 $labels['resumereplication'] = 'Resume synchronization';
 $labels['replicationfailed'] = 'Calendar synchronization failed definitely';
 $labels['replicationincomplete'] = 'Calendar synchronization is incomplete';
+$labels['noresource'] = 'Please add or subscribe a CalDAV calendar in order to be able to modify calendar';
 $labels['reminders'] = 'Reminders';
 $labels['reminder'] = 'Reminder';
 $labels['externalreminders'] = 'External reminder service';
@@ -306,7 +308,9 @@ $labels['nodate'] = 'No date';
 $labels['notasks'] = 'No tasks found for the given criteria';
 $labels['mowthelawn'] = 'Mow the lawn';
 $labels['component'] = 'Component';
+$labels['dst'] = 'DST';
 $labels['submenuprefix'] = '» ';
+$labels['googledisabled'] = 'Please authorize access to your Google account (browse to <i>"Settings"</i> -> <i>"Server Settings"</i> and proceed).';
 $labels['undefined'] = '---';
 
 ?>

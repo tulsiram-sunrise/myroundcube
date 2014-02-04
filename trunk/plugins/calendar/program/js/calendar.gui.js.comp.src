@@ -153,7 +153,7 @@ function calendar_gui(){
         $('#' + idu).hide();
       }
       rcmail.env.subscriptiondata = $('#subscription_form').serialize();
-      rcmail.env.subscriptionsubmit = window.setTimeout("$('#calendaroverlay').show();rcmail.http_post('plugin.calendar_subscribe', rcmail.env.subscriptiondata);rcmail.env.subscriptiondata=false;rcmail.env.subscriptionsubmit=false", 2500);
+      rcmail.env.subscriptionsubmit = window.setTimeout("$('#calendaroverlay').show();rcmail.http_post('plugin.calendar_subscribe', rcmail.env.subscriptiondata);rcmail.env.subscriptiondata=false;rcmail.env.subscriptionsubmit=false;", 2500);
     });
     
     $('#subscriptions-table').mouseleave(function(){
@@ -656,10 +656,34 @@ function calendar_gui(){
     }
     
     // reminder enable/disable controls
-    this.reminderControls = function(){
+    this.reminderControls = function(date){
+      if(date && date.getTime() < new Date().getTime() - 60000){
+        $('#reminderenable').prop('disabled', true);
+        $('#reminderdisable').prop('disabled', true);
+        $('#minsel').prop('disabled', true);
+        $('#hoursel').prop('disabled', true);
+        $('#daysel').prop('disabled', true);
+        $('#weeksel').prop('disabled', true);
+        $('#reminderminutesbefore').prop('disabled', true);
+        $('#reminderhoursbefore').prop('disabled', true);
+        $('#reminderdaysbefore').prop('disabled', true);
+        $('#reminderweeksbefore').prop('disabled', true);
+        $('#customreminder').prop('disabled', true);
+        $('#remindertype').prop('disabled', true);
+        $('#remindermailto').prop('disabled', true);
+        return
+      }
+      else{
+        $('#reminderenable').prop('disabled', false);
+        $('#reminderdisable').prop('disabled', false);
+      }
       var stat = true;
       if($('#reminderenable').prop('checked')){
         stat = false;
+      }
+      else{
+        $('#remindercustom').val('--');
+        $('#customreminder').prop('checked', false);
       }
       $('#minsel').prop('disabled', stat);
       $('#hoursel').prop('disabled', stat);
@@ -671,8 +695,8 @@ function calendar_gui(){
       $('#reminderhoursbefore').prop('disabled', stat);
       $('#reminderdaysbefore').prop('disabled', stat);
       $('#reminderweeksbefore').prop('disabled', stat);
+      $('#remindertype').prop('disabled', stat);
       $('#remindermailto').prop('disabled', stat);
-
     }
     
     $('#reminderenable').click(function(){
@@ -704,10 +728,7 @@ function calendar_gui(){
       $('#weeksel').attr('checked',true);
     });
     $('#customreminder').click(function(){
-      if($('#remindercustom').val() == '--'){
-        $('#customreminder').attr('checked',false);
-        $('#hoursel').attr('checked',true);
-      }
+      $('#remindercustom').focus();
     });
       
     /* init Accordion */
@@ -1151,6 +1172,17 @@ function calendar_gui(){
     $('#remindercustom').val('--');
     if(date.getTime() > new Date().getTime()){
       $('#remindercustom').datetimepicker({
+        beforeShow: function(){
+          if($('#reminderenable').prop('checked') === false){
+            window.setTimeout("$('#remindercustom').datetimepicker('hide');", 10);
+          }
+        },
+        onClose: function(){
+          if($('#remindercustom').val() == '--'){
+            $('#customreminder').attr('checked',false);
+            $('#hoursel').attr('checked',true);
+          }
+        },
         timeText: rcmail.gettext('timeText','calendar'),
         hourText: rcmail.gettext('hourText','calendar'),
         minuteText: rcmail.gettext('minuteText','calendar'),

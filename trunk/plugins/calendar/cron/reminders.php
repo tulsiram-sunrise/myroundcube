@@ -280,7 +280,7 @@ $result = $rcmail->db->query(
 
 $db_config = $rcmail->db->fetch_assoc($result);
 
-$srcmail_config = $rcmail_config;
+$srcmail_config = (array) $rcmail_config;
 $rcmail_config = array();
 
 if(is_array($db_config)){

@@ -42,7 +42,7 @@ function calendar_replicate(){
     else{
       // find me: show something in upcoming cal
     }
-    replication_setTimeout = window.setTimeout('calendar_replicate.timeout()', 1000 * 60);
+    replication_setTimeout = window.setTimeout('calendar_replicate.timeout()', 1000 * rcmail.env.calsettings.settings.caldav_replication_timeout);
     if(rcmail.env.noreplication){
       calendar_replicate.done('_' + Math.round(new Date().getTime() / 1000, 0), false)
     }

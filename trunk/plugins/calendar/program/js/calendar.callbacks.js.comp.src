@@ -368,6 +368,11 @@ function calendar_callbacks(){
       rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
       return;
     }
+    if($('#categories_html').text() == '--'){
+      $('#subscriptionlink').trigger('click');
+      rcmail.display_message(rcmail.gettext('noresource', 'calendar'), 'error');
+      return;
+    }
     $('#event .vtodo').hide();
     $('#event .vevent').show();
     $('#component').val('vevent');
@@ -395,7 +400,7 @@ function calendar_callbacks(){
     calendar_gui.initStartdateDatepicker(date,response);
     calendar_gui.initEnddateDatepicker(endtime,response);
     calendar_gui.initReminderDatepicker(date,response);
-    calendar_gui.reminderControls();
+    calendar_gui.reminderControls(date);
     var summary = $('#summary');
     var description = $('#description');
     var categories = $('#categories');
@@ -658,6 +663,11 @@ function calendar_callbacks(){
       rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
       return;
     }
+    if($('#categories_html').text() == '--'){
+      $('#subscriptionlink').trigger('click');
+      rcmail.display_message(rcmail.gettext('noresource', 'calendar'), 'error');
+      return;
+    }
     var evt = event;
     if(!component && event.component){
       component = event.component;
@@ -721,13 +731,13 @@ function calendar_callbacks(){
       }
     }
     //display date/time
-    if(event.start != 0){
+    if(event.start && event.start != 0){
       $('#startfulltext').html('(' + event.start.toLocaleString() + ')');
     }
-    if(event.end != 0){
+    if(event.end && event.end != 0){
       $('#endfulltext').html('(' + event.end.toLocaleString() + ')');
     }
-    if(event.due != 0){
+    if(event.due && event.due != 0){
       $('#duefulltext').html('(' + new Date(event.due * 1000).toLocaleString() + ')');
     }
     //recurring event
@@ -1035,21 +1045,11 @@ function calendar_callbacks(){
     }
     if(event.remindermailto){
       var opt = event.remindermailto;
-      if($('#remindermailto option[value="' + opt + '"]').length > 0){
-        // find me: fix for shared CalDAVs to prevent overwriting of Attendee property
-        if(rcmail.env.cal_backend == 'caldav'){
-          rcmail.env.cal_remindermailto = $('#remindermailto').html();
-          $('#remindermailto').html('<option value="' + event.remindermailto + '">' + event.remindermailto + '</option>');
-        }
+      $('#remindermailto').val(opt);
+      if($('#remindermailto').val() != opt){
+        // Fix for shared CalDAVs to prevent overwriting of Attendee property
+        $('#remindermailto').html($('#remindermailto').html() + '<option value="' + opt + '">' + opt + '</option>');
         $('#remindermailto').val(opt);
-      }
-      else{
-        if(event.remindermailto != 0){
-          var html = $('#remindermailto').html();
-          html = html + '<option value="' + event.remindermailto + '">' + event.remindermailto + '</option>' + "\r\n";
-          $('#remindermailto').html(html);
-          $('#remindermailto').val(opt);
-        }
       }
     }
     if(event.reminder > 0){
@@ -1107,7 +1107,7 @@ function calendar_callbacks(){
     else{
       $('#hoursel').attr('checked',true);
     }
-    calendar_gui.reminderControls();
+    calendar_gui.reminderControls(event.start);
     if(event.initial){
       rcmail.env.event_initial = false;
     }

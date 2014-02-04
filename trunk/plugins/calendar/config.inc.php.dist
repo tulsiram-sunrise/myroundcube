@@ -48,8 +48,25 @@ $rcmail_config['cal_short_urls'] = false;
    %p  will be replaced by Roundcube Login Password
    %c  will be replaced by the category a CalDAV is associated with
 */
+
+/* Google example (requires 'google_oauth2' plugin) */
+/*
+  $rcmail_config['default_caldav_backend'] = array(
+    'provider' => 'Google',
+    'user' => '***TOKEN***',
+    'pass' => '%t',
+    'principals' => 'https://apidata.googleusercontent.com/caldav/v2/%u/user',
+    'home' => 'https://apidata.googleusercontent.com/caldav/v2/%u/events',
+    'url' => 'https://apidata.googleusercontent.com/caldav/v2/%u/events',
+    'cat' => 'https://apidata.googleusercontent.com/caldav/v2/%u/events',
+    'auth' => 'bearer',
+    'extr' => true,
+  );
+*/
+
 /* SabreDAV example */
 $rcmail_config['default_caldav_backend'] = array(
+  'provider' => 'MyServiceName',
   'user' => '%u',
   'pass' => '%p',
   'principals' => '',
@@ -111,6 +128,11 @@ $rcmail_config['caldav_hidden_collections'] = array(
   '/calendars/tasks',
 );
 
+/* CalDAV Replication timeout
+   Assume timeout if replication for one your didn't terminate after (x) seconds
+*/
+$rcmail_config['replication_timeout'] = 60;
+
 /* CalDAV Replication
    fetch events (x) years in past and (y) years in future
 */
@@ -118,6 +140,9 @@ $rcmail_config['caldav_replication_range'] = array(
   'past'   => 2, // (x)
   'future' => 2, // (y)
 );
+
+/* Hide tasks section by default */
+$rcmail_config['tasks_section'] = true;
 
 /* Tasks Replication */
 $rcmail_config['caldav_replication_range_tasks'] = 92; // days
@@ -255,7 +280,7 @@ $rcmail_config['default_duration'] = '1.00';
 
 // event feeds (can be deleted by user; use it for pre-settings)
 $rcmail_config['calendarfeeds'] = array(
-  'http://www.google.com/calendar/feeds/german__de@holiday.calendar.google.com/public/basic' => 'Google',
+  //'http://www.google.com/calendar/feeds/german__de@holiday.calendar.google.com/public/basic' => 'Holidays',
 );
 
 /* public feeds (can't be deleted by user; inject here feeds which all users should see)

@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 09/08/2013 08:36:35
+ | Author: myroundcube@mail4us.net - 11/25/2013 09:35:34
  +-----------------------------------------------------------------------+
 */
 
@@ -41,9 +41,20 @@ $labels['add_feed'] = 'Feed hinzufügen';
 $labels['remove_feed'] = 'Feed entfernen';
 $labels['sharing'] = 'Freigaben';
 $labels['share'] = 'Freigeben';
+$labels['shareinvitation'] = 'Einladung versenden';
+$labels['send'] = 'Versenden';
+$labels['cancel'] = 'Abbrechen';
+$labels['resource'] = 'CalDAV-Kalender';
+$labels['label'] = 'Titel';
+$labels['url'] = 'URL';
+$labels['access'] = 'Zugang';
+$labels['username'] = 'Benutzer';
+$labels['tutorials'] = 'Tutorial';
+$labels['checkresources'] = 'Bitte eine Resource auswählen';
+$labels['checkatleastoneresource'] = 'Bitte wählen Sie zumindest eine Resource aus';
+$labels['invitationsubject'] = '%s möchte Ihnen Zugang zu einem CalDAV-Kalender gewähren';
 $labels['copytoclipboard'] = 'In die Zwischenablage kopieren';
 $labels['copiedtoclipboard'] = 'Die Zwischenablage enthält';
-$labels['resource'] = 'CalDAV-Kalender';
 $labels['caltoken'] = 'Token';
 $labels['confidentialcaldavaccess'] = 'Vertraulicher CalDAV-Zugang [%s]';
 $labels['readwrite'] = 'Schreibzugriff';
@@ -62,7 +73,7 @@ $labels['event_modified'] = 'Ein Kalendereintrag wurde hinzugefügt oder geände
 $labels['event_deleted'] = 'Ein Kalendareintrag wurde gelöscht (%s).';
 $labels['regards'] = 'Mit freundlichen Grüßen,';
 $labels['administrator'] = 'Ihr Administrator';
-$labels['notify_footer'] = 'Sie erhalten die Email, weil Sie die Option "Benachrichtigun bei Änderungen durch Dritte" ausgewählt haben. Bitte antworten Sie nicht auf diese Nachricht. Im Falle eines Missbrauchs oder nicht authorisierten Zugriffs, schließen Sie bitte Ihre Kalenderfreigaben.';
+$labels['notify_footer'] = 'Sie erhalten die Email, weil Sie die Option "Benachrichtigun bei Änderungen durch Dritte" ausgewählt haben. Bitte antworten Sie nicht auf diese Nachricht. Im Falle eines Missbrauchs oder nicht autorisierten Zugriffs, schließen Sie bitte Ihre Kalenderfreigaben.';
 $labels['notify_details'] = 'Details:';
 $labels['minutes'] = 'Minuten';
 $labels['replicateautomatically'] = 'Synchronisierung automatisch erneuern nach';
@@ -113,7 +124,6 @@ $labels['hide_tasks'] = 'Aufgaben verbergen';
 $labels['show_tasks'] = 'Aufgaben anzeigen';
 $labels['save'] = 'Speichern';
 $labels['remove'] = 'Entfernen';
-$labels['cancel'] = 'Abbrechen';
 $labels['summary'] = 'Zusammenfassung';
 $labels['description'] = 'Beschreibung';
 $labels['all-day'] = 'ganztägig';
@@ -231,6 +241,7 @@ $labels['replicationtimeout'] = 'Zeitüberschreitung bei der Synchronisierung de
 $labels['resumereplication'] = 'Erneuter Versuch ...';
 $labels['replicationfailed'] = 'Abgleich des Kalenders ist endgültig gescheitert';
 $labels['replicationincomplete'] = 'Abgleich des Kalenders ist unvollständig';
+$labels['noresource'] = 'Es ist kein Kalender abonniert.';
 $labels['reminders'] = 'Erinnerungen';
 $labels['reminder'] = 'Erinnerung';
 $labels['externalreminders'] = 'Externer Dienst';
@@ -246,6 +257,7 @@ $labels['other'] = 'andere';
 $labels['reminderenable'] = 'Erinnerung einschalten';
 $labels['reminderdisable'] = 'Erinnerung ausschalten';
 $labels['customreminder'] = 'Benutzerdefiniert';
+$labels['savefirst'] = 'Individuelle Erinnerungen können nur mit bereits existierenden Einträgen verknüpft werden. Bitte speichern Sie deshalb den Eintrag zuerst.';
 $labels['starts'] = 'Beginnt';
 $labels['ends'] = 'Endet';
 $labels['at'] = 'am';
@@ -294,6 +306,8 @@ $labels['notasks'] = 'Kein Aufgaben vorhanden';
 $labels['mowthelawn'] = 'Rasenmähen';
 $labels['component'] = 'Komponente';
 $labels['submenuprefix'] = '» ';
+$labels['dst'] = 'Sommerzeit';
+$labels['googledisabled'] = 'Bitte autorisieren Sie den Zugriff auf Ihr Google-Konto. Navigieren Sie dazu zu <i>"Einstellungen"</i> -> <i>"Server-Einstellungen"</i>.';
 $labels['undefined'] = '---';
 
 ?>

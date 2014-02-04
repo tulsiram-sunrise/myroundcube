@@ -3,12 +3,14 @@ class Utils
 {
   private $rcmail = null;
   private $backend = null;
+  private $importcnt = 0;
   public $categories = array();
 
   public function __construct($rcmail, $backend='dummy') {
     $this->rcmail = $rcmail;
     $this->backend = $backend;
-    $this->categories = array_merge((array)$rcmail->config->get('categories',array()), (array)$rcmail->config->get('public_categories',array()));
+    $this->categories = array_merge((array)$rcmail->config->get('categories', array()), (array)$rcmail->config->get('public_categories', array()));
+    $this->categories = array_merge($this->categories, (array)$rcmail->config->get('google_category', array()));
   }
   /**
    * Flatten an array
@@ -73,6 +75,9 @@ class Utils
         $prefs['public_categories'] = $this->rcmail->config->get('public_categories', array());
       }
       $this->categories = array_merge($prefs['categories'], $prefs['public_categories']);
+      if(is_array($prefs['google_category'])){
+        $this->categories = array_merge($this->categories, $prefs['google_category']);
+      }
     }
     if(!$category)
       $category = $event['categories'];
@@ -183,6 +188,7 @@ class Utils
     $http = new MyRCHttp;
     $httpConfig['method'] = 'GET';
     $httpConfig['target'] = $url;
+    $httpConfig['user_agent'] = 'MyRoundcube PHP/5.0';
     $http->initialize($httpConfig); 
     if(ini_get('safe_mode') || ini_get('open_basedir')){
       $http->useCurl(false);
@@ -250,7 +256,8 @@ class Utils
    * @param  array Associative events array
    * @access public
    */
-  public function importEvents($events,$userid=false,$echo=false,$idoverwrite=false,$item=false,$client=false,$className=false,$href=false,$etag=false,$type='events') {
+  public function importEvents($events,$userid=false,$echo=false,$idoverwrite=false,$item=false,$client=false,$className=false,$href=false,$etag=false,$type='events',$recurse=false) {
+    $args = func_get_args();
     // find me: investigate the use of params echo, idoverwrite, item, client, className
     /* calendar.php  958: $arr = (array)$this->utils->importEvents($part,false,true,'preview'); // string
        calendar.php 1290: $success = $this->utils->importEvents($content); // string
@@ -571,6 +578,9 @@ class Utils
               false,
               $component
             );
+            if(is_array($ret)){
+              $this->importcnt ++;
+            }
           }
           else{
             if($recur === 0)
@@ -613,6 +623,10 @@ class Utils
     date_default_timezone_set($stz);
     if($echo){
       return $jsonevents;
+    }
+    if($this->rcmail->action == 'plugin.calendar_upload' && $component == 'vevent'){
+      $this->importToDos($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
+      return $this->importcnt > 0 ? true : false;
     }
     if(is_array($ret)){
       return $ret;
