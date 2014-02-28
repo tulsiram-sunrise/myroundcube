@@ -2,7 +2,7 @@
 /**
  * planner
  *
- * @version 3.0.11 - 20.09.2013
+ * @version 3.0.13 - 16.02.2014
  * @author Roland 'rosali' Liebl (forked from: see below)
  * @website http://myroundcube.com
  *
@@ -55,19 +55,19 @@ class planner extends rcube_plugin
   static private $plugin = 'planner';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.0.11';
-  static private $date = '20-09-2013';
+  static private $version = '3.0.13';
+  static private $date = '16-02-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.9',
-    'PHP' => '5.2.1',
+    'Roundcube' => '1.0',
+    'PHP' => '5.3',
     'required_plugins' => array(
       'db_version' => 'require_plugin',
       'jqueryui' => 'require_plugin',
       'timepicker' => 'require_plugin',
     ),
   );
+  static private $sqladmin = array('db_dsnw', 'planner');
   static private $prefs = array('planner_view', 'planner_filter', 'planner_birthdays');
   static private $tables = array('planner');
   static private $db_version = array('initial');
@@ -174,7 +174,7 @@ class planner extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
+      'sqladmin' => self::$sqladmin,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))

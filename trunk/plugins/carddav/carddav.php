@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 5.4.40 - 18.11.2013
+ * @version 6.0 - 02.01.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -30,7 +30,7 @@ require_once INSTALL_PATH . 'plugins/carddav/carddav_backend.php';
 require_once INSTALL_PATH . 'plugins/carddav/carddav_automatic_addressbook_backend.php';
 require_once INSTALL_PATH . 'plugins/carddav/carddav_addressbook.php';
 
-class carddav extends rcube_plugin{
+class carddav extends rcube_plugin {
   public $task = 'login|settings|addressbook|mail|dummy';
   
   protected $carddav_addressbook = 'carddav_addressbook';
@@ -40,19 +40,20 @@ class carddav extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<font color="red">Since v4.x contact fields are limited to (name, firstname, surname, middlename, email, photo).</font> To support all available fields carddav_plus is required.<br />Since v3.x carddav_plus plugin is required for advanced features (f.e. automated Addressbook).<br /><a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
-  static private $version = '5.4.40';
-  static private $date = '18-11-2013';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
+  static private $version = '6.0';
+  static private $date = '02-01-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.9',
-    'PHP' => '5.2.1 + cURL',
+    'Roundcube' => '1.0',
+    'PHP' => '5.3 + cURL',
     'required_plugins' => array(
       'settings' => 'require_plugin',
       'db_version' => 'require_plugin',
     ),
     'recommended_plugins' => array(
       'carddav_plus' => 'config',
+      'google_oauth2' => 'config',
     ),
   );
   static private $tables = array(
@@ -74,6 +75,7 @@ class carddav extends rcube_plugin{
     'carddav_done',
     'carddavs_removed',
   );
+  static private $sqladmin = array('db_dsnw', 'carddav_contacts');
   static private $config_dist = 'config.inc.php.dist';
 
   public function init(){
@@ -133,15 +135,7 @@ class carddav extends rcube_plugin{
         }
         break;
       case 'addressbook':
-        if($rcmail->action == 'copy' || $rcmail->action == 'delete'){
-          $cid = get_input_value('_cid', RCUBE_INPUT_POST);
-          if($cid){
-            $temp = explode(',', $cid);
-            if(count($temp) > 1){
-              @set_time_limit(0);
-            }
-          }
-        }
+        @set_time_limit(0);
         $this->add_hook('addressbooks_list', array($this, 'get_automatic_addressbook_source'));
         $this->add_hook('contact_copied', array($this, 'contact_copied'));
         $this->add_hook('addressbook_get', array($this, 'get_automatic_addressbook'));
@@ -234,7 +228,7 @@ class carddav extends rcube_plugin{
         }
       }
     }
-    $rcmail_config = array();
+    $config = array();
     if(is_string(self::$config_dist)){
       if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
         include $file;
@@ -249,12 +243,13 @@ class carddav extends rcube_plugin{
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
+      'sqladmin' => self::$sqladmin,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
+      $ret['config'] = array_merge($config, array_flip(self::$prefs));
     else
-      $ret['config'] = $rcmail_config;
+      $ret['config'] = $config;
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){
@@ -630,7 +625,13 @@ class carddav extends rcube_plugin{
         if($server['edt'] || (substr($label, 0, 1) == '[' && substr($label, strlen($label) - 1, 1) == ']')){
           $label = $server['label'];
         }
-        $table->add(array(), html::tag('input', array('type' => 'text', 'size' => '12', 'value' => $label, 'class' => 'carddav_edit_label', 'id' => $this->carddav_addressbook . $server['carddav_server_id'])));
+        if($label == Google){
+          $merge = array('readonly' => 'readonly');
+        }
+        else{
+          $merge = array('class' => 'carddav_edit_label');
+        }
+        $table->add(array(), html::tag('input', array_merge(array('type' => 'text', 'size' => '12', 'value' => $label, 'id' => $this->carddav_addressbook . $server['carddav_server_id']), $merge)));
         $table->add(array('class' => 'loadingsmall', 'style' => 'visibility: hidden;', 'id' => 'l' . $this->carddav_addressbook . $server['carddav_server_id']), html::tag('img', array('src' => './plugins/carddav/skins/' . $rcmail->config->get('skin', 'classic') . '/loadingsmall.gif')));
         $table->add(array(), html::tag('input', array('title' => $this->gettext('protected'), 'type' => 'text', 'size' => '45', 'readonly' => 'readonly', 'value' => $server['url'])));
         $table->add(array(), html::tag('input', array('title' => $this->gettext('protected'), 'type' => 'text', 'size' => '17', 'readonly' => 'readonly', 'value' => $server['username'])));
@@ -679,7 +680,7 @@ class carddav extends rcube_plugin{
       else{
         $size = 12;
       }
-      $input_password = new html_passwordfield(array('name' => '_password', 'id' => '_password', 'class' => 'keyboardInput', 'size' => $size, 'autocomplete' => 'off', 'placeholder' => $this->gettext('password')));
+      $input_password = new html_inputfield(array('name' => '_password', 'id' => '_password', 'class' => 'keyboardInput', 'size' => $size, 'autocomplete' => 'off', 'placeholder' => $this->gettext('password')));
       $input_read_only = new html_checkbox(array('name' => '_read_only', 'id' => '_read_only', 'value' => 1));
       $table->add(array(), $input_label->show());
       $table->add(array(), '&nbsp;');
@@ -871,6 +872,9 @@ class carddav extends rcube_plugin{
   }
 
   public function carddav_settings($args){
+    if(!$args['section']){
+      return array();
+    }
     if(class_exists('carddav_plus')){
       if(!get_input_value('_framed', RCUBE_INPUT_GPC) && substr($args['section'], 0, strlen('addressbook')) == 'addressbook'){
         $args['blocks'][$args['section']]['options'] = array(

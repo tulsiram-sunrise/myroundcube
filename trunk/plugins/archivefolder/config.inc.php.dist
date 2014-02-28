@@ -1,10 +1,10 @@
 <?php
 
 /* Show archive button in mailbox list */
-$rcmail_config['archive_show_button'] = TRUE;
+$config['archive_show_button'] = TRUE;
 
 /* Default Archive folder */
-$rcmail_config['archive_mbox'] = 'Archive';
+$config['archive_mbox'] = 'Archive';
 
 /* NOTE:
    If you want to create the Archive folder by default, then configure
@@ -12,10 +12,10 @@ $rcmail_config['archive_mbox'] = 'Archive';
    
   // display these folders separately in the mailbox list.
   // these folders will also be displayed with localized names
-  $rcmail_config['default_folders'] = array('INBOX', 'Notes', 'Archive', 'Drafts', 'Sent', 'Junk', 'Trash');
+  $config['default_folders'] = array('INBOX', 'Notes', 'Archive', 'Drafts', 'Sent', 'Junk', 'Trash');
 
   // automatically create the above listed default folders on login
-  $rcmail_config['create_default_folders'] = true;
+  $config['create_default_folders'] = true;
 */
 
 ?>

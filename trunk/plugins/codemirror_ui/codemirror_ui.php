@@ -2,7 +2,7 @@
 /**
  * codemirror_ui
  *
- * @version 1.0.2 - 07.08.2013
+ * @version 1.0.4 - 02.01.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -16,19 +16,19 @@ class codemirror_ui extends rcube_plugin{
   static private $plugin = 'codemirror_ui';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
-  static private $version = '1.0.2';
-  static private $date = '07-08-2013';
+  static private $version = '1.0.4';
+  static private $date = '02-01-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.6',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   
   private $rcmail;
   
   function init(){
     $this->rcmail = rcmail::get_instance();
-    $this->rcmail->output->add_header('<style type="text/css">.CodeMirror {height: 93%} .CodeMirror-scroll {height: 100%} </style>');
+    $this->rcmail->output->add_header('<style type="text/css">.CodeMirror {height: 90%} .CodeMirror-scroll {height: 100%} </style>');
     $this->include_stylesheet('lib/CodeMirror-2.3/lib/codemirror.css');
     $this->include_script('lib/CodeMirror-2.3/lib/codemirror.js');
     $this->include_script('lib/CodeMirror-2.3/lib/util/searchcursor.js');

@@ -1289,7 +1289,7 @@ function planner_drag(){
   
   $('#planner_items_list').disableSelection();
   $('.date').attr('title', rcmail.gettext('planner.remove_date'));
-  $('.date').live('mousedown', function(event) {
+  $('.date').on('mousedown', function(event) {
     if(event.which == 3){ // && !$(this).parent().hasClass('birthday')){
       var text = $(this).parent().find('.datetime').text();
       var id = $(this).parent().find('.drag_id').val();

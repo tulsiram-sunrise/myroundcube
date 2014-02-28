@@ -5,3 +5,7 @@ VERSION                COMMENT
 2.0.1                  - Fix successful logged on message display
 2.0.2 - 2.0.3          - IE/FF: Fix iframe height
 2.0.4 - 2.0.7          - Implemented tabbed plugin support
+2.0.8                  - Implemented mysqladmin plugin support
+2.0.9                  - Separated Gibberish encoding into a helper plugin
+2.0.10                 - Added User-Agent header to cURL requests
+2.0.11                 - Removed jappix iframe (Jappix has introduced same origin policy)

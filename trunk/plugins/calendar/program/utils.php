@@ -6,12 +6,17 @@ class Utils
   private $importcnt = 0;
   public $categories = array();
 
-  public function __construct($rcmail, $backend='dummy') {
+  public function __construct($rcmail, $backend = null) {
     $this->rcmail = $rcmail;
     $this->backend = $backend;
     $this->categories = array_merge((array)$rcmail->config->get('categories', array()), (array)$rcmail->config->get('public_categories', array()));
     $this->categories = array_merge($this->categories, (array)$rcmail->config->get('google_category', array()));
   }
+  
+  public function wrap_backend($backend) {
+    $this->backend = $backend;
+  }
+  
   /**
    * Flatten an array
    *
@@ -1094,8 +1099,9 @@ class Utils
         }
       }
     }
-    if(!is_array($events))
-      $events = $this->backend->getEvents($start, $end, array(), $category, false, $client);
+    if(!is_array($events)){
+      $events = (array) $this->backend->getEvents($start, $end, array(), $category, false, $client);
+    }
     $arr = array();
     foreach ($events as $key => $event) {
       if($event['del'] != 1 || $returndel){

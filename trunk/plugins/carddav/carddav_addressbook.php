@@ -1585,66 +1585,54 @@ class carddav_addressbook extends rcube_addressbook
 		return $this->carddav_delete($carddav_contact_ids);
 	}
 
-	/**
-	 * Convert vCard changes and return database relevant fileds including contents
-	 *
-	 * @param	array	$save_data					New vCard values
-	 * @param	array 	$record						Original vCard
-	 * @return	array	$database_column_contents	Database column contents
-	 */
-	private function get_database_column_contents($save_data, $record = array())
-	{
-		$words = '';
-		$database_column_contents = array();
-		$vcard = new rcube_vcard($record['vcard'] ? $record['vcard'] : $save_data['vcard']);
-		$vcard->extend_fieldmap(array('categories' => 'CATEGORIES'));
-		$vcard->reset();
+  /**
+  * Convert vCard changes and return database relevant fileds including contents
+  *
+  * @param  array $save_data                New vCard values
+  * @param  array $record                   Original vCard
+  * @return array $database_column_contents Database column contents
+  */
+  private function get_database_column_contents($save_data, $record = array()){
+    $words = '';
+    $database_column_contents = array();
+    $vcard = new rcube_vcard($record['vcard'] ? $record['vcard'] : $save_data['vcard']);
+    $vcard->extend_fieldmap(array('categories' => 'CATEGORIES'));
+    $vcard->reset();
 
-		foreach ($save_data as $key => $values)
-		{
-			list($field, $section) = explode(':', $key);
-			$fulltext = in_array($field, $this->fulltext_cols);
+    foreach($save_data as $key => $values){
+      list($field, $section) = explode(':', $key);
+      $fulltext = in_array($field, $this->fulltext_cols);
+      foreach((array)$values as $value){
+        if(isset($value) && !empty($value)){
+          $vcard->set($field, $value, $section);
+        }
+        if($fulltext && is_array($value)){
+          $words .= ' ' . self::normalize_string(join(" ", $value));
+        }
+        else if($fulltext && strlen($value) >= 3){
+          $words .= ' ' . self::normalize_string($value);
+        }
+      }
+    }
 
-			foreach ((array)$values as $value)
-			{
-				if (isset($value))
-				{
-					$vcard->set($field, $value, $section);
-				}
+    $database_column_contents['vcard'] = $vcard->export(false);
 
-				if ($fulltext && is_array($value))
-				{
-					$words .= ' ' . self::normalize_string(join(" ", $value));
-				}
-				else if ($fulltext && strlen($value) >= 3)
-				{
-					$words .= ' ' . self::normalize_string($value);
-				}
-			}
-		}
+    foreach($this->table_cols as $column){
+      $key = $column;
+      if(!isset($save_data[$key])){
+        $key .= ':home';
+      }
+      if(isset($save_data[$key])){
+        $database_column_contents[$column] = is_array($save_data[$key]) ? implode(',', $save_data[$key]) : $save_data[$key];
+      }
+    }
 
-		$database_column_contents['vcard'] = $vcard->export(false);
-		
-		foreach ($this->table_cols as $column)
-		{
-			$key = $column;
+    $database_column_contents['email'] = implode(', ', $vcard->email);
+    $database_column_contents['words'] = trim(implode(' ', array_unique(explode(' ', $words))));
 
-			if (!isset($save_data[$key]))
-			{
-				$key .= ':home';
-			}
-			if (isset($save_data[$key]))
-			{
-				$database_column_contents[$column] = is_array($save_data[$key]) ? implode(',', $save_data[$key]) : $save_data[$key];
-			}
-		}
+    return $database_column_contents;
+}
 
-		$database_column_contents['email'] = implode(', ', $vcard->email);
-		$database_column_contents['words'] = trim(implode(' ', array_unique(explode(' ', $words))));
-
-		return $database_column_contents;
-	}
-	
 	/**
 	 * Extended write log with pre defined logfile name and add version before the message content
 	 *

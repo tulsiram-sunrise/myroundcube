@@ -2,7 +2,7 @@
 /**
  * persistent_login (based on code by Manuel Freiholz)
  *
- * @version 1.2.4 - 23.07.2013
+ * @version 1.2.6 - 16.02.2014
  * @author Roland 'rosali' Liebl, Matthias Krauser
  * @website http://myroundcube.com 
  */
@@ -32,17 +32,17 @@ class persistent_login extends rcube_plugin
   static private $plugin = 'persistent_login';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.2.4';
-  static private $date = '23-07-2013';
+  static private $version = '1.2.6';
+  static private $date = '16-02-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.9',
-    'PHP' => '5.2.1',
+    'Roundcube' => '1.0',
+    'PHP' => '5.3',
     'required_plugins' => array(
       'db_version' => 'require_plugin',
     ),
   );
+  static private $sqladmin = array('db_dsnw', 'auth_tokens');
   static private $prefs = null;
   static private $config_dist = false;
   static private $tables = array('auth_tokens');
@@ -106,7 +106,7 @@ class persistent_login extends rcube_plugin
         }
       }
     }
-    $rcmail_config = array();
+    $config = array();
     if(is_string(self::$config_dist)){
       if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
         include $file;
@@ -121,13 +121,13 @@ class persistent_login extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
+      'sqladmin' => self::$sqladmin,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
+      $ret['config'] = array_merge($config, array_flip(self::$prefs));
     else
-      $ret['config'] = $rcmail_config;
+      $ret['config'] = $config;
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){

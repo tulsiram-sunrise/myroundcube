@@ -31,7 +31,7 @@ else{
   include INSTALL_PATH . 'plugins/calendar/config.inc.php' . $ext;
 }
 
-define('RCMAIL_URL', $rcmail_config['cron_rc_url']);
+define('RCMAIL_URL', $config['cron_rc_url']);
 /* End Configuration */
 
 /* Functions */
@@ -265,7 +265,7 @@ function compose($val,$tz,$labels,$rcmail,$ical){
 
 /* Program */
 
-if(!is_dir($rcmail_config['log_dir']))
+if(!isset($config['log_dir']) || !is_dir($config['log_dir']))
   ini_set('error_log', INSTALL_PATH.'logs/errors');
 
 include INSTALL_PATH . 'program/include/iniset.php';
@@ -273,15 +273,15 @@ include INSTALL_PATH . 'program/include/iniset.php';
 $rcmail = rcmail::get_instance();
 
 $result = $rcmail->db->query(
-  "SELECT * FROM " . dbtable(get_table_name('system'),$rcmail) . " 
-  WHERE ".dbq('name',$rcmail)."=?",
+  "SELECT * FROM " . dbtable(get_table_name('system'), $rcmail) . " 
+  WHERE " . dbq('name', $rcmail) . "=?",
   'myrc_db_config'
 );
 
 $db_config = $rcmail->db->fetch_assoc($result);
 
-$srcmail_config = (array) $rcmail_config;
-$rcmail_config = array();
+$sconfig = (array) $config;
+$config = array();
 
 if(is_array($db_config)){
   $result = $rcmail->db->query(
@@ -295,9 +295,9 @@ if(is_array($db_config)){
   }
 }
 
-$rcmail_config = array_merge($srcmail_config, $rcmail_config);
+$config = array_merge($sconfig, $config);
 
-foreach($rcmail_config as $key => $val){
+foreach($config as $key => $val){
   $rcmail->config->set($key, $val);
 }
 if($rcmail->config->get('smtp_user') != ''){
@@ -374,18 +374,11 @@ foreach($notifiers as $key => $notifier){
         WHERE " . dbq('reminder_id',$rcmail) . "=?",
         $notifier['reminder_id']
       );
-      $events_table = $rcmail->config->get('db_table_events', 'events');
-      $db_table = str_replace('_caldav','',$events_table);
-      $default = array(
-        'database' => '', // default db table
-        'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
-      );
-      $map = $rcmail->config->get('backend_db_table_map', $default);
       if($notifier['backend'] == 'caldav'){
-        $db_table .= $map['caldav'];
+        $db_table = $rcmail->db->table_name('events_caldav');
       }
       else{
-        $db_table .= $map['database'];
+        $db_table = $rcmail->db->table_name('events');
       }
       $query = $rcmail->db->query(
         "UPDATE " .dbtable($db_table,$rcmail) . " 

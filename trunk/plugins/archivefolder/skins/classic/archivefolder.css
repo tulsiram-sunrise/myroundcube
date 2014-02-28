@@ -5,7 +5,9 @@
   background-position: center 0;
 }
 
-#rcmContextMenu .archive a
+#rcmContextMenu li.archive a
 {
-  background: url('foldericon.png') no-repeat 7px center;
+  background-image: url('foldericon.png');
+  background-repeat: no-repeat;
+  background-position: 7px center;
 }

@@ -2,7 +2,7 @@
 /**
  * settings
  *
- * @version 4.2.13 - 15.11.2013
+ * @version 4.3 - 30.12.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  */
@@ -18,12 +18,12 @@ class settings extends rcube_plugin
   static private $plugin = 'settings';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '';
-  static private $version = '4.2.13';
-  static private $date = '15-11-2013';
+  static private $version = '4.3';
+  static private $date = '30-12-2013';
   static private $licence = 'All Rights reserved';
   static private $requirements = array(
-    'Roundcube' => '0.8',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   static private $prefs = null;
   static private $config_dist = 'config.inc.php.dist';
@@ -38,6 +38,7 @@ class settings extends rcube_plugin
     $this->add_hook('preferences_sections_list', array($this, 'account_link'));
     $this->add_hook('preferences_save', array($this, 'preferences_save'));
     $this->add_hook('preferences_list', array($this, 'prefs_table'));
+    $this->add_hook('render_page', array($this, 'render_page'));
     
     $skin  = $rcmail->config->get('skin');
     $_skin = get_input_value('_skin', RCUBE_INPUT_POST);
@@ -90,7 +91,7 @@ class settings extends rcube_plugin
         }
       }
     }
-    $rcmail_config = array();
+    $config = array();
     if(is_string(self::$config_dist)){
       if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
         include $file;
@@ -107,9 +108,9 @@ class settings extends rcube_plugin
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
+      $ret['config'] = array_merge($config, array_flip(self::$prefs));
     else
-      $ret['config'] = $rcmail_config;
+      $ret['config'] = $config;
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){
@@ -129,6 +130,16 @@ class settings extends rcube_plugin
     if(!in_array('global_config', $rcmail->config->get('plugins'))){
       $this->load_config();
     }
+  }
+  
+  function render_page($p)
+  {
+    if($p['template'] == 'settings'){
+      if(get_input_value('_accountsettings', RCUBE_INPUT_GET)){
+        rcmail::get_instance()->output->add_script('$("#rcmrowaccountlink").trigger("mousedown").trigger("mouseup");', 'docready');
+      }
+    }
+    return $p;
   }
   
   function account_link($args)
@@ -199,7 +210,7 @@ class settings extends rcube_plugin
     if(is_array($defaults)){
       foreach($defaults as $section => $plugins){
         foreach($plugins as $plugin => $props){
-          if($props['protected'] && $props['active']){
+          if($props['active']){
             $active[$plugin] = 1;
           }
         }
@@ -208,6 +219,22 @@ class settings extends rcube_plugin
     foreach($parts as $plugin => $props){
       if($active[$plugin] != 1){
         unset($parts[$plugin]);
+      }
+    }
+    if(class_exists('mysqladmin') && strtolower($rcmail->user->data['username']) == $rcmail->config->get('mysql_admin')){
+      $hm = array('autoban', 'autoresponder', 'forwarding', 'login', 'accounts', 'signature', 'spamfilter');
+      foreach($hm as $dsn){
+        $c = $rcmail->config->get('db_hmail_' . $dsn . '_dsn');
+        if(is_string($c)){
+          $t = parse_url($c);
+          if($t['user'] && $t['pass']){
+            $parts = array_merge($parts, array( 'mysqladmin' =>
+                array('part' => '', 'label' => 'pluginname', 'href' => './?_action=plugin.mysqladmin&pma_login=1&db=db_hmail_' . $dsn . '_dsn', 'onclick' => 'rcmail.set_cookie("PMA_referrer", document.location.href);', 'descr' => 'mysqladmin')
+              )
+            );
+            break;
+          }
+        }
       }
     }
     if(count($parts) > 0){
@@ -231,7 +258,6 @@ class settings extends rcube_plugin
     }
     $parts = (array) $_SESSION['settingsnav'];
     $out = "<div id=\"userprefs-accountblocks\">\n";
-    
     foreach($parts as $key => $part){
       if(!class_exists($key)){
         continue;

@@ -2,8 +2,8 @@
 /**
  * calendar
  *
- * @version 17.0.9 - 29.01.2014
- * @author Roland 'rosali' Liebl
+ * @version 18.0.3 - 27.02.2014
+ * @author Roland 'rosali'Liebl
  * @website http://myroundcube.com
  *
  **/
@@ -40,8 +40,6 @@ class calendar extends rcube_plugin{
   public $utils = null;
   
   private $message;
-  private $dbtable;
-  private $dbtablesquence;
   private $ical_parts = array();
   private $myevents = null;
   private $userid = null;
@@ -61,9 +59,15 @@ class calendar extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'calendar';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'News: Tasks implemented (requires calendar_plus 3.0 or newer).<br />Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).<a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><br /><font color="red">IMPORTANT</font></a>';
-  static private $version = '17.0.9';
-  static private $date = '29-01-2014';
+  static private $authors_comments = '<a href="http://mirror.myroundcube.com/docs/calendar.html" target="_new">Documentation</a>';
+  static private $version = '18.0.3';
+  static private $date = '27-02-2014';
+  static private $tables = array(
+    'events',
+    'events_caldav',
+    'events_cache',
+    'reminders',
+  );
   static private $db_version = array(
     'initial',
     '20130512',
@@ -72,8 +76,8 @@ class calendar extends rcube_plugin{
   static private $sqladmin = array('db_dsnw', 'events');
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.9',
-    'PHP' => '5.2.1',
+    'Roundcube' => '1.0',
+    'PHP' => '5.3',
     'required_plugins' => array(
       'jqueryui' =>  'require_plugin',
       'jscolor' =>   'require_plugin',
@@ -153,7 +157,7 @@ class calendar extends rcube_plugin{
     $this->deprecate(
       array(
         'default_caldav_backend',
-        'default_caldav_url',
+        'default_caldav_url'
       )
     );
     $rcmail = rcmail::get_instance();
@@ -171,9 +175,6 @@ class calendar extends rcube_plugin{
         $t = explode('.', $v['version']);
         if($t[0] >= '3'){
           if($rcmail->action == 'plugin.calendar'){
-            if(!$rcmail->config->get('tasks_section', true)){
-              $rcmail->output->add_script('if(!rcmail.get_cookie("tasksvisible")) rcmail.set_cookie("tasksvisible", 0);', 'head');
-            }
             $rcmail->output->add_script('$("#taskstogglecontainer").show();', 'docready');
           }
         }
@@ -187,23 +188,33 @@ class calendar extends rcube_plugin{
         $rcmail->output->add_script('rcmail.set_cookie("tasksvisible", 0);', 'head');
       }
     }
-    
     /* DB versioning */
     if(is_dir(INSTALL_PATH . 'plugins/db_version')){
       $this->require_plugin('db_version');
-      $tables = array();
-      $tables[] = $rcmail->config->get('db_table_events', 'event');
-      $tables[] = $rcmail->config->get('db_table_events_cache', 'events_cache');
-      $default = array('database' => '', 'caldav' => '_caldav');
-      $map = $rcmail->config->get('backend_db_table_map', $default);
-      $tables[] = $tables[0] . $map['caldav'];
-      $tables[0] = $tables[0] . $map['database'];
-      $tables[] = $rcmail->config->get('db_table_reminders', 'reminders');
-      if(!$load = db_version::exec(self::$plugin, $tables, self::$db_version)){
+      if(!$load = db_version::exec(self::$plugin, self::$tables, self::$db_version)){
         return;
       }
     }
     
+    /* localization */
+    $flag = false;
+    if(substr($rcmail->action, 0, 15) == 'plugin.calendar')
+      $flag = true;
+    $this->add_texts('localization/', $flag);
+
+    /* add taskbar button */
+    $this->add_button(array(
+      'name'    => 'calendar',
+      'class'   => 'button-calendar',
+      'content' => html::tag('span', array('class' => 'button-inner'), $this->gettext('calendar.calendar')),
+      'href'    => './?_task=dummy&_action=plugin.calendar',
+      'id'      => 'calendar_button',
+      ), 'taskbar');
+      
+    if(substr($rcmail->action, 0, strlen('plugin.summary')) == 'plugin.summary'){
+      return;
+    }
+
     $this->include_script('program/js/calendar.common.js');
     
     /* switch messagelist attachment icon and inject upcoming calendar */
@@ -222,8 +233,7 @@ class calendar extends rcube_plugin{
       if($this->show_upcoming_cal){
         if($rcmail->action != 'preview' &&
            $rcmail->action != 'compose' &&
-           $rcmail->action != 'get' &&
-           $rcmail->action != 'plugin.summary'
+           $rcmail->action != 'get'
         ){
           calendar_plus::load_upcoming_cal();
           $skin = $rcmail->config->get('skin');
@@ -246,12 +256,6 @@ class calendar extends rcube_plugin{
     /* compatibility functions */
     require_once('program/compat.php');
     
-    /* localization */
-    $flag = false;
-    if(substr($rcmail->action,0,15) == 'plugin.calendar')
-      $flag = true;
-    $this->add_texts('localization/', $flag);
-    
     /* restore calendar status */
     if($rcmail->action == 'plugin.calendar' || $rcmail->action == 'plugin.calendar_fetchalllayers'){
       $_SESSION['cal_initialized'] = true;
@@ -259,14 +263,11 @@ class calendar extends rcube_plugin{
     $_SESSION['calfilter'] = $rcmail->config->get('calfilter_allcalendars', array());
     $_SESSION['calfiltertasks'] = str_replace($this->gettext('calendar.events'), $this->gettext('calendar.tasks'), $_SESSION['calfilter']);
     $_SESSION['event_filters'] = $rcmail->config->get('event_filters_allcalendars', array());
-    
+
     /* setup backend */
-    $this->dbtable = $rcmail->config->get('db_table_events', 'events');
-    $this->dbtablesquence = $rcmail->config->get('db_sequence_events', 'events_ids');
     $backend_type = $this->setupBackend();
     $rcmail->output->set_env('cal_backend', $backend_type);
-    $GLOBALS['db_table_events'] = $rcmail->config->get('db_table_events', 'events');
-    
+
     /* clear CalDAV cache */
     if($backend_type == 'caldav'){
       if($rcmail->action == 'plugin.getSettings'){
@@ -283,7 +284,6 @@ class calendar extends rcube_plugin{
         $this->backend->purgeEvents();
       }
     }
-
     if(empty($_SESSION['calfilter']))
       $_SESSION['calfilter'] = $this->gettext('allevents');
     
@@ -320,7 +320,6 @@ class calendar extends rcube_plugin{
     $this->register_action('plugin.calendar_fetchalllayers', array($this, 'fetchAllLayers'));
     $this->register_action('plugin.calendar_setfilters', array($this, 'setFilters'));
     $this->add_hook('template_object_event_dialog', array($this, 'event_dialog'));
-    
     /* print */
     $this->register_action('plugin.calendar_print_events', array($this, 'calprintevents'));
     $this->register_action('plugin.calendar_print_tasks', array($this, 'calprinttasks'));
@@ -377,28 +376,6 @@ class calendar extends rcube_plugin{
       $this->include_stylesheet('skins/' . $skin . '/calicon.css');
     }
 
-    /* add taskbar button */
-    $token = '';
-    if($rcmail->task != 'settings' && in_array('compressor', $rcmail->config->get('plugins', array()))){
-      $token = '&_s=' . md5($_SESSION['language'] .
-        session_id() . 
-        md5($this->generateCSS()) . 
-        md5(serialize($rcmail->user->list_identities())) .
-        $rcmail->config->get('skin', 'classic') . 
-        self::$version . 
-        self::$date . 
-        serialize($rcmail->config->get('plugins', array())) .
-        serialize($rcmail->config->get('plugin_manager_active', array()))
-      );
-    }
-    $this->add_button(array(
-      'name'    => 'calendar',
-      'class'   => 'button-calendar',
-      'content' => html::tag('span', array('class' => 'button-inner'), $this->gettext('calendar.calendar')),
-      'href'    => './?_task=dummy&_action=plugin.calendar' . $token,
-      'id'      => 'calendar_button',
-      ), 'taskbar');
-      
     $this->add_hook('render_page', array($this, 'planner_drag_drop'));
   }
   
@@ -435,7 +412,7 @@ class calendar extends rcube_plugin{
         }
       }
     }
-    $rcmail_config = array();
+    $config = array();
     if(is_string(self::$config_dist)){
       if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
         include $file;
@@ -454,9 +431,9 @@ class calendar extends rcube_plugin{
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
+      $ret['config'] = array_merge($config, array_flip(self::$prefs));
     else
-      $ret['config'] = $rcmail_config;
+      $ret['config'] = $config;
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){
@@ -482,8 +459,6 @@ class calendar extends rcube_plugin{
   
   function setupBackend($type = false){
     $rcmail = rcmail::get_instance();
-    $rcmail->config->set('db_table_events', $this->dbtable);
-    $rcmail->config->set('db_sequence_events', $this->dbtablesquence);
     $backend_type = $rcmail->config->get('backend', 'database');
     if(class_exists('calendar_plus')){
       $backend_type = calendar_plus::load_backend($backend_type);
@@ -495,6 +470,7 @@ class calendar extends rcube_plugin{
         $rcmail->user->save_prefs($a_prefs);
       }
     }
+
     if(strtolower($this->get_demo($_SESSION['username'])) == strtolower(sprintf($rcmail->config->get('demo_user_account'),""))){
       //$backend_type = 'database';
     }
@@ -513,13 +489,6 @@ class calendar extends rcube_plugin{
         require_once('program/backend/' . $backend_type . '.php');
       }
     }
-    $default = array(
-      'database' => '', // default db table
-      'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
-    );
-    $map = $rcmail->config->get('backend_db_table_map', $default);
-    $rcmail->config->set('db_table_events', $rcmail->config->get('db_table_events', 'events') . $map[$backend_type]);
-    $rcmail->config->set('db_sequence_events', $rcmail->config->get('db_table_events', 'events') . $map[$backend_type] . '_ids');
     if($backend_type == "caldav"){
       $save = array();
       $default_caldav = $rcmail->config->get('default_caldav_backend');
@@ -2449,10 +2418,12 @@ class calendar extends rcube_plugin{
     $id = get_input_value('_id', RCUBE_INPUT_GPC);
     $edit = get_input_value('_edit', RCUBE_INPUT_GPC);
     if($edit == 'false'){
-      $events_table = $rcmail->config->get('db_table_events', 'events');
-      $rcmail->config->set('db_table_events',$rcmail->config->get('db_table_events_cache', 'events_cache'));
+      $events_table = $this->backend->dbtable;
+      $this->backend->dbtable = $rcmail->db->quoteIdentifier(get_table_name('events_cache'));
+      $this->utils->wrap_backend($this->backend);
       $event = $this->utils->arrayEvent($id);
-      $rcmail->config->set('db_table_events',$events_table);
+      $this->backend->dbtable = $events_table;
+      $this->utils->wrap_backend($this->backend);
     }
     else{
       $edit = 1;
@@ -2778,7 +2749,7 @@ class calendar extends rcube_plugin{
       false,
       'vtodo'
     );
-    $tasks = $this->filterEvents($tasks);
+    $tasks = (array) $this->filterEvents($tasks);
     $mytasks = array();
     foreach($tasks as $key => $task){
       if(!$task['start']){
@@ -2917,7 +2888,7 @@ class calendar extends rcube_plugin{
             )
           )
        ) .
-       html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => ($task['status'] ? $this->gettext($task['status']) : ''), 'class' => 'ui-widget-content scrollbar'), ($task['status'] ? '&nbsp;' . str_replace(' ', '&nbsp;', $this->gettext($task['status'])) : '')) 
+       html::tag('td', array('onclick' => 'if(typeof calendar_gui.getTask == "function"){ calendar_gui.getTask(' . $task['event_id'] . ', ' . $task['start'] . ', ' . $task['due'] . ', ' . $task['clone'] . ') }', 'title' => ($task['status'] ? $this->gettext($task['status']) : ''), 'style' => 'width: 45px', 'class' => 'ui-widget-content scrollbar'), ($task['status'] ? '&nbsp;' . str_replace(' ', '&nbsp;', $this->gettext($task['status'])) : '')) 
       );
     }
     $html .= html::tag('tr', array('class' => 'notasks', 'style' => 'display: none;'), html::tag('td', array('colspan' => 8, 'width' => '100%', 'class' => 'ui-widget-content'), html::tag('center', null, $this->gettext('notasks'))));
@@ -3311,7 +3282,7 @@ class calendar extends rcube_plugin{
           $y = max($y, $cmin); $z = min($z, $cmax);
           $select->add("$y - $z", "$y|$z");
         }
-        $preset = $rcmail->config->get('caldav_replication_range', array('past'=>2,'future'=>2));
+        $preset = $rcmail->config->get('caldav_replication_range', array('past' => 2, 'future' => 2));
         $args['blocks']['calendar']['options']['caldav_caldav_replication_range'] = array(
           'title' => html::label($field_id, Q($this->gettext('caldavreplicationrange'))),
           'content' => $select->show(($cy - $preset['past']) . "|" . ($cy + $preset['future'])),
@@ -3356,7 +3327,7 @@ class calendar extends rcube_plugin{
           'content' => $input->show($rcmail->config->get('caldav_replicate_automatically', 1800)) . html::tag('script', null, '$("#' . $field_id . '").parent().parent().hide()'),
         );
         
-        $preset = $rcmail->config->get('caldav_replication_range', array('past'=>2,'future'=>2));
+        $preset = $rcmail->config->get('caldav_replication_range', array('past' => 2, 'future' => 2));
         $cy = date('Y', time());
         $field_id = 'caldav_replication_range';
         $input = new html_hiddenfield(array('name' => '_caldav_replication_range', 'id' => $field_id, 'value' => ($cy - $preset['past']) . "|" . ($cy + $preset['future'])));
@@ -3968,9 +3939,9 @@ class calendar extends rcube_plugin{
         $db->query($sql, $rcmail->user->data['username']);
       }
       else{
-        $sql = 'INSERT INTO ' . $rcmail->db->quoteIdentifier(get_table_name($table)) . ' (' . $rcmail->db->quoteIdentifier('rcube_id') . ', ' . $rcmail->db->quoteIdentifier('username') . ', ' . $rcmail->db->quoteIdentifier('digesta1') . ') VALUES (?, ?, ?)';
+        $sql = 'INSERT INTO ' . $rcmail->db->quoteIdentifier(get_table_name($table)) . ' (' . $rcmail->db->quoteIdentifier('username') . ', ' . $rcmail->db->quoteIdentifier('digesta1') . ') VALUES (?, ?)';
         $digest = md5($rcmail->user->data['username'] . ':' . $rcmail->config->get('sabredav_realm') . ':' . $pass);
-        $db->query($sql, $rcmail->user->ID, $rcmail->user->data['username'], $digest);
+        $db->query($sql, $rcmail->user->data['username'], $digest);
       }
     }
     return $pass;
@@ -4013,12 +3984,12 @@ class calendar extends rcube_plugin{
   
   function jsonEvents($start, $end, $className, $editable, $links, $rc_layers = array()){
     $rcmail = rcmail::get_instance();
-    $events = array();
-    $events_table = $rcmail->config->get('db_table_events', 'events');
-    $rcmail->config->set('db_table_events',$rcmail->config->get('db_table_events_cache', 'events_cache'));
-    $layers = $this->utils->arrayEvents($start, $end, $className, $editable, $links);
-    $rcmail->config->set('db_table_events', $events_table);
-    $ret = array_merge($events,$layers);
+    $dbtable = $this->backend->dbtable;
+    $this->backend->dbtable = $rcmail->db->quoteIdentifier(get_table_name('events_cache'));
+    $this->utils->wrap_backend($this->backend);
+    $ret = $this->utils->arrayEvents($start, $end, $className, $editable, $links);
+    $this->backend->dbtable = $dbtable;
+    $this->utils->wrap_backend($this->backend);
     if($rcmail->user->ID == $_SESSION['user_id']){
       $ret = array_merge($ret, $rc_layers);
     }
@@ -4119,9 +4090,9 @@ class calendar extends rcube_plugin{
     $range = $rcmail->config->get('caldav_replication_range', array('past' => 2, 'future' => 2));
     $force = get_input_value('_errorgui', RCUBE_INPUT_GPC);
     if($force){
-      $range = array('past'=>0,'future'=>0);
+      $range = array('past' => 0,'future' => 0);
       $step = 0;
-      $current_year = max($current_year, $year);
+      $current_year = $year;
     }
     if(!$year)
       $year = date('Y', time()) + $range['future'];
@@ -4138,11 +4109,11 @@ class calendar extends rcube_plugin{
       $end = strtotime($year . "-12-31 23:59:59");
       $year = $year - $step;
       $year = max($current_year - $range['past'], $year);
-      $start = max(0,strtotime($year . "-12-31 23:59:59"));
+      $start = max(0, strtotime($year . "-01-01 00:00:00"));
       $this->ctags = $this->backend->getCtags();
       $ctags_saved = $rcmail->config->get('ctags', array());
       $url = $rcmail->config->get('caldav_url');
-      if($force || $this->ctags[md5($url)] == false || $ctags_saved[md5($url)] == false || $this->ctags[md5($url)] !== $ctags_saved[md5($url)]){
+      if($this->ctags[md5($url)] == false || $ctags_saved[md5($url)] == false || $this->ctags[md5($url)] !== $ctags_saved[md5($url)]){
         if($rcmail->config->get('default_caldav_subscribed', true)){
           $this->backend->replicateEvents($start, $end);
           $this->backend->replicateEvents($start, $end, false, 'todos');
@@ -4156,7 +4127,7 @@ class calendar extends rcube_plugin{
       $caldavs = array_merge($caldavs, $public_caldavs);
       foreach($caldavs as $category => $caldav){
         $url = $caldav['url'];
-        if($force || $this->ctags[md5($url)] == false || $ctags_saved[md5($url)] == false || $this->ctags[md5($url)] !== $ctags_saved[md5($url)]){
+        if($this->ctags[md5($url)] == false || $ctags_saved[md5($url)] == false || $this->ctags[md5($url)] !== $ctags_saved[md5($url)]){
           $this->backend->replicateEvents($start, $end, $category);
           $this->backend->replicateEvents($start, $end, $category, 'todos');
         }
@@ -4184,13 +4155,10 @@ class calendar extends rcube_plugin{
     $rcmail = rcmail::get_instance();
     $rcmail->session->remove('cal_cache');
     $rcmail->session->remove('cal_links');
-    $events_table = $rcmail->config->get('db_table_events', 'events');
-    $events_table_ids = $rcmail->config->get('db_sequence_events', 'events_ids');
-    $rcmail->config->set('db_table_events',$rcmail->config->get('db_table_events_cache', 'events_cache'));
-    $rcmail->config->set('db_sequence_events',$rcmail->config->get('db_sequence_events_cache', 'events_cache_ids'));
+    $dbtable = $this->backend->dbtable;
+    $this->backend->dbtable = $rcmail->db->quoteIdentifier(get_table_name('events_cache'));
     $this->backend->truncateEvents(3);
-    $rcmail->config->set('db_table_events',$events_table);
-    $rcmail->config->set('db_sequence_events',$events_table_ids);
+    $this->backend->dbtable = $dbtable;
   }
   
   function fetchAllLayers(){
@@ -4220,10 +4188,9 @@ class calendar extends rcube_plugin{
     }
     else{
       $this->clearCache();
-      $events_table = $rcmail->config->get('db_table_events', 'events');
-      $events_table_ids = $rcmail->config->get('db_sequence_events', 'events_ids');
-      $rcmail->config->set('db_table_events',$rcmail->config->get('db_table_events_cache', 'events_cache'));
-      $rcmail->config->set('db_sequence_events',$rcmail->config->get('db_sequence_events_cache', 'events_cache_ids'));
+      $dbtable = $this->backend->dbtable;
+      $this->backend->dbtable = $rcmail->db->quoteIdentifier(get_table_name('events_cache'));
+      $this->utils->wrap_backend($this->backend);
       $links = array();
       foreach($feeds as $url => $className){
         $className = explode('|', $className);
@@ -4269,7 +4236,7 @@ class calendar extends rcube_plugin{
         }
         if(!isset($urls[$feedurl])){
           $content = $this->utils->curlRequest($feedurl, false, $max_execution_time);
-          if(stripos($arr['query'],'plugin.calendar_showlayer') && strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
+          if(stripos($arr['query'], 'plugin.calendar_showlayer') && strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
             $rc_layer = json_decode($content, true);
             $urls[$feedurl] = true;
             if(is_array($rc_layer)){
@@ -4277,6 +4244,7 @@ class calendar extends rcube_plugin{
             }
           }
           if($source == 'ics'){
+            $this->utils->wrap_backend($this->backend);
             $this->utils->importEvents($content, $userid=false, $echo=false, $idoverwrite=$url, $item=false, $client=false, $className);
           }
           if($source == 'google'){
@@ -4341,7 +4309,7 @@ class calendar extends rcube_plugin{
                     }
                   }
                   $content .= "END:VCALENDAR\n";
-                  $this->utils->importEvents($content,$userid=false,$echo=false,$idoverwrite=$url,$item=false,$client=false,$className);
+                  $this->utils->importEvents($content, $userid = false, $echo = false, $idoverwrite = $url, $item = false, $client =false, $className);
                 }
               }
               date_default_timezone_set($stz);
@@ -4349,8 +4317,8 @@ class calendar extends rcube_plugin{
           }
         }
       }
-      $rcmail->config->set('db_table_events',$events_table);
-      $rcmail->config->set('db_sequence_events',$events_table_ids);
+      $this->backend->dbtable = $dbtable;
+      $this->utils->wrap_backend($this->backend);
     }
     $_SESSION['cal_cache'] = true;
     $_SESSION['cal_cache_events'][$start.$end] = $rc_layers;
@@ -4360,7 +4328,7 @@ class calendar extends rcube_plugin{
       serialize($rcmail->config->get('public_categories')) .
       serialize($rcmail->config->get('public_calendarfeeds'))
     );
-    $this->backend->removeDuplicates($rcmail->config->get('db_table_events_cache'));
+    $this->backend->removeDuplicates(get_table_name('events_cache'));
     $this->jsonEvents($start, $end, false, false, $links, $rc_layers);
   }
  
@@ -4417,14 +4385,13 @@ class calendar extends rcube_plugin{
       $this->backend->replicateEvents($start, $end);
       $events = $this->utils->arrayEvents($start, $end, $className, false, false, false, false, $client);
       if($include_cache){
-        $events_table = $rcmail->config->get('db_table_events', 'events');
-        $events_table_ids = $rcmail->config->get('db_sequence_events', 'events_ids');
-        $rcmail->config->set('db_table_events',$rcmail->config->get('db_table_events_cache', 'events_cache'));
-        $rcmail->config->set('db_sequence_events',$rcmail->config->get('db_sequence_events_cache', 'events_cache_ids'));
+        $dbtable = $this->backend->dbtable;
+        $this->backend->dbtable = $rcmail->db->quoteIdentifier(get_table_name('events_cache'));
+        $this->utils->wrap_backend($this->backend);
         $layer = $this->utils->arrayEvents($start, $end, $className, false, false, false, false, $client);
-        $rcmail->config->set('db_table_events',$events_table);
-        $rcmail->config->set('db_sequence_events',$events_table_ids);
-        $events = array_merge($events,$layer);
+        $this->backend->dbtable = $dbtable;
+        $this->utils->wrap_backend($this->backend);
+        $events = array_merge($events, $layer);
       }
       foreach($events as $key => $event){
         $events[$key]['userid'] = $caluserid;
@@ -4748,7 +4715,7 @@ xmlns:content="http://purl.org/rss/1.0/modules/content/">
           unset($preferences[$key]);
         }
         if($preferences = serialize($preferences)){
-          $sql = 'UPDATE ' . get_table_name('users') . ' SET preferences=? WHERE user_id=? and mail_host=? LIMIT 1';
+          $sql = 'UPDATE ' . get_table_name('users') . ' SET preferences=? WHERE user_id=? and mail_host=?';
           $rcmail->db->query($sql, $preferences, $rcmail->user->ID, $rcmail->user->data['mail_host']);
         }
       }

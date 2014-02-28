@@ -11,7 +11,7 @@ $(document).ready(function() {
       parent.$('.notice').remove();
     });
     rcmail.addEventListener('plugin.mh_receive_row', mh_receive_row);
-		  
+
     rcmail.addEventListener('insertrow', function(evt) {
       var message = rcmail.env.messages[evt.row.uid];
   
@@ -23,11 +23,11 @@ $(document).ready(function() {
     });  
 
   
-    $('.mh_delete').live('click', function() {
+    $('.mh_delete').on('click', function() {
       mh_delete(this);
     });
 
-    $('.mh_add').live('click', function() {
+    $('.mh_add').on('click', function() {
       mh_add(this);
     });
   }
@@ -57,7 +57,9 @@ function mh_receive_row(data) {
   var row = data.row;
   $(mh_cur_row).after('<tr><td class="title">' + row + '</td><td></tr>');
   jscolor.init();
-  jscolor_removeHexStrings();
+  if(typeof jscolor_removeHexStrings == 'function'){
+    jscolor_removeHexStrings();
+  }
   mh_notsaved_warning();
   $('.boxcontent').click(function(){
     mh_notsaved_warning();

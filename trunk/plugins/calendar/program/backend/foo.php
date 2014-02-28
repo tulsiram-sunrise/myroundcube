@@ -240,7 +240,7 @@ final class calendar_dummy extends Backend
   public function removeTimestamps() {
   }
   
-  public function removeDuplicates($table = 'events') {
+  public function removeDuplicates($table = 'events_cache') {
   }
   
   public function getEvent($eventid){

@@ -2,7 +2,7 @@
 /**
  * timepicker
  *
- * @version 2.0 - 01.01.2013
+ * @version 3.0 - 30.12.2013
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -20,12 +20,12 @@ class timepicker extends rcube_plugin{
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.0';
-  static private $date = '01-01-2013';
+  static private $version = '3.0';
+  static private $date = '30-12-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.7.1',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   
   function init(){

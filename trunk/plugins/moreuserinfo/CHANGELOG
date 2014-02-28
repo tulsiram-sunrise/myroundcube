@@ -19,4 +19,5 @@ VERSION                COMMENT
 4.0.20                 - Jappix4Roundcube adjustments
 4.0.21                 - Fixed invalid foreach argument
 4.0.22 - 4.0.23        - Hide top menu link on popups
-4.0.23                 - Bind zclip on $(window).load event
+4.0.24                 - Bind zclip on $(window).load event
+4.0.25                 - Roundcube 1.0 compatibility

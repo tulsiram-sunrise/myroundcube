@@ -2,17 +2,11 @@
 /**
  * jscolor
  *
- * @version 1.3 - 10.09.2012
+ * @version 1.4 - 30.12.2012
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  * 
  **/
- 
-/**
- *
- * Usage: http://mail4us.net/myroundcube/
- *
- **/    
  
 class jscolor extends rcube_plugin
 {
@@ -22,12 +16,12 @@ class jscolor extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.3';
-  static private $date = '10-09-2012';
+  static private $version = '1.4';
+  static private $date = '30-12-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.7.1',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   static private $prefs = null;
   static private $config_dist = 'config.inc.php.dist';
@@ -39,8 +33,9 @@ class jscolor extends rcube_plugin
       $this->load_config();
     }
     $this->include_script('jscolor/jscolor.js');
-    if($rcmail->config->get('jscolor_removeHexString'))
+    if($rcmail->config->get('jscolor_removeHexString')){
       $this->include_script('jscolor.js');
+    }
   }
   
   static public function about($keys = false){

@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2013, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 09/08/2013 08:35:21
+ | Author: myroundcube@mail4us.net - 11/25/2013 09:34:54
  +-----------------------------------------------------------------------+
 */
 
@@ -17,7 +17,18 @@ $labels['plugindescription'] = 'Verwalten Sie Ihre Kontakte auf CardDAV-Servern.
 $labels['settings'] = 'CardDAV Einstellungen';
 $labels['sharing'] = 'Freigaben';
 $labels['share'] = 'Freigeben';
+$labels['shareinvitation'] = 'Einladung versenden';
+$labels['send'] = 'Versenden';
+$labels['cancel'] = 'Abbrechen';
 $labels['resource'] = 'CardDAV-Adressbuch';
+$labels['label'] = 'Titel';
+$labels['url'] = 'URL';
+$labels['access'] = 'Zugang';
+$labels['username'] = 'Benutzer';
+$labels['tutorials'] = 'Tutorials';
+$labels['checkresources'] = 'Bitte Resource auswählen';
+$labels['checkatleastoneresource'] = 'Bitte wählen Sie zumindest eine Resource aus';
+$labels['invitationsubject'] = '%s möchte Ihnen Zugang zu einem CardDAV-Adressbuch gewähren';
 $labels['confidentialcarddavaccess'] = 'Vertraulicher CardDAV-Zugang [%s]';
 $labels['copytoclipboard'] = 'In die Zwischenablage kopieren';
 $labels['copiedtoclipboard'] = 'Die Zwischenablage enthält';

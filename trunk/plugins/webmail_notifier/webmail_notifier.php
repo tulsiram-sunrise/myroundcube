@@ -3,7 +3,7 @@
 /**
  * Webmail Notifier
  *
- * @version 3.1.3 - 25.09.2013
+ * @version 3.1.4 - 17.02.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -28,12 +28,12 @@ class webmail_notifier extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/webmail_notifier-plugin" target=_new>Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '3.1.3';
-  static private $date = '25-09-2013';
+  static private $version = '3.1.4';
+  static private $date = '17-02-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   static private $prefs = array('webmail_notifier_flag', 'webmail_notifier_folders');
   static private $config_dist = 'config.inc.php.dist';
@@ -76,7 +76,7 @@ class webmail_notifier extends rcube_plugin
         }
       }
     }
-    $rcmail_config = array();
+    $config = array();
     if(is_string(self::$config_dist)){
       if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
         include $file;
@@ -94,9 +94,9 @@ class webmail_notifier extends rcube_plugin
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
+      $ret['config'] = array_merge($config, array_flip(self::$prefs));
     else
-      $ret['config'] = $rcmail_config;
+      $ret['config'] = $config;
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){

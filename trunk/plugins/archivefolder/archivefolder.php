@@ -7,17 +7,11 @@
  * To move messages to a special archive folder.
  * Based on Mark As Junk sample plugin.
  *
- * @version 2.9 - 16.09.2013
+ * @version 2.9.3 - 24.02.2014
  * @author Andre Rodier, Thomas Bruederli, Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com 
+ * @website http://myroundcube.com 
  */
- 
-/**
- *
- * Usage: http://mail4us.net/myroundcube/
- *
- **/
-  
+
 class archivefolder extends rcube_plugin
 {
   public $task = 'mail|settings';
@@ -29,12 +23,12 @@ class archivefolder extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_new">Documentation</a><br /><a href="http://trac.roundcube.net/ticket/1489423" target="_new">Related Roundcube Ticket</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.9';
-  static private $date = '16-09-2013';
+  static private $version = '2.9.3';
+  static private $date = '24-02-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.9',
-    'PHP' => '5.2.1',
+    'Roundcube' => '1.0',
+    'PHP' => '5.3',
   );
   static private $prefs = array('archive_mbox');
   static private $config_dist = 'config.inc.php.dist';
@@ -131,7 +125,7 @@ class archivefolder extends rcube_plugin
         }
       }
     }
-    $rcmail_config = array();
+    $config = array();
     if(is_string(self::$config_dist)){
       if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
         include $file;
@@ -149,9 +143,9 @@ class archivefolder extends rcube_plugin
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
+      $ret['config'] = array_merge($config, array_flip(self::$prefs));
     else
-      $ret['config'] = $rcmail_config;
+      $ret['config'] = $config;
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){
@@ -198,8 +192,21 @@ class archivefolder extends rcube_plugin
 
     // set localized name for the configured archive folder  
     if ($archive_folder) {  
-      if (isset($p['list'][$archive_folder]))  
-        $p['list'][$archive_folder]['name'] = $this->gettext('archivefolder.archivefolder');  
+      if (isset($p['list'][$archive_folder])) {
+        $p['list'][$archive_folder]['name'] = $this->gettext('archivefolder.archivefolder');
+        $af = $p['list'][$archive_folder];
+        unset($p['list'][$archive_folder]);
+        $fldrs = array();
+        $i = -1;
+        foreach($p['list'] as $key => $val){
+          $i++;
+          if($i == 1){
+            $fldrs[$archive_folder] = $af;
+          }
+          $fldrs[$key] = $val;
+        }
+        $p['list'] = $fldrs;
+      }
       else // search in subfolders  
         $this->_mod_folder_name($p['list'], $archive_folder, $this->gettext('archivefolder.archivefolder'));  
     }  

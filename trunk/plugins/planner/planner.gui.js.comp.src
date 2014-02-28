@@ -283,25 +283,25 @@ $(document).ready(function() {
   $('#planner_raw').bind('blur', function(){
     $('#planner_raw').focus();
   });
-  $('a.done').live("click", function(){
+  $('a.done').on("click", function(){
     planner_overlay_toggle(true);
     rcmail.http_post('plugin.planner_done', '_id=' + $(this).parent().attr("id"));
   });
-  $('a.star').live("click", function(){
+  $('a.star').on("click", function(){
     planner_overlay_toggle(true);
     rcmail.http_post('plugin.planner_unstar', '_id=' + $(this).parent().attr("id"));
   });
-  $('a.nostar').live("click", function(){
+  $('a.nostar').on("click", function(){
     if(!$(this).next().hasClass('birthday')){
       planner_overlay_toggle(true);
       rcmail.http_post('plugin.planner_star', '_id=' + $(this).parent().attr("id"));
     }
   });
-  $('a.delete').live("click", function(){
+  $('a.delete').on("click", function(){
     planner_overlay_toggle(true);
     rcmail.http_post('plugin.planner_delete', '_id=' + $(this).parent().attr("id"));
   });
-  $('a.remove').live("click", function(){
+  $('a.remove').on("click", function(){
     planner_overlay_toggle(true);
     rcmail.http_post('plugin.planner_remove', '_id=' + $(this).parent().attr("id"));
   });
@@ -333,23 +333,23 @@ $(document).ready(function() {
       $('#planner_preview_done').removeClass('pdelete');
     }
   });
-  $('.pnostar').live('click', function(){
+  $('.pnostar').on('click', function(){
     $('#planner_preview_star').removeClass('pnostar');
     $('#planner_preview_star').addClass('pstar');
     $('#planner_starred').prop('checked', true);
   });
-  $('.pstar').live('click', function(){
+  $('.pstar').on('click', function(){
     $('#planner_preview_star').removeClass('pstar');
     $('#planner_preview_star').addClass('pnostar');
     $('#planner_starred').prop('checked', false);
   });
-  $('.pdone').live('click', function(){
+  $('.pdone').on('click', function(){
     $('#planner_preview_done').removeClass('pdelete');
     $('#planner_preview_done').removeClass('pdone');
     $('#planner_done').prop('checked', false);
     $('#planner_deleted').prop('checked', false);
   });
-  $('.pdelete').live('click', function(){
+  $('.pdelete').on('click', function(){
     $('#planner_preview_done').removeClass('pdelete');
     $('#planner_preview_done').addClass('pdone');
     $('#planner_done').prop('checked', true);
@@ -363,15 +363,15 @@ $(document).ready(function() {
   $('#planner_controls a').mouseout(function(){
     $(this).css('font-style', 'normal');
   });  
-  $('.edit').live('mouseover', function(){
+  $('.edit').on('mouseover', function(){
     $(this).css('font-style', 'italic');
   });
-  $('.edit').live('mouseout', function(){
+  $('.edit').on('mouseout', function(){
     $(this).css('font-style', 'normal');
   });
 
   // controls
-  $('.lcontrol').live('click',function(){
+  $('.lcontrol').on('click',function(){
     if(rcmail.env.planner_counts[$(this).attr('id').substr(1)] > 0){
       $('#controls').val($(this).attr('id').substr(1));
       $('.lcontrol').css('font-weight', 'normal');
@@ -444,14 +444,14 @@ $(document).ready(function() {
   planner_datetimepicker();
   
   // edit
-  $(".nodate").live('click',function(){
+  $(".nodate").on('click',function(){
     var text = $(this).text();
     if(text == '...'){
       text = '';
     }
     planner_dialog_edit($(this), text, false);
   });
-  $(".datetime").live('click',function(){
+  $(".datetime").on('click',function(){
     var time = $(this).prev().val();
     var text = $(this).text();
     if(text == '...'){

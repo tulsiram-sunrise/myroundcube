@@ -74,7 +74,7 @@ $rcmail_config['def_carddavs'] = array(
 /* HINT
    By default %u is replaced by rcmail::get_instance()->user->data['username'] (eq. to $_SESSION['username']).
    If it does not fit your needs, this is the right place to replace %u by whatever you need.
-   Here follow an example how to strip off the domain part of the user
+   Here follows an example how to strip off the domain part of the user
 */
 
 /*

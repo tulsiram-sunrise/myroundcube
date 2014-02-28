@@ -4,7 +4,7 @@
  *
  * Plugin to add expandall and collapseall links to mailboxoptions container
  *
- * @version 1.6.3 - 26.09.2013
+ * @version 2.0 - 05.01.2014
  * @author Mike Maraghy, Roland 'rosali' Liebl (http://myroundcube.com)
  * 
  **/
@@ -17,12 +17,12 @@ class folderbuttons extends rcube_plugin
   static private $plugin = 'folderbuttons';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/folderbuttons-plugin" target="_new">Documentation</a>';
-  static private $version = '1.6.3';
-  static private $date = '26-09-2012';
+  static private $version = '2.0';
+  static private $date = '05-01-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.9',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   static private $prefs = null;
   static private $config_dist = null;
@@ -55,13 +55,7 @@ class folderbuttons extends rcube_plugin
         }
       }
     }
-    $rcmail_config = array();
-    if(is_string(self::$config_dist)){
-      if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
-        include $file;
-      else
-        write_log('errors', self::$plugin . ': ' . self::$config_dist . ' is missing!');
-    }
+
     $ret = array(
       'plugin' => self::$plugin,
       'version' => self::$version,
@@ -71,10 +65,7 @@ class folderbuttons extends rcube_plugin
       'licence' => self::$licence,
       'requirements' => $requirements,
     );
-    if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
-    else
-      $ret['config'] = $rcmail_config;
+
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){

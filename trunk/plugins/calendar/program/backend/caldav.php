@@ -6,15 +6,18 @@ require_once(INSTALL_PATH . 'plugins/calendar/program/backend/caldav/caldav-clie
 final class calendar_caldav extends Backend{
   private $rcmail;
   private $type;
-  public  $utils;
   private $usertimezone;
   private $username;
   private $caldav;
   private $url = null;
-  public $caldavs = array();
   private $account;
   private $_rule;
   private $_part;
+
+  public $dbtable;
+  public $dbcache;
+  public $utils;
+  public $caldavs = array();
   public $sync = true;
   
   public function __construct($rcmail, $type){
@@ -23,6 +26,13 @@ final class calendar_caldav extends Backend{
     if(!class_exists('calendar_plus')){
       $type = 'database';
     }
+    if($type == 'database'){
+      $this->dbtable = $this->table('events');
+    }
+    else{
+      $this->dbtable = $this->table('events_caldav');
+    }
+    $this->dbcache = $this->table('events_cache');
     $this->type = $type;
     if($this->rcmail->config->get('timezone') === "auto" || $CONFIG['timezone'] === 'auto'){
       $tz = isset($_SESSION['timezone']) ? $_SESSION['timezone'] : date('Z')/3600;
@@ -48,7 +58,7 @@ final class calendar_caldav extends Backend{
     );
     $this->account = $account;
     $lastdetection = time() - $this->rcmail->config->get('collections_sync', 0);
-    if(is_array($_SESSION['detected_caldavs']) || $lastdetection < $this->rcmail->config->get('sync_collections', 0)){
+    if(is_array($_SESSION['detected_caldavs']) || $lastdetection < $this->rcmail->config->get('collections_sync', 0)){
       $this->connect($account['url'], $account['user'], $account['pass'], $account['auth']);
       $public_caldavs = $this->rcmail->config->get('public_caldavs', array());
       foreach($public_caldavs as $category => $caldav){
@@ -132,7 +142,7 @@ final class calendar_caldav extends Backend{
         $caldav2['url'] = str_replace('%u', $this->rcmail->user->data['username'], $caldav2['url']);
         if($caldav1['url'] == $caldav2['url']){
           if($key1 != $key2){
-            $sql = 'UPDATE ' . $this->table('events') . ' SET ' . $this->q('categories'). '=? WHERE ' . $this->q('user_id') . '=? AND ' . $this->q('url') . '=?';
+            $sql = 'UPDATE ' . $this->dbtable . ' SET ' . $this->q('categories'). '=? WHERE ' . $this->q('user_id') . '=? AND ' . $this->q('url') . '=?';
             $this->rcmail->db->query($sql, $key2, $this->rcmail->user->ID, $caldav2['url']);
           }
           unset($conf[$key1]);
@@ -304,7 +314,7 @@ final class calendar_caldav extends Backend{
           }
           if(is_array($caldav_props)){
             $query = $this->rcmail->db->query(
-              "UPDATE " . $this->table('events') . " 
+              "UPDATE " . $this->dbtable . " 
               SET ".$this->q('caldav')."=?
               WHERE ".$this->q('uid')."=?
               AND ".$this->q('user_id')."=?",
@@ -504,7 +514,7 @@ PROPP;
           $sql_filter .= ")";
         }
         $sql_result = $this->rcmail->db->query(
-          "SELECT * FROM ".$this->table('events').
+          "SELECT * FROM ".$this->dbtable.
           " WHERE " . $this->q('del') . "<>1".
           " AND " . $this->q('user_id') . "=?".
           $sql_filter.
@@ -516,10 +526,8 @@ PROPP;
           $key = md5(serialize($key));
           $results[$key] = $sql_arr;
         }
-        $events_table = $this->rcmail->config->get('db_table_events', 'events');
-        $this->rcmail->config->set('db_table_events',$this->rcmail->config->get('db_table_events_cache', 'events_cache'));
         $sql_result = $this->rcmail->db->query(
-          "SELECT * FROM ".$this->table('events').
+          "SELECT * FROM ".$this->dbcache.
           " WHERE " . $this->q('del') . "<>1".
           " AND " . $this->q('user_id') . "=?".
           $sql_filter.
@@ -554,7 +562,7 @@ PROPP;
                 $remote_user = $temp[1];
                 $this->rcmail->user->ID = $remote_user;
                 $sql_result = $this->rcmail->db->query(
-                  "SELECT * FROM ".$this->table('events').
+                  "SELECT * FROM ".$this->dbcache.
                   " WHERE " . $this->q('del') . "<>1".
                   " AND " . $this->q('user_id') . "=?".
                   $sql_filter.
@@ -571,22 +579,8 @@ PROPP;
               }
             }
           }
-          $this->rcmail->config->set('db_table_events', $events_table);
           $arr = $this->utils->getUser($remote_user);
           $prefs = unserialize($arr['preferences']);
-          $events_table = $this->rcmail->config->get('db_table_events', 'events');
-          $db_table = str_replace('_caldav','',$events_table);
-          $default = array(
-            'database' => '', // default db table
-            'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
-          );
-          $map = $this->rcmail->config->get('backend_db_table_map', $default);
-          if($prefs['backend'] == 'caldav'){
-            $db_table .= $map['caldav'];
-          }
-          else{
-            $db_table .= $map['database'];
-          }
           foreach($feeds as $url => $category){
             $arr = parse_url($url);
             $con = '?';
@@ -601,7 +595,7 @@ PROPP;
                   $remote_user = $temp[1];
                   $this->rcmail->user->ID = $remote_user;
                   $sql_result = $this->rcmail->db->query(
-                    "SELECT * FROM ".$db_table.
+                    "SELECT * FROM ".$this->dbtable.
                     " WHERE " . $this->q('del') . "<>1".
                     " AND " . $this->q('user_id') . "=?".
                     $sql_filter.
@@ -619,7 +613,6 @@ PROPP;
               }
             }
           }
-          $this->rcmail->config->set('db_table_events', $events_table);
         }
       }
     }
@@ -648,21 +641,11 @@ PROPP;
   
   public function scheduleReminders($event){
     if (!empty($this->rcmail->user->ID) && $event) {
-      $default = array(
-        'database' => '', // default db table
-        'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
-      );
-      $map = $this->rcmail->config->get('backend_db_table_map', $default);
-      if(stripos($this->table('events'),$map['caldav'])){
+      if($this->type == 'caldav'){
         $col = 'caldav';
       }
       else{
-        if($this->rcmail->config->get('db_table_events_cache') == get_table_name('events')){
-          $col = 'cache';
-        }
-        else{
-          $col = 'events';
-        }
+        $col = 'events';
       }
       $query = $this->rcmail->db->query(
         "DELETE FROM " . $this->table('reminders') . "
@@ -883,7 +866,7 @@ PROPP;
       if(is_array($exists)){
         if($exists['del'] != '0'){
           $query = $this->rcmail->db->query(
-            "UPDATE " . $this->table('events') . " 
+            "UPDATE " . $this->dbtable . " 
               SET ".$this->q('del')."=?
               WHERE ".$this->q('event_id')."=?
               AND ".$this->q('user_id')."=?",
@@ -952,7 +935,7 @@ PROPP;
         return $ret;
       }
       $query = $this->rcmail->db->query(
-        "INSERT INTO " . $this->table('events') . "
+        "INSERT INTO " . $this->dbtable . "
          (".
            $this->q('user_id').", ".
            $this->q('component').", ".
@@ -1113,7 +1096,7 @@ PROPP;
         $caldav = $event['caldav'];
       }
       $query = $this->rcmail->db->query(
-        "UPDATE " . $this->table('events') . " 
+        "UPDATE " . $this->dbtable . " 
          SET ".
            $this->q('component')."=?, ".
            $this->q('summary')."=?, ".
@@ -1251,7 +1234,7 @@ PROPP;
       $offset = $this->offset($end);
       $end = $end + $offset;
       $query = $this->rcmail->db->query(
-        "UPDATE " . $this->table('events') . " 
+        "UPDATE " . $this->dbtable . " 
          SET ".$this->q('start')."=?, ".
                $this->q('end')."=?, ".
                $this->q('remindersent')."=?, ".
@@ -1290,7 +1273,7 @@ PROPP;
       $offset = $this->offset($end);
       $end = $end + $offset;
       $query = $this->rcmail->db->query(
-        "UPDATE " . $this->table('events') . " 
+        "UPDATE " . $this->dbtable . " 
          SET ".$this->q('start')."=?, ".
                $this->q('end')."=?, ".
                $this->q('remindersent')."=?, ".
@@ -1320,7 +1303,7 @@ PROPP;
   public function removeEvent($id, $categories=false) {
     if (!empty($this->rcmail->user->ID)) {
       $query = $this->rcmail->db->query(
-        "UPDATE " . $this->table('events') . " 
+        "UPDATE " . $this->dbtable . " 
          SET ".$this->q('del')."=?, ".$this->q('timestamp')."=?
          WHERE ".$this->q('event_id')."=?
          AND ".$this->q('user_id')."=?",
@@ -1362,7 +1345,7 @@ PROPP;
   public function purgeEvents() {
    if (!empty($this->rcmail->user->ID)) {
       $query = $this->rcmail->db->query(
-        "DELETE FROM " . $this->table('events') . "
+        "DELETE FROM " . $this->dbtable . "
          WHERE ".$this->q('user_id')."=?
          AND ".$this->q('del')."<>?",
          $this->rcmail->user->ID,
@@ -1374,7 +1357,7 @@ PROPP;
   public function removeDuplicate($id) {
     if (!empty($this->rcmail->user->ID)) {
       $query = $this->rcmail->db->query(
-        "DELETE FROM " . $this->table('events') . "
+        "DELETE FROM " . $this->dbtable . "
          WHERE ".$this->q('user_id')."=? AND ".$this->q('event_id')."=?",
          $this->rcmail->user->ID,
          $id
@@ -1385,24 +1368,17 @@ PROPP;
   public function uninstall() {
     if (!empty($this->rcmail->user->ID)) {
       $query = $this->rcmail->db->query(
-        "DELETE FROM " . $this->table('events') . "
-        WHERE ".$this->q('user_id')."=?",
-        $this->rcmail->user->ID
-      );
-      $default = array(
-        'database' => '', // default db table
-        'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
-      );
-      $map = $this->rcmail->config->get('backend_db_table_map', $default);
-      $table = str_replace('`','',str_replace($map['caldav'], '', $this->table('events')));
-      $this->rcmail->config->set('db_table_events', $table);
-      $query = $this->rcmail->db->query(
-        "DELETE FROM " . $this->table('events') . "
+        "DELETE FROM " . $this->dbtable . "
         WHERE ".$this->q('user_id')."=?",
         $this->rcmail->user->ID
       );
       $query = $this->rcmail->db->query(
-        "DELETE FROM " . $this->table('events_cache') . "
+        "DELETE FROM " . $this->dbtable . "
+        WHERE ".$this->q('user_id')."=?",
+        $this->rcmail->user->ID
+      );
+      $query = $this->rcmail->db->query(
+        "DELETE FROM " . $this->dbcache . "
         WHERE ".$this->q('user_id')."=?",
         $this->rcmail->user->ID
       );
@@ -1418,7 +1394,7 @@ PROPP;
     if (!empty($this->rcmail->user->ID)) {
       if($mode == 0){
         $query = $this->rcmail->db->query(
-          "DELETE FROM " . $this->table('events') . "
+          "DELETE FROM " . $this->dbtable . "
           WHERE ".$this->q('user_id')."=? AND ".$this->q('del')."=?",
           $this->rcmail->user->ID,
           1
@@ -1426,7 +1402,7 @@ PROPP;
       }
       else if($mode == 1){
         $query = $this->rcmail->db->query(
-          "UPDATE " . $this->table('events') . " 
+          "UPDATE " . $this->dbtable . " 
           SET ".$this->q('del')."=?, ".$this->q('timestamp')."=?
           WHERE ".$this->q('user_id')."=?",
           2,
@@ -1436,7 +1412,7 @@ PROPP;
       }
       else if($mode == 2){
         $query = $this->rcmail->db->query(
-          "UPDATE " . $this->table('events') . " 
+          "UPDATE " . $this->dbtable . " 
           SET ".$this->q('del')."=?, ".$this->q('timestamp')."=?
           WHERE ".$this->q('user_id')."=?",
           0,
@@ -1446,14 +1422,14 @@ PROPP;
       }
       else if($mode == 3){
         $query = $this->rcmail->db->query(
-          "DELETE FROM " . $this->table('events') . "
+          "DELETE FROM " . $this->dbtable . "
           WHERE ".$this->q('user_id')."=?",
           $this->rcmail->user->ID
         );
       }
       else if($mode == 4){
         $query = $this->rcmail->db->query(
-          "UPDATE " . $this->table('events') . " 
+          "UPDATE " . $this->dbtable . " 
           SET ".$this->q('del')."=?, ".$this->q('timestamp')."=?
           WHERE ".$this->q('user_id')."=? AND " . $this->q('url') . " IS NULL",
           2,
@@ -1466,7 +1442,7 @@ PROPP;
           if($ctag !== $ctags_saved[$hash]){
             if(md5($this->account['url']) == $hash){
               $query = $this->rcmail->db->query(
-                "UPDATE " . $this->table('events') . " 
+                "UPDATE " . $this->dbtable . " 
                 SET ".$this->q('del')."=?, ".$this->q('timestamp')."=?
                 WHERE ".$this->q('user_id')."=? AND ".$this->q('url')."=?",
                 2,
@@ -1479,7 +1455,7 @@ PROPP;
             foreach($caldavs as $key => $caldav){
               if(md5($caldav['url']) == $hash){
                 $query = $this->rcmail->db->query(
-                  "UPDATE " . $this->table('events') . " 
+                  "UPDATE " . $this->dbtable . " 
                   SET ".$this->q('del')."=?, ".$this->q('timestamp')."=?
                   WHERE ".$this->q('user_id')."=? AND ".$this->q('url')."=?",
                   2,
@@ -1541,16 +1517,11 @@ PROPP;
   ) {
     if($this->type == 'caldav'){
       $events = array();
-      $default = array(
-        'database' => '', // default db table
-        'caldav' => '_caldav', // caldav db table (= default db table) extended by _caldav
-      );
-      $map = $this->rcmail->config->get('backend_db_table_map', $default);
       $ctags = $this->rcmail->config->get('ctags', array());
       if($eend <= $estart){
         $eend = $estart + 1;
       }
-      if(stripos($this->table('events'),$map['caldav'])){
+      if($this->type == 'caldav'){
         $startYear  = date('Y',$estart);
         $startMonth = date('m',$estart);
         $startDay   = date('d',$estart);
@@ -1610,7 +1581,7 @@ PROPP;
         }
         if($import){
           $query = $this->rcmail->db->query(
-            "UPDATE " . $this->table('events') . " 
+            "UPDATE " . $this->dbtable . " 
             SET ".$this->q('timestamp')."=?, ".$this->q('notified')."=?
             WHERE ".$this->q('user_id')."=?",
             '0000-00-00 00:00:00',
@@ -1639,7 +1610,7 @@ PROPP;
         );
         foreach($reminders as $reminder){
           $query = $this->rcmail->db->query(
-            "UPDATE " .$this->table('events') . " 
+            "UPDATE " .$this->dbtable. " 
             SET ". $this->q('remindersent')."=?
             WHERE ".$this->q('event_id')."=?
             AND ".$this->q('user_id')."=?",
@@ -1657,7 +1628,7 @@ PROPP;
           $this->rcmail->user->ID
         );
         $query = $this->rcmail->db->query(
-          "UPDATE " .$this->table('events') . " 
+          "UPDATE " .$this->dbtable . " 
           SET ". $this->q('remindersent')."=?
           WHERE ".$this->q('event_id')."=?
           AND ".$this->q('user_id')."=?",
@@ -1693,7 +1664,7 @@ PROPP;
         else if($val['cache'])
           $col = 'cache';
         $result = $this->rcmail->db->query(
-          "SELECT * FROM " . $this->table('events') . " 
+          "SELECT * FROM " . $this->dbtable . " 
           WHERE ".$this->q('user_id')."=? AND ".$this->q('event_id')."=?",
           $this->rcmail->user->ID,
           $val[$col]
@@ -1761,7 +1732,7 @@ PROPP;
         $filterval = 1;
       }
       $result = $this->rcmail->db->query(
-        "SELECT * FROM " . $this->table('events') . " 
+        "SELECT * FROM " . $this->dbtable . " 
          WHERE ".$this->q('user_id')."=? AND ".
                  $this->q('component')."=? AND ".
                  //$this->q('start').">? AND ". // find me: memory exhaustion?
@@ -1992,7 +1963,7 @@ PROPP;
   public function removeTimestamps() {
     if (!empty($this->rcmail->user->ID)) {
       $query = $this->rcmail->db->query(
-        "UPDATE " . $this->table('events') . " 
+        "UPDATE " . $this->dbtable . " 
          SET ".$this->q('timestamp')."=?
          WHERE ".$this->q('user_id')."=?",
         '0000-00-00 00:00:00',
@@ -2001,17 +1972,23 @@ PROPP;
     }
   }
   
-  public function removeDuplicates($table = 'events'){
+  public function removeDuplicates($table = 'events_cache'){
     if (!empty($this->rcmail->user->ID)) {
+      if($table == 'events_cache'){
+        $table = $this->dbcache;
+      }
+      else{
+        $table = $this->dbtable;
+      }
       $result = $this->rcmail->db->query(
-        "SELECT * FROM " . $this->table($table) . " 
+        "SELECT * FROM " . $table . " 
          WHERE ".$this->q('user_id')."=?",
          $this->rcmail->user->ID
       );
       while ($result && ($event = $this->rcmail->db->fetch_assoc($result))){
         if(isset($events[$event['uid']])){
           $this->rcmail->db->query(
-            "DELETE FROM " . $this->table($table) . "
+            "DELETE FROM " . $table . "
             WHERE ".$this->q('user_id')."=? AND ".$this->q('event_id')."=? AND ".$this->q('recurrence_id'). " IS NULL",
             $this->rcmail->user->ID,
             $event['event_id']
@@ -2027,7 +2004,7 @@ PROPP;
   public function getEvent($eventid){
     if (!empty($this->rcmail->user->ID)) {
       $result = $this->rcmail->db->query(
-        "SELECT * FROM " . $this->table('events') . " 
+        "SELECT * FROM " . $this->dbtable . " 
          WHERE ".$this->q('user_id')."=? AND ".$this->q('event_id')."=?",
          $this->rcmail->user->ID,
          $eventid
@@ -2045,7 +2022,7 @@ PROPP;
     $event = array();
     if (!empty($this->rcmail->user->ID)) {
       $result = $this->rcmail->db->query(
-        "SELECT * FROM " . $this->table('events') . " 
+        "SELECT * FROM " . $this->dbtable . " 
          WHERE ".$this->q('user_id')."=? AND ".$this->q('uid')."=? AND ".$this->q('recurrence_id')."=?",
          $this->rcmail->user->ID,
          $uid,
@@ -2064,7 +2041,7 @@ PROPP;
   public function getEventsByUID($uid){
     if (!empty($this->rcmail->user->ID)) {
       $result = $this->rcmail->db->query(
-        "SELECT * FROM " . $this->table('events') . " 
+        "SELECT * FROM " . $this->dbtable . " 
          WHERE ".$this->q('user_id')."=? AND ".$this->q('uid')."=?",
          $this->rcmail->user->ID,
          $uid

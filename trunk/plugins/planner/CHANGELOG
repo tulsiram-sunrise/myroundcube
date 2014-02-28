@@ -8,3 +8,5 @@ VERSION                COMMENT
 3.0.7                  - GUI improvements
 3.0.8 - 3.0.10         - Drag & drop fixes
 3.0.11                 - Jappix4Roundcube adjustments
+3.0.12                 - Implemented mysqladmin support
+3.0.13                 - Roundcube 1.0 compatibility

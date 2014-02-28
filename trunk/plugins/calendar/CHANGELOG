@@ -88,3 +88,7 @@ VERSION                COMMENT
 17.0.6                 - Make it possible to use Google as default CalDAV (requires google_oauth2)
 17.0.7 - 17.0.8        - Remember default CalDAV to make it easier to switch between Google CalDAV backend and other CalDAVs
 17.0.9                 - Bugfix: http://code.google.com/p/myroundcube/issues/detail?id=630
+18.0                   - Roundcube 1.0 compatibilty
+18.0.1                 - config.inc.php.dist: Change order of rewrite rules
+18.0.2                 - Optimize login speed when plugin summary is enabled
+18.0.3                 - Bug fix: Trigger collection sync only once

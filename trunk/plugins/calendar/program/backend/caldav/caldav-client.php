@@ -218,7 +218,7 @@ class CalDAVClient {
       $headers[] = "User-Agent: " . $this->user_agent;
       $headers[] = "http" . (rcube_https_check() ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
       $headers[] = 'Connection: close';
-      $this->httpRequest = join("\r\n", $headers);
+      $this->httpRequest = join("\r\n",$headers);
     
       $this->xmlRequest = $this->body;
 

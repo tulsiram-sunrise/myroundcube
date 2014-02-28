@@ -1,0 +1,4 @@
+calendar
+========
+
+Since v10.x you need calendar_plugs plugin to achieve advanced features (f.e. CalDAV).

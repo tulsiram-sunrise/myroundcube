@@ -5,14 +5,14 @@
   background-position: center 2px;
 }
 
-#rcmContextMenu li.archive a
+#rcm_messagelist a.archive
 {
   background-image: url('foldericon.png');
   background-repeat: no-repeat;
   background-position: 7px center;
 }
 
-#rcmContextMenu li.archive a:hover
+#rcm_messagelist a.archive:hover
 {
   background-image: url('foldericon.png') !important;
   background-repeat: no-repeat !important;

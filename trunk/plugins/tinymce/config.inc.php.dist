@@ -1,16 +1,18 @@
 <?php
-/* TinyMCE gzip compression */
-$rcmail_config['tinymce_gzip'] = true; // NOTE: ./plugins/tinymce/cache/ must have write permissions !!!
 
-/* NOTE: The following config values are eval'ed into javascript. Make sure values have correct javascript syntax! */
+/* TinyMCE gzip compression */
+$config['tinymce_gzip'] = true;
+
+/* NOTE: The following config values are eval(ed) into javascript. Make sure values have correct javascript syntax! */
 
 /* TinyMCE plugins */
-$rcmail_config['tinymce_plugins_compose'] = "if(typeof config == 'undefined'){config = a};'Jsvk,paste,emotions,inlinepopups,media,nonbreaking,table,searchreplace,visualchars,directionality,tabfocus' + (config.spellcheck ? ',spellchecker' : '')";
-$rcmail_config['tinymce_plugins_identity'] = "'paste,tabfocus,inlinepopups'";
+$config['tinymce_plugins_compose'] = 'if(typeof config == \'undefined\'){config = a};\'Jsvk,paste,emotions,inlinepopups,media,nonbreaking,table,searchreplace,visualchars,directionality,tabfocus\' + (config.spellcheck ? \',spellchecker\' : \'\')';
+$config['tinymce_plugins_identity'] = "'paste,tabfocus,inlinepopups,emotions'";
 
 /* TinyMCE button rows */
-$rcmail_config['tinymce_buttons_compose_row1'] = "'bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,outdent,indent,ltr,rtl,blockquote,|,forecolor,backcolor,fontselect,fontsizeselect'";
-$rcmail_config['tinymce_buttons_compose_row2'] = "if(typeof config == 'undefined'){config = a};'Jsvk,|,link,unlink,table,|,emotions,charmap,image,media,|,code,search,undo,redo'";
-$rcmail_config['tinymce_buttons_identity_row1'] = "'bold,italic,underline,strikethrough,justifyleft,justifycenter,justifyright,justifyfull,separator,outdent,indent,charmap,hr,link,unlink,code,forecolor'";
-$rcmail_config['tinymce_buttons_identity_row2'] = "'fontselect,fontsizeselect'";
+$config['tinymce_buttons_compose_row1'] = "'bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,outdent,indent,ltr,rtl,blockquote,|,forecolor,backcolor,fontselect,fontsizeselect'";
+$config['tinymce_buttons_compose_row2'] = "if(typeof config == 'undefined'){config = a};'Jsvk,|,link,unlink,table,|,emotions,charmap,image,media,|,code,search' + (config.spellcheck ? ',spellchecker' : '') + ',undo,redo'";
+$config['tinymce_buttons_identity_row1'] = "'bold,italic,underline,strikethrough,justifyleft,justifycenter,justifyright,justifyfull,separator,outdent,indent,hr,link,unlink,code,forecolor'";
+$config['tinymce_buttons_identity_row2'] = "'fontselect,fontsizeselect,|,emotions,charmap,image'";
+
 ?>

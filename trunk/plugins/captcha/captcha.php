@@ -5,7 +5,7 @@
  *
  * Plugin provides a captcha challenge
  *
- * @version 3.2.10 - 07.10.2013
+ * @version 3.2.11 - 02.01.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -36,13 +36,13 @@ class captcha extends rcube_plugin {
     /* unified plugin properties */
   static private $plugin = 'captcha';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'Since version 3.2 the captcha image is save in the session. The temporary folder (temp) can be removed.<br /><a href="http://myroundcube.com/myroundcube-plugins/captcha-plugin" target="_new">Documentation</a>';
-  static private $version = '3.2.10';
-  static private $date = '07-10-2013';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/captcha-plugin" target="_new">Documentation</a>';
+  static private $version = '3.2.11';
+  static private $date = '02-01-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.9',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   static private $prefs = null;
   static private $config_dist = 'config.inc.php.dist';
@@ -87,7 +87,7 @@ class captcha extends rcube_plugin {
         }
       }
     }
-    $rcmail_config = array();
+    $config = array();
     if(is_string(self::$config_dist)){
       if(is_file($file = INSTALL_PATH . 'plugins/' . self::$plugin . '/' . self::$config_dist))
         include $file;
@@ -104,9 +104,9 @@ class captcha extends rcube_plugin {
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))
-      $ret['config'] = array_merge($rcmail_config, array_flip(self::$prefs));
+      $ret['config'] = array_merge($config, array_flip(self::$prefs));
     else
-      $ret['config'] = $rcmail_config;
+      $ret['config'] = $config;
     if(is_array($keys)){
       $return = array('plugin' => self::$plugin);
       foreach($keys as $key){

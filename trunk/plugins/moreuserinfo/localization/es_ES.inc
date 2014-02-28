@@ -4,10 +4,10 @@
  | ./plugins/moreuserinfo/localization/es_ES.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2014, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 05/08/2013 04:01:46
+ | Author: Yoni - 02/09/2014 17:06:28
  +-----------------------------------------------------------------------+
 */
 
@@ -18,7 +18,7 @@ $labels['accountinformation'] = 'Detalles de cuenta';
 $labels['encryption'] = 'Encriptación';
 $labels['port'] = 'Puerto';
 $labels['auth'] = 'Autenticación';
-$labels['yes'] = 'Si';
+$labels['yes'] = 'Sí';
 $labels['no'] = 'No';
 $labels['created'] = 'Creado';
 $labels['lastlogin'] = 'Último acceso';
@@ -29,6 +29,7 @@ $labels['description'] = 'Obtener información detallada de su cuenta.';
 $labels['default'] = 'Predeterminado';
 $labels['clients'] = 'Clientes recomendados que soportan protocolo %s';
 $labels['tutorial'] = 'Tutorial';
+$labels['copiedtoclipboard'] = 'Copiado al portapapeles';
 $labels['copytoclipboard'] = 'Copiar al portapapeles';
 $labels['calendars'] = 'Calendarios';
 $labels['addressbooks'] = 'Libretas de direcciones';

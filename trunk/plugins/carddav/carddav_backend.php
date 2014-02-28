@@ -95,14 +95,14 @@ class carddav_backend
 	 *
 	 * @constant string
 	 */
-	const VERSION = '5.0 (iPad; CPU OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3';//5.0';
+	const VERSION = '5.0';
 
 	/**
 	 * User agent displayed in http requests
 	 *
 	 * @constant string
 	 */
-	const USERAGENT = 'Mozilla/';//CardDAV PHP/';
+	const USERAGENT = 'MyRoundcube PHP/';
 
 	/**
 	 * CardDAV server url
@@ -240,27 +240,18 @@ class carddav_backend
 	 */
 	public function get($include_vcards = true, $raw = false)
 	{
-    $this->headers = array('Depth: 1');
-    //begin patch: https://github.com/graviox/Roundcube-CardDAV/issues/28
-    /*$xml = new XMLWriter();
-    $xml->openMemory();
-    $xml->setIndent(4);
-    $xml->startDocument('1.0', 'utf-8');
-    $xml->startElement('D:propfind');
-    $xml->writeAttribute('xmlns:D', 'DAV:');
-    $xml->startElement('D:prop');
-    $xml->writeElement('D:resourcetype');
-    $xml->endElement();
-    $xml->endElement();
-    $xml->endDocument();
-    $response = $this->query($this->url, 'PROPFIND', $xml->outputMemory());
-    */
-    //end patch
-    $response = $this->query($this->url, 'PROPFIND');
+    $this->headers = array('depth' => 'Depth: 1');
+    if(substr($this->auth, 0, strlen('***TOKEN***')) == '***TOKEN***'){
+      $content_type = 'text/xml';
+      $content='<?xml version="1.0" encoding="utf-8" ?><D:propfind xmlns:D="DAV:"><D:prop><D:getetag/><D:resourcetype/></D:prop></D:propfind>';
+      $response = $this->query($this->url, 'PROPFIND', $content, $content_type);
+    }
+    else{//if(!$response){
+      $response = $this->query($this->url, 'PROPFIND');
+    }
     if(!$response){
       //Davical ??? https://github.com/graviox/Roundcube-CardDAV/issues/29
       $content = '<?xml version="1.0" encoding="utf-8" ?><D:sync-collection xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav"><D:sync-token></D:sync-token><D:prop><D:getcontenttype/><D:getetag/><D:allprop/><C:address-data><C:allprop/></C:address-data></D:prop><C:filter/></D:sync-collection>';
-      $content_type = 'application/xml';
       $response = $this->query($this->url, 'REPORT', $content, $content_type);
     }
 		if ($response === false || $raw === true)
@@ -342,7 +333,7 @@ class carddav_backend
     }
     if(isset($xml->response->propstat->prop->{'current-user-principal'}->href[0])){
       $principal = $xml->response->propstat->prop->{'current-user-principal'}->href[0];
-      $this->headers = array('Depth: 1');
+      $this->headers = array('depth' => 'Depth: 1');
       $content = '<?xml version="1.0" encoding="utf-8" ?><A:propfind xmlns:B="urn:ietf:params:xml:ns:carddav" xmlns:A="DAV:"><A:prop><B:addressbook-home-set/></A:prop></A:propfind>';
       $content_type = 'application/xml';
       $response = $this->clean_response($this->query($this->url . $principal, 'PROPFIND', $content, $content_type));
@@ -354,7 +345,7 @@ class carddav_backend
       }
       if(isset($xml->response->propstat->prop->{'caraddressbook-home-set'}->href[0])){
         $collection = (string) $xml->response->propstat->prop->{'caraddressbook-home-set'}->href[0];
-        $this->headers = array('Depth: 1');
+        $this->headers = array('depth' => 'Depth: 1');
         $response = $this->clean_response($this->query($this->url . $collection, 'PROPFIND', null, null));
         try{
           $xml = new SimpleXMLElement($response);
@@ -435,7 +426,7 @@ class carddav_backend
 	 */
 	public function delete_collection($url)
 	{
-	  $this->headers = array('Depth: infinity');
+	  $this->headers = array('depth' => 'Depth: infinity');
 	  return $this->query($url, 'DELETE', null, null, true);
 	}
 
@@ -530,7 +521,7 @@ class carddav_backend
 
 				foreach ($xml->response as $response)
 				{
-					if (preg_match('/vcard/', $response->propstat->prop->getcontenttype) || preg_match('/vcf/', $response->href))
+					if (preg_match('/vcard/', $response->propstat->prop->getcontenttype) || preg_match('/vcf/', $response->href) || (preg_match('/carddav/', $response->href) && slashify($response->href) != $response->href))
 					{
 						$id = basename($response->href);
 						$id = str_replace($this->ext, null, $id);
@@ -629,11 +620,18 @@ class carddav_backend
 			curl_setopt($this->curl, CURLOPT_USERAGENT, self::USERAGENT.self::VERSION);
 			curl_setopt($this->curl, CURLOPT_REFERER, 'http' . (rcube_https_check() ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF']);
 
-			if ($this->auth !== null)
-			{
-				curl_setopt($this->curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-				curl_setopt($this->curl, CURLOPT_USERPWD, $this->auth);
-				curl_setopt($this->curl, CURLOPT_HEADER, true);
+      if($this->auth !== null){
+        if($_SESSION['access_token'] && substr($this->auth, 0, strlen('***TOKEN***')) == '***TOKEN***'){
+          if(!is_array($this->headers)){
+            $this->headers = array();
+          }
+          $this->headers = array_merge($this->headers, array('authorization' => 'Authorization: Bearer ' . $_SESSION['access_token']));
+        }
+        else{
+          curl_setopt($this->curl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+          curl_setopt($this->curl, CURLOPT_USERPWD, $this->auth);
+        }
+        curl_setopt($this->curl, CURLOPT_HEADER, true);
 			}
 		}
 		else{
@@ -674,7 +672,7 @@ class carddav_backend
 		if ($method == 'OPTIONS'){
 		  $header = true;
 		}
-		else if ($this->auth && $method == 'PUT' && class_exists('carddav_plus')){
+		else if($this->auth && $method == 'PUT' && class_exists('carddav_plus')){
       $auth = $this->auth_method[$protocol . $host . $port];
       $username = $this->username;
       $password = $this->password;
@@ -716,18 +714,20 @@ class carddav_backend
 			curl_setopt($this->curl, CURLOPT_POST, false);
 			curl_setopt($this->curl, CURLOPT_POSTFIELDS, null);
 		}
+		if(!is_array($this->headers) || $method == 'GET'){
+		  $this->headers = array();
+		}
+    if($_SESSION['access_token'] && substr($this->auth, 0, strlen('***TOKEN***')) == '***TOKEN***'){
+      if(!is_array($this->headers)){
+        $this->headers = array();
+      }
+      $this->headers = array_merge($this->headers, array('authorization' => 'Authorization: Bearer ' . $_SESSION['access_token']));
+    }
 		if ($content_type !== null)
 		{
-			curl_setopt($this->curl, CURLOPT_HTTPHEADER, array('Content-type: '.$content_type, 'Content-Length: ' . strlen($content)));
+			$this->headers = array_merge($this->headers, array('contenttype' => 'Content-type: '.$content_type, 'contentlength' => 'Content-Length: ' . strlen($content)));
 		}
-		else if(is_array($this->headers))
-		{
-		  curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headers);
-		}
-		else
-		{
-			curl_setopt($this->curl, CURLOPT_HTTPHEADER, array());
-		}
+		curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headers);
     $start = time();
 		$return = curl_exec($this->curl);
     if(class_exists('rcmail') && rcmail::get_instance()->config->get('carddav_debug', false)){
@@ -738,6 +738,7 @@ class carddav_backend
       write_log('CardDAV-timeline', time() - $start);
       write_log('CardDAV-timeline', $return);
     }
+    $this->headers = array();
     if($header){
       $header = explode("\r\n\r\n", $return);
       $authline = $this->extractCustomHeader('WWW-Authenticate: ', '\n', $header[0]);

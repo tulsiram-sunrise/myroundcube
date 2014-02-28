@@ -3,12 +3,12 @@
 /* captcha plugin */
 
 /* Captcha challenge to enter authenticated state */
-$rcmail_config['captcha_auth'] = FALSE;
+$config['captcha_auth'] = false;
 
 /* Define below pages where a check should be performed in not authenticated state */
-$rcmail_config['captcha_page'] = array("contactus.contactus","pwtools.recpw","register.register");
+$config['captcha_page'] = array("contactus.contactus", "pwtools.recpw", "register.register");
 
 /* Textual Captcha */
-$rcmail_config['captcha_onclick'] = 'riddle'; // 'entity_encoded' or 'riddle'
+$config['captcha_onclick'] = 'riddle'; // 'entity_encoded' or 'riddle'
 
 ?>

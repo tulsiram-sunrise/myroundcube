@@ -71,3 +71,10 @@ VERSION                COMMENT
 5.4.38                 - Bug fix: Drag/drop contacts was broken
 5.4.39                 - companyaddressbook adjustments
 5.4.40                 - Saving search results was broken
+5.4.41 - 5.4.42        - Implemented mysqladmin support
+5.4.43                 - @set_time_limit(0) for entire addressbook task to avoid timeout on first time sync
+5.4.44                 - Implementation of Google oAuth2 for CardDAV access to Google contacts
+5.4.45                 - Protect 'Google' label
+5.4.46                 - Bugfix: Roundcube < 1.0 does not handle all date formats properly (birthday, anniversary fails
+                         for dd/mm, dd.mm, ...)
+6.0                    - Roundcube 1.0 compatibility

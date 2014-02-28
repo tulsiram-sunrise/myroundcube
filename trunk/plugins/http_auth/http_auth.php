@@ -2,7 +2,7 @@
 /**
  * http_auth
  *
- * @version 1.4.1 - 25.05.2013
+ * @version 1.5 - 30.12.2013
  * @author Roland 'rosali' Liebl
  * @author Thomas Bruederli
  * @website http://myroundcube.googlecode.com
@@ -22,12 +22,12 @@ class http_auth extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.4.1';
-  static private $date = '25-05-2012';
+  static private $version = '1.5';
+  static private $date = '30-12-2012';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.7.1',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   static private $config = null;
 

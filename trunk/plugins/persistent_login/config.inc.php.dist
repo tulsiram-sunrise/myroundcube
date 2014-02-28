@@ -4,12 +4,12 @@
 // ----------------------------------
 
 // Time until the peristent login cookie invalidates (in milliseconds; 60*60*24*3 = 3 days)
-$rcmail_config['ifpl_login_expire'] = 60*60*24*3;
+$config['ifpl_login_expire'] = 60*60*24*3;
 
 // The name of the persistent login cookie.
-$rcmail_config['ifpl_cookie_name'] = '_pt';
+$config['ifpl_cookie_name'] = '_pt';
 
 // Turn on feature to use tokens.
-$rcmail_config['ifpl_use_auth_tokens'] = false;
+$config['ifpl_use_auth_tokens'] = false;
 
 ?>

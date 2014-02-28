@@ -25,29 +25,3 @@
 {
   overflow: hidden;
 }
-
-#hidelogout
-{
-  border-bottom-left-radius: 20px;
-  background-color: #111;
-  position: absolute;
-  top: 68px;
-  right: 0;
-  height: 22px;
-  width: 80px;
-  z-Index: 10000;
-  text-align: right;
-  padding-top: 3px;
-  color: #eee;
-}
-
-#hidelogout a{
-  text-decoration: none;
-  font-weigth: normal 14.6px 'PT Sans', sans-serif !important;
-  white-space: nowrap;
-  color: #eee;
-}
-
-#hidelogout a:hover{
-  text-decoration: underline;
-}

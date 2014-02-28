@@ -2,24 +2,12 @@
 /**
  * message_highlight
  *
- * @version 1.1.2 - 11.06.2013
+ * @version 1.1.3 - 16.02.2014
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  * 
  **/
  
-/**
- *
- * Requirements: #1- jscolor
- *
- **/
- 
-/**
- *
- * Usage: http://myroundcube.com
- *
- **/
-
 /* forked from: */
 
 /**
@@ -35,13 +23,15 @@ class message_highlight extends rcube_plugin
   static private $plugin = 'message_highlight';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.1.2';
-  static private $date = '11-06-2013';
+  static private $version = '1.1.3';
+  static private $date = '16-02-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.8.1',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3',
+    'required_plugins' => array(
+      'jscolor' => 'require_plugin'
+    )
   );
   static private $config = null;
 
@@ -49,7 +39,9 @@ class message_highlight extends rcube_plugin
   {
     $rcmail = rcmail::get_instance();
     $skin = $rcmail->config->get('skin', 'classic');
-    $this->include_script('message_highlight.js');
+    if(($rcmail->task == 'mail' || $rcmail->task == 'settings') && $rcmail->action != 'compose'){
+      $this->include_script('message_highlight.js');
+    }
     if($rcmail->task == 'mail'){
       $this->include_stylesheet('skins/' . $skin . '/message_highlight.css');
       $this->add_hook('storage_init', array($this, 'storage_init'));
@@ -95,7 +87,6 @@ class message_highlight extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array($keys)){

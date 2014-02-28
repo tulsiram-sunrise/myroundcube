@@ -1,10 +1,17 @@
 <?php
 /* Jappix Domain */
-$rcmail_config['jabber_domain'] = 'jappix.com';
+$config['jabber_domain'] = 'jappix.com';
 
 /* Jappix URL */
-$rcmail_config['jappix_url'] = 'https://jappix.com';
+$config['jappix_url'] = 'https://jappix.com';
 
 /* Use Mini Jappix */
-$rcmail_config['jappix_mini'] = true;
+$config['jappix_mini'] = true;
+
+/* Database cache
+   Cache js and css files in database. This is only
+   recommended if you use a public Jappix service to avoid
+   delays on page loading if the Jappix service is busy
+   or down. */
+$config['jappix_cache'] = false;
 ?>

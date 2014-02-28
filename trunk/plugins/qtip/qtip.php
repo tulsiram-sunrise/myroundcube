@@ -2,7 +2,7 @@
 /**
  * qtip
  *
- * @version 1.2 - 10.09.2012
+ * @version 2.0 - 08.01.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  * 
@@ -22,17 +22,18 @@ class qtip extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '1.2';
-  static private $date = '10-09-2012';
+  static private $version = '2.0';
+  static private $date = '08-01-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
-    'Roundcube' => '0.7.1',
-    'PHP' => '5.2.1'
+    'Roundcube' => '1.0',
+    'PHP' => '5.3'
   );
   
   function init()
   {    
     $this->include_stylesheet('qtip.css');
+    $this->include_script('jquery.migrate.js');
     $this->include_script('qtip.js');
   }
   

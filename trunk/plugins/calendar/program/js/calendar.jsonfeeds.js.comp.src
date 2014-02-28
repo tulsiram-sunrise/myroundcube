@@ -52,7 +52,7 @@
         },
         success: function(data) {
           var events = [];
-          if (data){
+          if(data){
             events = data;
           }
           if(typeof events == "object"){

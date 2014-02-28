@@ -310,7 +310,7 @@ abstract class Backend
    * @access public
    */
   abstract public function removeDuplicates(
-    $table = 'events'
+    $table = 'events_cache'
   );
 
   /**

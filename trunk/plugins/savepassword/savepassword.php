@@ -4,15 +4,15 @@
  * Save password plugin
  *
  *
- * @version 2.0.1 - 10.11.2013
+ * @version 3.0 - 16.02.2014
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  *
  **/
  
 /**
  *
- * Usage: http://mail4us.net/myroundcube
+ * Usage: http://myroundcube.com
  *
  *        Get the password when user is not logged in:
  *     
@@ -34,12 +34,12 @@ class savepassword extends rcube_plugin
     static private $author = 'myroundcube@mail4us.net';
     static private $authors_comments = null;
     static private $download = 'http://myroundcube.googlecode.com';
-    static private $version = '2.0.1';
-    static private $date = '10-11-2012';
+    static private $version = '3.0';
+    static private $date = '16-02-2014';
     static private $licence = 'GPL';
     static private $requirements = array(
-      'Roundcube' => '0.9',
-      'PHP' => '5.2.1',
+      'Roundcube' => '1.0',
+      'PHP' => '5.3',
       'required_plugins' => array(
         'db_version' => 'require_plugin',
       )
