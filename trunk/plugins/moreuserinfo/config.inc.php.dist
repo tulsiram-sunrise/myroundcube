@@ -5,8 +5,9 @@
 $GLOBALS['settingsnav']['moreuserinfo'] = array('part' => '', 'label' => 'accountinformation', 'href' => './?_task=settings&_action=plugin.moreuserinfo&_framed=1', 'onclick' => '', 'descr' => 'moreuserinfo');
 
 // HoTo links
+$config['moreuserinfo_show_tutorial_links'] = true;
 /* CalDAV */
-$config['caldav_thunderbird'] = 'http://myroundcube.com/thunderbird-calddav';
+$config['caldav_thunderbird'] = 'http://myroundcube.com/thunderbird-caldav';
 $config['caldav_android'] = 'http://myroundcube.com/myroundcube-plugins/android-caldav';
 $config['caldav_android_app'] = 'https://play.google.com/store/apps/details?id=org.dmfs.caldav.lib&hl=en';
 $config['caldav_iphone'] = 'http://myroundcube.com/myroundcube-plugins/iphone-caldav';

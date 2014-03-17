@@ -368,7 +368,7 @@ function calendar_callbacks(){
       rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
       return;
     }
-    if($('#categories_html').text() == '--'){
+    if($('#categories_html').text() == '--' && rcmail.env.cal_backend == 'caldav'){
       $('#subscriptionlink').trigger('click');
       rcmail.display_message(rcmail.gettext('noresource', 'calendar'), 'error');
       return;
@@ -663,7 +663,7 @@ function calendar_callbacks(){
       rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
       return;
     }
-    if($('#categories_html').text() == '--'){
+    if($('#categories_html').text() == '--' && rcmail.env.cal_backend == 'caldav'){
       $('#subscriptionlink').trigger('click');
       rcmail.display_message(rcmail.gettext('noresource', 'calendar'), 'error');
       return;

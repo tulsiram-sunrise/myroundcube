@@ -7,7 +7,7 @@
  * To move messages to a special archive folder.
  * Based on Mark As Junk sample plugin.
  *
- * @version 2.9.3 - 24.02.2014
+ * @version 2.9.5 - 12.03.2014
  * @author Andre Rodier, Thomas Bruederli, Roland 'rosali' Liebl
  * @website http://myroundcube.com 
  */
@@ -23,8 +23,8 @@ class archivefolder extends rcube_plugin
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_new">Documentation</a><br /><a href="http://trac.roundcube.net/ticket/1489423" target="_new">Related Roundcube Ticket</a>';
   static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.9.3';
-  static private $date = '24-02-2014';
+  static private $version = '2.9.5';
+  static private $date = '12-03-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -49,35 +49,19 @@ class archivefolder extends rcube_plugin
       
       $this->add_hook('render_mailboxlist', array($this, 'render_mailboxlist'));
       if($rcmail->config->get('archive_show_button')){
-        if($rcmail->config->get('skin', 'classic') == 'larry'){
-          $this->add_button(
-            array(
-              'command' => 'plugin.archive',
-              'type' => 'link',
-              'label' => 'buttontitle',
-              'class' => 'button buttonPas archive disabled',
-              'classact' => 'button archive',
-              'width' => 32,
-              'height' => 32,
-              'title' => 'buttontitle',
-              'domain' => $this->ID,
-            ),
-            'toolbar');
-        }
-        else{
-          $this->add_button(
-            array(
-              'command' => 'plugin.archive',
-              'type' => 'link',
-              'label' => 'buttontitle',
-              'class' => 'button buttonPas archivefolder disabled',
-              'classact' => 'button archivefolder',
-              'classsel' => 'button archivefolderSel',
-              'title' => 'buttontitle',
-              'domain' => $this->ID,
-            ),
-            'toolbar');
-        }
+        $this->add_button(
+        array(
+            'type' => 'link',
+            'label' => 'buttontitle',
+            'command' => 'plugin.archive',
+            'class' => 'button buttonPas archive disabled',
+            'classact' => 'button archive',
+            'width' => 32,
+            'height' => 32,
+            'title' => 'buttontitle',
+            'domain' => $this->ID,
+        ),
+        'toolbar');
       }
       
       // add label for contextmenu
@@ -86,7 +70,6 @@ class archivefolder extends rcube_plugin
         'archivefolder.buttontitle'
       );  
 
-      // set env variable for client
       $rcmail->output->set_env('archive_folder', $archive_folder);
       $rcmail->output->set_env('archive_folder_icon', $this->url($skin_path.'/foldericon.png'));
       
@@ -180,14 +163,14 @@ class archivefolder extends rcube_plugin
     $this->include_script('archivefolder.js');
 
     $rcmail = rcmail::get_instance();
-    if ($rcmail->task == 'mail' && ($rcmail->action == '' || $rcmail->action == 'show') && ($archive_folder = $rcmail->config->get('archive_mbox', false))) {   
 
+    if ($rcmail->task == 'mail' && ($rcmail->action == '' || $rcmail->action == 'show') && ($archive_folder = $rcmail->config->get('archive_mbox', false))) {   
+      $rcmail->output->set_env('archive_folder', $archive_folder);
       // add archive folder to the list of default mailboxes
       if (($default_folders = $rcmail->config->get('default_folders')) && !in_array($archive_folder, $default_folders)) {
         $default_folders[] = $archive_folder;
         $rcmail->config->set('default_folders', $default_folders);
       }
-      
     }
 
     // set localized name for the configured archive folder  

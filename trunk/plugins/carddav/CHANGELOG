@@ -78,3 +78,5 @@ VERSION                COMMENT
 5.4.46                 - Bugfix: Roundcube < 1.0 does not handle all date formats properly (birthday, anniversary fails
                          for dd/mm, dd.mm, ...)
 6.0                    - Roundcube 1.0 compatibility
+6.0.1                  - Handle Groups correctly (changed in Roundcube 1.0 http://trac.roundcube.net/ticket/1488509)
+7.0                    - Re-coded carddav_addressbook class

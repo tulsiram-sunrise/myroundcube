@@ -21,3 +21,6 @@ VERSION                COMMENT
 4.0.22 - 4.0.23        - Hide top menu link on popups
 4.0.24                 - Bind zclip on $(window).load event
 4.0.25                 - Roundcube 1.0 compatibility
+4.0.26                 - Fix navigation from topnav
+4.0.27                 - Fix tutorial caldav link (config.inc.php.dist)
+4.0.28                 - Make turorial link section optional

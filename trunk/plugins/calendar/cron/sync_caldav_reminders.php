@@ -106,7 +106,7 @@ foreach($users as $idx => $user){
     print (microtime_float() - $time_start) . " secs runtime ...\n";
     $maxlifetime = @ini_get('session.gc_maxlifetime');
     if(is_numeric($maxlifetime)){
-      $rcmail->session->db_gc($maxlifetime);
+      $rcmail->session->gc($maxlifetime);
     }
     print "sleeping 1 seconds ...\n";
     sleep(1);
@@ -118,6 +118,9 @@ $time = $time_end - $time_start;
 if($rcmail->config->get('cron_log') == true){
   if($numusers > 0){
     write_log('calendar',"Sync CalDAV reminders cron job");
+    if(isset($_SERVER) && !empty($_SERVER['REMOTE_ADDR'])){
+      write_log('calendar',"  Called from " . $_SERVER['REMOTE_ADDR']);
+    }
     write_log('calendar',"  $numusers users(s) processed.");
     write_log('calendar',"  Script terminated after $time seconds runtime.");
   }

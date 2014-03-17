@@ -1,8 +1,11 @@
-#messagetoolbar a.archivefolder,
-#messagetoolbar a.archivefolderSel
-{
-  background-image: url(archive.png);
-  background-position: center 0;
+#messagetoolbar a.button.archive {
+	text-indent: -5000px;
+	background: url(archive.png) 0 0 no-repeat;
+}
+
+#mailboxlist li.mailbox.archive > a {
+	background-image: url(foldericon.png);
+	background-position: 5px 1px;
 }
 
 #rcmContextMenu li.archive a

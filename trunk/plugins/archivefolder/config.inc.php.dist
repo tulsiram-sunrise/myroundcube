@@ -1,9 +1,11 @@
 <?php
 
 /* Show archive button in mailbox list */
-$config['archive_show_button'] = TRUE;
+$config['archive_show_button'] = true;
 
 /* Default Archive folder */
+/* In order to prevent users to overwrite this folder
+   add 'archive_mbox' to 'dont_override' configuration */
 $config['archive_mbox'] = 'Archive';
 
 /* NOTE:

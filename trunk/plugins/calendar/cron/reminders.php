@@ -399,6 +399,9 @@ $time = $time_end - $time_start;
 if($rcmail->config->get('cron_log') == true){
   if($nupcoming > 0){
     write_log('calendar',"Reminders cron job");
+    if(isset($_SERVER) && !empty($_SERVER['REMOTE_ADDR'])){
+      write_log('calendar',"  Called from " . $_SERVER['REMOTE_ADDR']);
+    }
     write_log('calendar',"  $nupcoming upcoming event(s) notified.");
     write_log('calendar',"  Script terminated after $time seconds runtime.");
   }
@@ -407,7 +410,7 @@ if($rcmail->config->get('cron_log') == true){
 $rcmail->session->destroy(session_id());
 $maxlifetime = @ini_get('session.gc_maxlifetime');
 if(is_numeric($maxlifetime)){
-  $rcmail->session->db_gc($maxlifetime);
+  $rcmail->session->gc($maxlifetime);
 }
 print "done [$time seconds runtime] " . date('Y-m-d H:i:s',time()) . "\n";
 exit;

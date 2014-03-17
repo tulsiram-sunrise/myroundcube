@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 18.0.3 - 27.02.2014
+ * @version 18.0.9 - 10.03.2014
  * @author Roland 'rosali'Liebl
  * @website http://myroundcube.com
  *
@@ -60,8 +60,8 @@ class calendar extends rcube_plugin{
   static private $plugin = 'calendar';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://mirror.myroundcube.com/docs/calendar.html" target="_new">Documentation</a>';
-  static private $version = '18.0.3';
-  static private $date = '27-02-2014';
+  static private $version = '18.0.9';
+  static private $date = '10-03-2014';
   static private $tables = array(
     'events',
     'events_caldav',
@@ -3623,7 +3623,7 @@ class calendar extends rcube_plugin{
   
   function google_enabled($p){
     $rcmail = rcmail::get_instance();
-    $default_url = $rcmail->config->get('caldav_url');
+    $default_url = $rcmail->config->get('caldav_url', 'https://apidata.googleusercontent.com/caldav/v2/%u/events');
     if(class_exists('google_oauth2')){
       if(substr(strtolower($default_url), 0, strlen('https://apidata.googleusercontent.com/caldav/v2/')) == 'https://apidata.googleusercontent.com/caldav/v2/'){
         $google_oauth2 = $rcmail->config->get('google_oauth2');
@@ -3640,7 +3640,7 @@ class calendar extends rcube_plugin{
           if($p['template'] == 'calendar.calendar'){
             $timeout = -1;
           }
-          if($warning){
+          if($warning && $_SESSION['username']){
             $rcmail->output->show_message($this->gettext($warning), 'warning', null, true, $timeout);
           }
         }
@@ -3651,6 +3651,7 @@ class calendar extends rcube_plugin{
   
   function saveSettings($args){
     $rcmail = rcmail::get_instance();
+    $redirect = false;
     if($_SESSION['tzname']){
       $args['prefs']['tzname'] = $_SESSION['tzname'];
     }
@@ -3846,7 +3847,11 @@ class calendar extends rcube_plugin{
       $backend = get_input_value('_backend', RCUBE_INPUT_POST);
       if(!$backend){
         $backend = 'caldav';
-        $args['prefs']['caldav_url'] = $rcmail->config->get('google_caldav');;
+        $args['prefs']['caldav_url'] = $rcmail->config->get('google_caldav', 'https://apidata.googleusercontent.com/caldav/v2/%u/events');
+        $google_oauth2 = $rcmail->config->get('google_oauth2', array());
+        if(class_exists('google_oauth2') && empty($google_oauth2['access_token'])){
+          $redirect = 'server';
+        }
       }
       else if($backend == 'caldav' && 
         (
@@ -3907,6 +3912,10 @@ class calendar extends rcube_plugin{
       if($default_category_label){
         $args['prefs']['default_category_label'] = $default_category_label;
       }
+    }
+    if($redirect){
+      $rcmail->output->add_script('window.setTimeout(\'parent.$("#rcmrow' . $redirect . '").trigger("mousedown").trigger("mouseup")\', 500);', 'docready');
+      $rcmail->output->add_script('rcmail.display_message("' . $this->gettext('googledisabled_redirect') . '", "warning");', 'docready');
     }
     return $args;
   }
@@ -4214,13 +4223,16 @@ class calendar extends rcube_plugin{
         $con = '?';
         if(strstr($feedurl,'?'))
           $con = '&';
-        if(stripos($arr['query'],'plugin.calendar_showlayer')){ // Roundcube calendar
+        if(stripos($arr['query'], 'plugin.calendar_showlayer')){ // Roundcube calendar
           $className = $feeds[$url];
-          if(strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
+          if(strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST']) || stripos($arr['query'], '&_islocal=1')){
+            $feedurl = str_replace('&_islocal=1', '', $feedurl);
             if(strpos($feedurl, '&_userid=' . $rcmail->user->ID . '&')){
               continue;
             }
-            $feedurl = $feedurl . $con . "start=$start&end=$end&_className=$className&_tz=" . $this->getClientTimezoneName($rcmail->config->get('timezone', 'auto')) . "&_btz=$btz&_from=".$rcmail->user->ID;
+            else{
+              $feedurl = $feedurl . $con . "start=$start&end=$end&_className=$className&_tz=" . $this->getClientTimezoneName($rcmail->config->get('timezone', 'auto')) . "&_btz=$btz&_from=".$rcmail->user->ID;
+            }
           }
           else{
             $feedurl = $feedurl . $con . "_tz=" . $this->getClientTimezoneName($rcmail->config->get('timezone', 'auto')) . "&_btz=$btz&_ics=1&_client=1";
@@ -4236,7 +4248,7 @@ class calendar extends rcube_plugin{
         }
         if(!isset($urls[$feedurl])){
           $content = $this->utils->curlRequest($feedurl, false, $max_execution_time);
-          if(stripos($arr['query'], 'plugin.calendar_showlayer') && strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST'])){
+          if(stripos($arr['query'], 'plugin.calendar_showlayer') && (strtolower($arr['host']) == strtolower($_SERVER['HTTP_HOST']) || stripos($arr['query'], '&_islocal=1'))){
             $rc_layer = json_decode($content, true);
             $urls[$feedurl] = true;
             if(is_array($rc_layer)){
@@ -4345,15 +4357,16 @@ class calendar extends rcube_plugin{
     $token = get_input_value('_ct', RCUBE_INPUT_GPC);
     if($token == $caltokenreadonly && $token != ""){
       $root = $this->getURL();
-      $url = $root.'?'.$_SERVER['QUERY_STRING'];
-      $temparr = explode("&start=",$url);
+      $url = $root . '?' . $_SERVER['QUERY_STRING'];
+      $temparr = explode("&start=", $url);
       $url = $temparr[0];
       $className = get_input_value('_className', RCUBE_INPUT_GPC);
       if(!$className){
         $feeds = array_merge((array)$rcmail->config->get('public_calendarfeeds',array()),(array)$rcmail->config->get('calendarfeeds',array()));
-        $className = $feeds[$url];
+        $temp = explode('&_tz=', $url);
+        $className = $feeds[$temp[0]];
       }
-      $temp = explode('|',$className);
+      $temp = explode('|', $className);
       $className = $temp[0];
       if($temp[1] && strtolower($temp[1]) == 'cache')
         $include_cache = true;

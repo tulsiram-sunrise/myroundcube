@@ -1,11 +1,11 @@
 $(document).ready(function() {
   rcmail.addEventListener('init', function(response) {
     try{
-      $('#planner_button').insertBefore('#' + rcmail.buttons['settings'][0].id);
+      window.setTimeout("if(rcmail.buttons['settings']) { $('#planner_button').insertBefore('#' + rcmail.buttons['settings'][0].id);$('#planner_button').show(); }", 10);
     }
     catch(e){
+      $('#planner_button').show();
     }
-    $('#planner_button').show();
     if(rcmail.env.skin == 'larry'){
       var minmode = rcmail.get_cookie('minimalmode');
       if(parseInt(minmode) || (minmode === null && $(window).height() < 850)){

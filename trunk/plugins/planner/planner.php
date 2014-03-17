@@ -2,7 +2,7 @@
 /**
  * planner
  *
- * @version 3.0.13 - 16.02.2014
+ * @version 3.0.17 - 16.03.2014
  * @author Roland 'rosali' Liebl (forked from: see below)
  * @website http://myroundcube.com
  *
@@ -43,6 +43,7 @@
 class planner extends rcube_plugin
 {
   public $task = '?(?!login|logout).*';
+  public $noframe = true;
 
   private $rc;
   private $user;
@@ -55,8 +56,8 @@ class planner extends rcube_plugin
   static private $plugin = 'planner';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
-  static private $version = '3.0.13';
-  static private $date = '16-02-2014';
+  static private $version = '3.0.17';
+  static private $date = '16-03-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -115,7 +116,9 @@ class planner extends rcube_plugin
       $this->skin = "classic";
     }
     $this->include_stylesheet('skins/' . $this->skin . '/icon.css');
-    $this->include_script('move_button.js');
+    if(!isset($_GET['_extwin']) && !isset($_GET['_framed'])){
+      $this->include_script('move_button.js');
+    }
     $disp = 'none';
 
     // add planner button to taskbar

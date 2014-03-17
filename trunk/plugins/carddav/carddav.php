@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 6.0 - 02.01.2014
+ * @version 7.0 - 17.03.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -41,8 +41,8 @@ class carddav extends rcube_plugin {
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
-  static private $version = '6.0';
-  static private $date = '02-01-2014';
+  static private $version = '7.0';
+  static private $date = '17-03-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -680,7 +680,7 @@ class carddav extends rcube_plugin {
       else{
         $size = 12;
       }
-      $input_password = new html_inputfield(array('name' => '_password', 'id' => '_password', 'class' => 'keyboardInput', 'size' => $size, 'autocomplete' => 'off', 'placeholder' => $this->gettext('password')));
+      $input_password = new html_inputfield(array('name' => '_password', 'id' => '_password', 'type' => 'password', 'class' => 'keyboardInput', 'size' => $size, 'autocomplete' => 'off', 'placeholder' => $this->gettext('password')));
       $input_read_only = new html_checkbox(array('name' => '_read_only', 'id' => '_read_only', 'value' => 1));
       $table->add(array(), $input_label->show());
       $table->add(array(), '&nbsp;');

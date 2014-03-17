@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.25 - 16.02.2014
+ * @version 4.0.28 - 16.03.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -18,9 +18,9 @@ class moreuserinfo extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'moreuserinfo';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'Since version 3.0 re-configuration required<br /><a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
-  static private $version = '4.0.25';
-  static private $date = '16-02-2014';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
+  static private $version = '4.0.28';
+  static private $date = '16-03-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -101,7 +101,8 @@ class moreuserinfo extends rcube_plugin
   function frame()
   {
     $rcmail = rcmail::get_instance();
-    $rcmail->output->add_script("rcmail.add_onload(\"rcmail.sections_list.select('accountlink')\");");
+    $rcmail->output->add_script('window.setTimeout(\'$("#rcmrowaccountlink").trigger("mousedown").trigger("mouseup")\', 500);', 'docready');
+    $rcmail->output->add_script('window.setTimeout(\'document.getElementById(rcmail.env.contentframe).src = "./?_task=settings&_action=plugin.moreuserinfo&_framed=1"\', 600);', 'docready');
     $rcmail->output->send("settings");
     exit;
   }
@@ -128,9 +129,6 @@ class moreuserinfo extends rcube_plugin
       if(!isset($_GET['_extwin'])){
         $rcmail->output->add_script('$(".topleft").html($(".topleft").html() + "<a onclick=\'' . $onclick . '\'' . ' id=\'accountinformationlink\' href=\'' . $href . '\'>' . $this->gettext('accountinformation') . '</a>");', 'docready');
       }
-    }
-    if($p['template'] == 'settingsedit'){
-      $rcmail->output->add_script('if(parent.rcmail.env.action == "plugin.moreuserinfo_show"){ parent.rcmail.env.action = ""; document.location.href="./?_task=settings&_action=plugin.moreuserinfo&_framed=1" };', 'docready');
     }
     if($p['template'] != "mail")
       return $p;
@@ -280,8 +278,8 @@ class moreuserinfo extends rcube_plugin
           }
         }
       }
-      if($i > 0){
-        $clients .= html::tag('hr') . '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CalDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/organizations/all-esr.html', 'target' => '_new'), 'Thunderbird ESR');
+      if($i > 0 && $rcmail->config->get('moreuserinfo_show_tutorial_links', true)){
+        $clients .= html::tag('hr') . '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CalDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/all.html', 'target' => '_new'), 'Thunderbird');
         $clients .= ' + ' . html::tag('a', array('href' => 'http://www.sogo.nu/english/downloads/frontends.html', 'target' => '_new'), 'Lightning');
         $url = $rcmail->config->get('caldav_thunderbird','http://myroundcube.com/myroundcube-plugins/thunderbird-caldav');
         $clients .= html::tag('a', array('href' => $url, 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Thunderbird ' . $this->gettext('tutorial')));
@@ -328,11 +326,11 @@ class moreuserinfo extends rcube_plugin
           $table->add('', html::tag('i', null, '&raquo;&nbsp;' . $this->gettext('username') . ':&nbsp;' . html::tag('span', null, $user) . $icon . '&nbsp;|&nbsp;' . $this->gettext('password') . ':&nbsp;' . html::tag('span', null, $rcmail->decrypt($addressbook['password'])) . $icon . '&nbsp;|&nbsp;' . $access));
         }
       }
-      if($clients == ''){
+      if($clients == '' && $rcmail->config->get('moreuserinfo_show_tutorial_links', true)){
         $clients = html::tag('hr');
       }
-      if($i > 0){
-        $clients .= '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CardDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/organizations/all-esr.html', 'target' => '_new'), 'Thunderbird ESR');
+      if($i > 0 && $rcmail->config->get('moreuserinfo_show_tutorial_links', true)){
+        $clients .= '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CardDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/all.html', 'target' => '_new'), 'Thunderbird');
         $url = $rcmail->config->get('carddav_thunderbird','http://myroundcube.com/myroundcube-plugins/thunderbird-carddav');
         $clients .= ' + ' . html::tag('a', array('href' => 'http://www.sogo.nu/english/downloads/frontends.html', 'target' => '_new'), 'SOGo Connector') . html::tag('a', array('href' => $url, 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Thunderbird ' . $this->gettext('tutorial')));
         $url = $rcmail->config->get('carddav_android_app','https://play.google.com/store/apps/details?id=org.dmfs.carddav.sync&hl=en');

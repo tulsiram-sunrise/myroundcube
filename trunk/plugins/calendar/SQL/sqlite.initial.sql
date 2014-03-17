@@ -7,7 +7,7 @@ CREATE TABLE 'events' (
   'start' INTEGER NOT NULL DEFAULT '0',
   'end' INTEGER NOT NULL DEFAULT '0',
   'expires' INTEGER NOT NULL DEFAULT '0',
-  'rr' TEXT default NULL,
+  'rr' TEXT DEFAULT NULL,
   'recurring' TEXT NOT NULL,
   'occurrences' INTEGER DEFAULT '0',
   'byday' TEXT,

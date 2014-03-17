@@ -279,7 +279,7 @@ $config['calendarfeeds'] = array(
                     category.
               (***) Now the config entry should be something like:
               
-              './?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889' => 'Holiday|cache|inherit'
+              './?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1&_islocal=1' => 'Holiday|cache|inherit'
          
          (**) Now add your static feeds to 'public_user@yourdomain.tld'.
          (**) Navigate to calendar and wait until it is loaded. Notice: you have always
@@ -294,7 +294,7 @@ $config['calendarfeeds'] = array(
 */
 $config['public_calendarfeeds'] = array(
   'http://www.google.com/calendar/feeds/usa__en@holiday.calendar.google.com/public/basic' => 'Public',
-  //'http://yourdomain.tld/?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1' => 'Holiday|cache|inherit'
+  //'http://yourdomain.tld/?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1&_islocal=1' => 'Holiday|cache|inherit'
 );
 
 ?>

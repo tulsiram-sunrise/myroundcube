@@ -311,6 +311,7 @@ $labels['component'] = 'Component';
 $labels['dst'] = 'DST';
 $labels['submenuprefix'] = '» ';
 $labels['googledisabled'] = 'Please authorize access to your Google account (browse to <i>"Settings"</i> -> <i>"Server Settings"</i> and proceed).';
+$labels['googledisabled_redirect'] = 'Please authorize access to your Google account.';
 $labels['undefined'] = '---';
 
 ?>
