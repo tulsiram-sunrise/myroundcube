@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.28 - 16.03.2014
+ * @version 4.0.30 - 20.04.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -18,9 +18,9 @@ class moreuserinfo extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'moreuserinfo';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_new">Documentation</a>';
-  static private $version = '4.0.28';
-  static private $date = '16-03-2014';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_blank">Documentation</a>';
+  static private $version = '4.0.30';
+  static private $date = '20-04-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -230,9 +230,6 @@ class moreuserinfo extends rcube_plugin
     }
     $cals = array();
     $user = $username;
-    if(isset($_SESSION['global_alias'])){
-      $user = $_SESSION['global_alias'];
-    }
     if(class_exists('calendar_plus')){
       $cals = $rcmail->config->get('caldavs', array());
       $clients = '';
@@ -252,7 +249,7 @@ class moreuserinfo extends rcube_plugin
             $url = str_replace($key, $val, $url);
           }
         }
-        $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
+        $table->add('', html::tag('span', null, str_replace('%u', str_replace('@', urlencode('@'), $user), $url)) . $icon);
       }
       if(count($cals) > 0){
         ksort($cals);
@@ -265,7 +262,7 @@ class moreuserinfo extends rcube_plugin
             }
           }
           $table->add('title', '&raquo; ' . $key);
-          $table->add('', html::tag('span', null, str_replace('%u', $user, $url)) . $icon);
+          $table->add('', html::tag('span', null, str_replace('%u', str_replace('@', urlencode('@'), $user), $url)) . $icon);
           if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
             $user = $caldav['user'];
             $access = $this->gettext('calendar.readwrite');
@@ -279,16 +276,16 @@ class moreuserinfo extends rcube_plugin
         }
       }
       if($i > 0 && $rcmail->config->get('moreuserinfo_show_tutorial_links', true)){
-        $clients .= html::tag('hr') . '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CalDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/all.html', 'target' => '_new'), 'Thunderbird');
-        $clients .= ' + ' . html::tag('a', array('href' => 'http://www.sogo.nu/english/downloads/frontends.html', 'target' => '_new'), 'Lightning');
+        $clients .= html::tag('hr') . '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CalDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/all.html', 'target' => '_blank'), 'Thunderbird');
+        $clients .= ' + ' . html::tag('a', array('href' => 'http://www.sogo.nu/english/downloads/frontends.html', 'target' => '_blank'), 'Lightning');
         $url = $rcmail->config->get('caldav_thunderbird','http://myroundcube.com/myroundcube-plugins/thunderbird-caldav');
-        $clients .= html::tag('a', array('href' => $url, 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Thunderbird ' . $this->gettext('tutorial')));
+        $clients .= html::tag('a', array('href' => $url, 'target' =>'_blank'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Thunderbird ' . $this->gettext('tutorial')));
         $url = $rcmail->config->get('caldav_android_app','https://play.google.com/store/apps/details?id=org.dmfs.caldav.lib&hl=en');
-        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.android.com/', 'target' => '_new'), 'Android') . ' + ' . html::tag('a', array('href' => $url, 'target' => '_new'), 'CalDAV-sync');
+        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.android.com/', 'target' => '_blank'), 'Android') . ' + ' . html::tag('a', array('href' => $url, 'target' => '_blank'), 'CalDAV-sync');
         $url = $rcmail->config->get('caldav_android','http://myroundcube.com/myroundcube-plugins/android-caldav');
-        $clients .= html::tag('a', array('href' => $url, 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Android ' . $this->gettext('tutorial')));
+        $clients .= html::tag('a', array('href' => $url, 'target' =>'_blank'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Android ' . $this->gettext('tutorial')));
         $url = $rcmail->config->get('caldav_iphone','http://myroundcube.com/myroundcube-plugins/iphone-caldav');
-        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_new'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial'))) . html::tag('br');
+        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_blank'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_blank'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial'))) . html::tag('br');
       }
     }
     $addressbooks = array();
@@ -306,15 +303,15 @@ class moreuserinfo extends rcube_plugin
       ksort($addressbooks);
       $repl = $rcmail->config->get('carddav_url_replace', false);
       foreach($addressbooks as $key => $addressbook){
-          $temp = explode('?', $addressbook['url'], 2);
+        $temp = explode('?', $addressbook['url'], 2);
         $url = slashify($temp[0]) . ($temp[1] ? ('?' . $temp[1]) : '');
-        if(is_array($repl)){
+         if(is_array($repl)){
           foreach($repl as $key1 => $val){
             $url = str_replace($key1, $val, $url);
           }
         }
         $table->add('title', '&raquo; ' . $key);
-        $table->add('', html::tag('span', null, Q(str_replace('%u', $user, $url))) . $icon);
+        $table->add('', html::tag('span', null, Q(str_replace('%u', $user, str_replace('@', urlencode('@'), $url)))) . $icon);
         if($temp[1] && strpos($temp[1], 'access=') !== false && class_exists('sabredav')){
           $user = $addressbook['username'];
           $access = $this->gettext('carddav.readwrite');
@@ -330,19 +327,19 @@ class moreuserinfo extends rcube_plugin
         $clients = html::tag('hr');
       }
       if($i > 0 && $rcmail->config->get('moreuserinfo_show_tutorial_links', true)){
-        $clients .= '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CardDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/all.html', 'target' => '_new'), 'Thunderbird');
+        $clients .= '&sup' . $i . ';&nbsp;' . sprintf($this->gettext('clients'), 'CardDAV') . ':' . html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.mozilla.org/en-US/thunderbird/all.html', 'target' => '_blank'), 'Thunderbird');
         $url = $rcmail->config->get('carddav_thunderbird','http://myroundcube.com/myroundcube-plugins/thunderbird-carddav');
-        $clients .= ' + ' . html::tag('a', array('href' => 'http://www.sogo.nu/english/downloads/frontends.html', 'target' => '_new'), 'SOGo Connector') . html::tag('a', array('href' => $url, 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Thunderbird ' . $this->gettext('tutorial')));
+        $clients .= ' + ' . html::tag('a', array('href' => 'http://www.sogo.nu/english/downloads/frontends.html', 'target' => '_blank'), 'SOGo Connector') . html::tag('a', array('href' => $url, 'target' =>'_blank'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Thunderbird ' . $this->gettext('tutorial')));
         $url = $rcmail->config->get('carddav_android_app','https://play.google.com/store/apps/details?id=org.dmfs.carddav.sync&hl=en');
-        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.android.com/', 'target' => '_new'), 'Android') . ' + ' . html::tag('a', array('href' => $url, 'target' => '_new'), 'CardDAV-sync');
+        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.android.com/', 'target' => '_blank'), 'Android') . ' + ' . html::tag('a', array('href' => $url, 'target' => '_blank'), 'CardDAV-sync');
         $url = $rcmail->config->get('carddav_android_app_editor','https://play.google.com/store/apps/details?id=org.dmfs.android.contacts&hl=en');
         if($url){
-          $clients .=  ' + ' . html::tag('a', array('href' => $url, 'target' => '_new'), 'Contact Editor');
+          $clients .=  ' + ' . html::tag('a', array('href' => $url, 'target' => '_blank'), 'Contact Editor');
         }
         $url = $rcmail->config->get('carddav_android','http://myroundcube.com/myroundcube-plugins/android-carddav');
-        $clients .= html::tag('a', array('href' => $url, 'target' =>'_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Android ' . $this->gettext('tutorial')));
+        $clients .= html::tag('a', array('href' => $url, 'target' =>'_blank'), html::tag('div', array('style' => 'display:inline;float:right;'), 'Android ' . $this->gettext('tutorial')));
         $url = $rcmail->config->get('carddav_iphone','http://myroundcube.com/myroundcube-plugins/iphone-carddav');
-        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_new'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_new'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial')));
+        $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_blank'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_blank'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial')));
       }
     }
     $out  = $out .= html::tag('fieldset', null, html::tag('legend',  null, $this->gettext('userinfo') . ' ::: ' . $_SESSION['username']) . $table->show() . $clients);

@@ -97,3 +97,15 @@ VERSION                COMMENT
 18.0.7                 - Redirect to Server Settings if Google backend is choosen and no access data is present
 18.0.8                 - Don't show subscribe CalDAV warning if backend is database
 18.0.9                 - Don't display Google authorization warning on login page if tabbed plugin is enabled
+18.0.10                - Fix cron RCMAIL_URL if database config is used
+18.0.11 - 18.0.15      - Make sure that all subscribed calendars are shown in events dialog select box
+18.0.16                - Prepare database schemes for https://code.google.com/p/myroundcube/issues/detail?id=570
+18.0.17                - Fix PostgreSQL update script (replace datetime by timestamp)
+18.0.18                - Remove reference to taskbar.html (skin includes) from Larry templates
+18.0.19                - Fix possible javascript error when no subscriptions are present
+18.0.20                - Better handling for Google calendars as default CalDAV
+18.0.21                - Fix cache clearing when a CalDAV is unsubscribed
+18.0.22                - Fix end date localization for VTODOs
+18.0.23                - Replace 'error' by 'warning' style for background replication messages
+18.0.24                - Prevent loss of focus while dialog is open
+18.0.25                - Fix https://code.google.com/p/myroundcube/issues/detail?id=659

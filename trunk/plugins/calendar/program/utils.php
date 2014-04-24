@@ -340,7 +340,7 @@ class Utils
         }
         $ts = strtotime($val);
         if(is_numeric($ts)){
-          $xevent['DTSTART'] = max(0, $ts);
+          $xevent['DTSTART'] = $ts;
           $xevent['SUMMARY'] = '';
           $xevent['DESCRIPTION'] = '';
           $xevent['LOCATION'] = '';
@@ -846,15 +846,19 @@ class Utils
             $ical .= $freq . "\n";
             $freq = null;
           }
-          $ical .= "DTSTAMP:" . gmdate('Ymd\THis\Z',time()) . "\n";
+          $ical .= "DTSTAMP:" . gmdate('Ymd\THis\Z', time()) . "\n";
+          //$ical .= "CREATED:" . gmdate('Ymd\THis\Z', time()) . "\n";
           $ical .= "SEQUENCE:" . time() . "\n";
-          if(!empty($event['title']))
+          if(!empty($event['title'])){
             $event['summary'] = $event['title'];
-          if(!empty($event['summary']))
+          }
+          if(!empty($event['summary'])){
             $ical .= "SUMMARY:" . $event['summary'] . "\n";
-          if(!empty($event['description']))  
-            $ical .= "DESCRIPTION:" . str_replace("\n","\\n",str_replace("\r","",$event['description'])) . "\n";
-          if(!empty($event['location'])) {
+          }
+          if(!empty($event['description'])){
+            $ical .= "DESCRIPTION:" . str_replace("\n", "\\n", str_replace("\r", "", $event['description'])) . "\n";
+          }
+          if(!empty($event['location'])){
             $ical .= "LOCATION:" . $event['location'] . "\n";
           }
           if(!empty($event['classNameDisp']))

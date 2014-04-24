@@ -1,17 +1,14 @@
 <?php
-
 /*
-+-----------------------------------------------------------------------+
-| language/cs_CZ/labels.inc                                             |
-|                                                                       |
-| Language file of the RoundCube Webmail client                         |
-| Copyright (C) 2008-2012, RoundQube Dev. - Switzerland                 |
-| Licensed under the GNU GPL                                            |
-|                                                                       |
-+-----------------------------------------------------------------------+
-| Author: Ondrej Krejcik <ondra@tachec.org>                             |
-+-----------------------------------------------------------------------+
-
+ +-----------------------------------------------------------------------+
+ | ./plugins/vkeyboard/localization/cs_CZ.inc
+ |
+ | Language file of MyRoundcube Plugins Bundle
+ | Copyright (C) 2010-2014, Roland 'rosali' Liebl
+ |
+ +-----------------------------------------------------------------------+
+ | Author: tachec - 04/04/2014 13:27:06
+ +-----------------------------------------------------------------------+
 */
 
 $labels = array();
@@ -28,5 +25,10 @@ $labels['vk07'] = 'Vymazat';
 $labels['vk08'] = 'Vymazat vstup';
 $labels['vk09'] = 'Verze';
 $labels['vk10'] = 'Změnit velikost klávesnice';
+$labels['shift'] = '⇑';
+$labels['tab'] = '⇔';
+$labels['caps'] = '⇓';
+$labels['enter'] = '↵ ';
+$labels['bksp'] = '←';
 
 ?>

@@ -224,13 +224,13 @@ function calendar_callbacks(){
       rcmail.env.clone_gap = event.start.getTime() / 1000 - event.clone;
     }
     if(!rcmail.env.replication_complete){
-      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
+      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'warning');
       return;
     }
   }
   this.eventDrop = function(event, dayDelta, minuteDelta, allDay, revertFunc, response){
     if(!rcmail.env.replication_complete){
-      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
+      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'warning');
       revertFunc(event, dayDelta, minuteDelta, allDay, revertFunc, response);
       return;
     }
@@ -301,14 +301,14 @@ function calendar_callbacks(){
   }
   this.eventResizeStop = function(event, jsEvent, ui, view){
     if(!rcmail.env.replication_complete){
-      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
+      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'warning');
       $('#calendar').fullCalendar('refetchEvents');
       return;
     }
   }
   this.eventResize = function(event, delta, response){
     if(!rcmail.env.replication_complete){
-      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
+      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'warning');
       return;
     }
     var refetch = 0;
@@ -365,7 +365,7 @@ function calendar_callbacks(){
     if(!jsEvent)
       return;
     if(!rcmail.env.replication_complete){
-      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
+      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'warning');
       return;
     }
     if($('#categories_html').text() == '--' && rcmail.env.cal_backend == 'caldav'){
@@ -660,7 +660,7 @@ function calendar_callbacks(){
   }
   this.eventClick = function(event, response, component){
     if(event.editable && !rcmail.env.replication_complete && queryString('_event_id') == 'false'){
-      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'error');
+      rcmail.display_message(rcmail.gettext('backgroundreplication', 'calendar'), 'warning');
       return;
     }
     if($('#categories_html').text() == '--' && rcmail.env.cal_backend == 'caldav'){
@@ -735,7 +735,7 @@ function calendar_callbacks(){
       $('#startfulltext').html('(' + event.start.toLocaleString() + ')');
     }
     if(event.end && event.end != 0){
-      $('#endfulltext').html('(' + event.end.toLocaleString() + ')');
+      $('#endfulltext').html('(' + new Date(event.end * 1000).toLocaleString() + ')');
     }
     if(event.due && event.due != 0){
       $('#duefulltext').html('(' + new Date(event.due * 1000).toLocaleString() + ')');

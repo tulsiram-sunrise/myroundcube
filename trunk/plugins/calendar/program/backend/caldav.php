@@ -45,10 +45,13 @@ final class calendar_caldav extends Backend{
     if(!$url || $type != 'caldav')
       return;
 
-    $user = $this->rcmail->config->get('caldav_user','demo');
-    $pass = $this->rcmail->config->get('caldav_password',$this->rcmail->encrypt('pass'));
-    $auth = $this->rcmail->config->get('caldav_auth','basic');
-    $extr = $this->rcmail->config->get('caldav_extr','1');
+    $user = $this->rcmail->config->get('caldav_user', 'demo');
+    $pass = $this->rcmail->config->get('caldav_password', $this->rcmail->encrypt('pass'));
+    $auth = $this->rcmail->config->get('caldav_auth', 'basic');
+    $extr = $this->rcmail->config->get('caldav_extr', '1');
+    if(stripos($url, 'https://apidata.googleusercontent.com/caldav/v2/') !== false){
+      $auth = 'bearer';
+    }
     $account = array(
       'user' => $user,
       'pass' => $pass,
@@ -1718,8 +1721,9 @@ PROPP;
     $component = 'vevent'
   ) {
     if (!empty($this->rcmail->user->ID)) {
-       // find me: memory exhaustion?
-      $start = strtotime(date('Y', strtotime('-100 years')) . '-01-01') - 1;
+      // find me: memory exhaustion?
+      //$start = strtotime(date('Y', strtotime('-100 years')) . '-01-01') - 1;
+      $start = -999999999;
       $end = $eend + 1;
       if($filter){
         $filterfield = $filter[0];

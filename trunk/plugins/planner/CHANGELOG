@@ -11,3 +11,4 @@ VERSION                COMMENT
 3.0.12                 - Implemented mysqladmin support
 3.0.13                 - Roundcube 1.0 compatibility
 3.0.14 - 3.0.17        - Fix move button
+3.0.18                 - Remove redundant code (compressor)

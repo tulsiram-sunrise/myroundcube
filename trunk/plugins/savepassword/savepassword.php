@@ -4,7 +4,7 @@
  * Save password plugin
  *
  *
- * @version 3.0 - 16.02.2014
+ * @version 3.0.1 - 18.02.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -34,8 +34,8 @@ class savepassword extends rcube_plugin
     static private $author = 'myroundcube@mail4us.net';
     static private $authors_comments = null;
     static private $download = 'http://myroundcube.googlecode.com';
-    static private $version = '3.0';
-    static private $date = '16-02-2014';
+    static private $version = '3.0.1';
+    static private $date = '18-03-2014';
     static private $licence = 'GPL';
     static private $requirements = array(
       'Roundcube' => '1.0',
@@ -61,6 +61,7 @@ class savepassword extends rcube_plugin
         }
       }
       $this->add_hook('login_after', array($this, 'savepw'));
+      $this->add_hook('password_change', array($this, 'savepw'));
     }
     
     static public function about($keys = false){
@@ -119,42 +120,31 @@ class savepassword extends rcube_plugin
       }
     }
     
-    function savepw($args)
-    {
-    
-        $rcmail = rcmail::get_instance();
-
-        if($_SESSION['user_id']){ // user has been authenticated successfully
-          $query = "UPDATE ".get_table_name('users')."
-                SET  password=? 
-                WHERE user_id=?;";
-                  
-          $ret = $rcmail->db->query($query,$_SESSION['password'],$_SESSION['user_id']);
-        
-        }
-
-        return $args;
+    function savepw($args){
+      $rcmail = rcmail::get_instance();
+      if($_SESSION['user_id']){ // user has been authenticated successfully
+        $query = "UPDATE ".get_table_name('users')."
+              SET  password=? 
+              WHERE user_id=?;";
+        $ret = $rcmail->db->query($query,$_SESSION['password'],$_SESSION['user_id']);
+      }
+      return $args;
     }
     
     function getpw($username){
-    
-        $rcmail = rcmail::get_instance();    
-    
-        $rcmail->db->query("
-                SELECT * FROM ".get_table_name('users')."
-                WHERE  username=?",
-                $username);
-            
-        $user = $rcmail->db->fetch_assoc();
-        
-        if(isset($user['password'])){
-          return $rcmail->decrypt($user['password']);
-        }
-        else{
-          return false;
-        }
-    }
-
+      $rcmail = rcmail::get_instance();    
+      $rcmail->db->query("
+              SELECT * FROM ".get_table_name('users')."
+              WHERE  username=?",
+              $username);
+      $user = $rcmail->db->fetch_assoc();
+      if(isset($user['password'])){
+        return $rcmail->decrypt($user['password']);
+      }
+      else{
+        return false;
+      }
+  }
 }
 
 ?>

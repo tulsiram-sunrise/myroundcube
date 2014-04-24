@@ -2,7 +2,7 @@
 /**
  * planner
  *
- * @version 3.0.17 - 16.03.2014
+ * @version 3.0.19 - 18.03.2014
  * @author Roland 'rosali' Liebl (forked from: see below)
  * @website http://myroundcube.com
  *
@@ -56,8 +56,8 @@ class planner extends rcube_plugin
   static private $plugin = 'planner';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = null;
-  static private $version = '3.0.17';
-  static private $date = '16-03-2014';
+  static private $version = '3.0.19';
+  static private $date = '18-03-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -66,6 +66,7 @@ class planner extends rcube_plugin
       'db_version' => 'require_plugin',
       'jqueryui' => 'require_plugin',
       'timepicker' => 'require_plugin',
+      'qtip' => 'require_plugin',
     ),
   );
   static private $sqladmin = array('db_dsnw', 'planner');
@@ -92,6 +93,7 @@ class planner extends rcube_plugin
     
     // required plugins
     $this->require_plugin('jqueryui');
+    $this->require_plugin('qtip');
 
     // register actions
     $this->register_action('plugin.planner', array($this, 'startup'));
@@ -119,27 +121,15 @@ class planner extends rcube_plugin
     if(!isset($_GET['_extwin']) && !isset($_GET['_framed'])){
       $this->include_script('move_button.js');
     }
-    $disp = 'none';
-
+    
     // add planner button to taskbar
-    $token = '';
-    if(in_array('compressor', $this->rc->config->get('plugins', array()))){
-      $token = '&_s=' . md5($_SESSION['language'] . 
-          session_id() .
-          $this->rc->config->get('skin', 'classic') . 
-          self::$version . 
-          self::$date . 
-          serialize($this->rc->config->get('plugins', array())) .
-          serialize($this->rc->config->get('plugin_manager_active', array()))
-         );
-    }
     $this->add_button(array(
       'name'    => 'planner',
       'class'   => 'button-planner',
       'content'   => html::tag('span', array('class' => 'button-inner'), $this->gettext('planner.planner')),
-      'href'    => './?_task=dummy&_action=plugin.planner' . $token,
+      'href'    => './?_task=dummy&_action=plugin.planner',
       'id'      => 'planner_button',
-      'style'   => 'display: ' . $disp . ';'
+      'style'   => 'display: none;'
        ), 'taskbar');
   }
   

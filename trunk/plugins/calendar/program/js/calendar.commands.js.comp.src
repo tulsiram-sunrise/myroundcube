@@ -100,7 +100,15 @@ function calendar_commands(){
   
   /* sync calendar */
   this.syncCalendar = function() {
-    rcmail.http_request('plugin.calendar_syncEvents');
+    var $dialogContent = $("#event");
+    try{
+      if($dialogContent.dialog('isOpen') !== true){
+        rcmail.http_request('plugin.calendar_syncEvents');
+      }
+    }
+    catch(e){
+      rcmail.http_request('plugin.calendar_syncEvents');
+    }
     window.setTimeout('calendar_commands.syncCalendar()', 1000 * 60);
   }
 

@@ -242,7 +242,7 @@ $(document).ready(function() {
     /* remember settings */
     rcmail.env.calsettings = response;
     
-    /* Replicaten */
+    /* Replication */
     if(response.settings['backend'] == 'caldav'){
       var delay = 1000;
       if(rcmail.env.noreplication){

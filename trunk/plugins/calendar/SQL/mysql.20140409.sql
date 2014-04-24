@@ -1,0 +1,10 @@
+ALTER TABLE  `events` ADD  `labels` VARCHAR( 255 ) NOT NULL DEFAULT '' AFTER  `categories`;
+ALTER TABLE  `events` ADD  `created` DATETIME DEFAULT NULL AFTER `labels`;
+ALTER TABLE  `events` ADD  `modified` DATETIME DEFAULT NULL AFTER `created`;
+ALTER TABLE  `events_cache` ADD  `labels` VARCHAR( 255 ) NOT NULL DEFAULT '' AFTER  `categories`;
+ALTER TABLE  `events_cache` ADD  `created` DATETIME DEFAULT NULL AFTER `labels`;
+ALTER TABLE  `events_cache` ADD  `modified` DATETIME DEFAULT NULL AFTER `created`;
+ALTER TABLE  `events_caldav` ADD  `labels` VARCHAR( 255 ) NOT NULL DEFAULT '' AFTER  `categories`;
+ALTER TABLE  `events_caldav` ADD  `created` DATETIME DEFAULT NULL AFTER `labels`;
+ALTER TABLE  `events_caldav` ADD  `modified` DATETIME DEFAULT NULL AFTER `created`;
+UPDATE `system` SET `value`='initial|20130512|20130804|20140409' WHERE `name`='myrc_calendar';

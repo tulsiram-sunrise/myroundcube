@@ -110,7 +110,11 @@ $config['caldavs'] = array(
                    'extr' => false, // external reminder service
                  ),
 );
+
 */
+
+/* Remember defaults */
+$config['default_caldavs'] = isset($config['caldavs']) ? $config['caldavs'] : array();
 
 /* Caldav calendar auto-detection is executed on login.
    Do not run auto-detection if last login is younger than ... (seconds)

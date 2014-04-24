@@ -3,7 +3,7 @@ CREATE TABLE 'jappix' (
   'file' VARCHAR (255) NOT NULL,
   'lang' VARCHAR (10) NOT NULL,
   'contenttype' VARCHAR (255) NOT NULL,
-  'ts' DATETIME NOT NULL,
+  'ts' datetime NOT NULL,
   'content' TEXT NOT NULL
 );
 

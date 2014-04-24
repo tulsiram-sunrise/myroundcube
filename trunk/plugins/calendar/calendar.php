@@ -2,7 +2,7 @@
 /**
  * calendar
  *
- * @version 18.0.9 - 10.03.2014
+ * @version 18.0.25 - 21.04.2014
  * @author Roland 'rosali'Liebl
  * @website http://myroundcube.com
  *
@@ -21,7 +21,7 @@
  */
  
 // application constants
-define('CALEOT', '2029-12-31 23:59:59');
+define('CALEOT', '2038-01-18 23:59:59');
 
 // just a dummy for DAVical (don't log anything)
 function dbg_error_log() {
@@ -59,9 +59,9 @@ class calendar extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'calendar';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://mirror.myroundcube.com/docs/calendar.html" target="_new">Documentation</a>';
-  static private $version = '18.0.9';
-  static private $date = '10-03-2014';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/calendar-plugin" target="_blank">Documentation</a><br /><font color="red">IMPORTANT</font>: Please update config and add <i>$config["default_caldavs"] = isset($config["caldavs"]) ? $config["caldavs"] : array();</i> at bottom of your configuration.';
+  static private $version = '18.0.25';
+  static private $date = '21-04-2014';
   static private $tables = array(
     'events',
     'events_caldav',
@@ -72,6 +72,7 @@ class calendar extends rcube_plugin{
     'initial',
     '20130512',
     '20130804',
+    '20140409',
   );
   static private $sqladmin = array('db_dsnw', 'events');
   static private $licence = 'GPL';
@@ -842,14 +843,11 @@ class calendar extends rcube_plugin{
     $categories = $rcmail->config->get('categories', array());
     $caldavs = $rcmail->config->get('caldavs', array());
     $caldavs_subscribed = $rcmail->config->get('caldavs_subscribed', array());
+    if($rcmail->config->get('caldav_protect')){
+      $caldavs_subscribed = $rcmail->config->get('caldavs', array());
+    }
     if($rcmail->config->get('backend') == 'caldav'){
       foreach($categories as $category => $props){
-        if(!isset($caldavs[$category])){
-          $google_oauth2 = $rcmail->config->get('google_oauth2');
-          if(!is_array($google_oauth2) || !isset($google_oauth2['access_token'])){
-            unset($categories[$category]);
-          }
-        }
         if(isset($caldavs[$category]) && !isset($caldavs_subscribed[$category])){
           unset($categories[$category]);
         }
@@ -857,21 +855,24 @@ class calendar extends rcube_plugin{
     }
     $public_categories = $rcmail->config->get('public_categories', array());
     $public_caldavs = (array) $rcmail->config->get('public_caldavs', array());
-    foreach($public_caldavs as $caldav => $props){
-      if(isset($public_categories[$caldav]) && !$props['readonly']){
-        $categories[$caldav] = $public_categories[$caldav];
-      }
-    }
     if(is_array($rcmail->config->get('google_category'))){
-      $categories = array_merge((array) $categories, (array) $rcmail->config->get('google_category', array()));
+      $categories = array_merge((array) $categories, (array) $rcmail->config->get('google_category'));
     }
     ksort($categories);
-    $caldavs_subscribed = array_merge($caldavs_subscribed, $rcmail->config->get('public_caldavs', array()));
-    $merge = array();
     if(is_array($_SESSION['detected_caldavs'])){
-      foreach($_SESSION['detected_caldavs'] as $category => $props){
-        if(!$categories[$category]){
-          $merge[$category] = '#' . $rcmail->config->get('default_category', 'c0c0c0');
+      $caldavs_subscribed = array_merge($_SESSION['detected_caldavs'], $caldavs_subscribed);
+    }
+    $merge = array();
+    foreach($caldavs_subscribed as $category => $props){
+      if(!$categories[$category] && !$public_categories[$category]){
+        $merge[$category] = $rcmail->config->get('default_category', 'c0c0c0');
+      }
+      else{
+        if($public_categories[$category]){
+          $merge[$category] = $public_categories[$category];
+        }
+        else{
+          $merge[$category] = $categories[$category];
         }
       }
     }
@@ -887,8 +888,9 @@ class calendar extends rcube_plugin{
           $short = substr($class, 0, 8) . '...';
         }
         $default = html::tag('option', array('value' => '', 'style' => 'background-color:#' . $rcmail->config->get('default_category', 'c0c0c0') . '; color:#' . $this->utils->getFontColor($rcmail->config->get('default_category', 'c0c0c0'))), $short);
-        if($rcmail->config->get('backend') != 'caldav' || $rcmail->config->get('default_caldav_subscribed', true)){
+        if(1==1||$rcmail->config->get('backend') != 'caldav' || $rcmail->config->get('default_caldav_subscribed', true)){
           if(substr(strtolower($default_url), 0, strlen('https://apidata.googleusercontent.com/caldav/v2/')) == 'https://apidata.googleusercontent.com/caldav/v2/'){
+            $google_oauth2 = $rcmail->config->get('google_oauth2');
             if(is_array($google_oauth2) && isset($google_oauth2['access_token'])){
               $options .= $default;
             }
@@ -1424,7 +1426,7 @@ class calendar extends rcube_plugin{
             $body .= '<tr><td>' . $this->gettext('expires') . ': </td><td>' . substr(date($rcmail->config->get('date_long'),$t),0,10) . '</td></tr>'.$nl;            
           }
           if($val['del'] != 1 && $getbody == false)
-            $body .= '<tr><td>URL: </td><td><a href="' . $webmail_url . '?_task=dummy&amp;_action=plugin.calendar&amp;_date=' . $val['start_unix'] . '" target="_new">' . $this->gettext('click_here') . '</a></td></tr>'.$nl;  
+            $body .= '<tr><td>URL: </td><td><a href="' . $webmail_url . '?_task=dummy&amp;_action=plugin.calendar&amp;_date=' . $val['start_unix'] . '" target="_blank">' . $this->gettext('click_here') . '</a></td></tr>'.$nl;  
           $body .= '</table></div>'.$nl;
           $body .= '</body></html>'.$nl;
           if($getbody)
@@ -2640,7 +2642,7 @@ class calendar extends rcube_plugin{
       }
       foreach($caldavs as $caldav => $props){
         if(!isset($caldavs_subscribed[$caldav])){
-          $sql = 'DELETE FROM '. get_table_name('events') . ' WHERE user_id=? AND url=?';
+          $sql = 'DELETE FROM '. get_table_name('events_caldav') . ' WHERE user_id=? AND url=?';
           $rcmail->db->query($sql, $rcmail->user->ID, $caldavs[$caldav]['url']);
           unset($caldavs[$caldav]);
           unset($filters_allcalendars[$caldav]);
@@ -2832,8 +2834,11 @@ class calendar extends rcube_plugin{
         }
       }
       $class = 'all ';
-      if(!$task['start']){
+      if($task['start'] == 0){
         $class .= 'nodate today tomorrow sevendays later ';
+      }
+      else if($task['start'] < 0){
+        $class .= 'today tomorrow sevendays later ';
       }
       if($task['due'] > 0 && !$task['end'] && $task['due'] - time() < 0){
         $class .= 'overdue ';
@@ -2850,8 +2855,11 @@ class calendar extends rcube_plugin{
       if($task['start'] && date('Ymd', $task['start']) == date('Ymd', time())){
         $class .= 'today ';
       }
-      if($task['due'] && date('Ymd', $task['due']) == date('Ymd', time())){
+      else if($task['due'] && date('Ymd', $task['due']) == date('Ymd', time())){
         $class .= 'today ';
+      }
+      else if($task['start'] < 0){
+        //$class .= 'today ';
       }
       $tomorrow = mktime(0,0,0,date('m'), date('d') + 1, date("Y"));
       if($task['start'] && date('Ymd', $task['start']) == date('Ymd', $tomorrow)){
@@ -4131,9 +4139,15 @@ class calendar extends rcube_plugin{
       else{
         //write_log('skip', $url);
       }
-      $caldavs = $rcmail->config->get('caldavs', array());
-      $public_caldavs = $rcmail->config->get('public_caldavs', array());
-      $caldavs = array_merge($caldavs, $public_caldavs);
+      $caldavs_subscribed = $rcmail->config->get('caldavs_subscribed');
+      if(is_array($caldavs_subscribed)){
+        $caldavs = $caldavs_subscribed;
+      }
+      else{
+        $caldavs = $rcmail->config->get('caldavs', array());
+        $public_caldavs = $rcmail->config->get('public_caldavs', array());
+        $caldavs = array_merge($caldavs, $public_caldavs);
+      }
       foreach($caldavs as $category => $caldav){
         $url = $caldav['url'];
         if($this->ctags[md5($url)] == false || $ctags_saved[md5($url)] == false || $this->ctags[md5($url)] !== $ctags_saved[md5($url)]){

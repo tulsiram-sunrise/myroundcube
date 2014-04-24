@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 7.0 - 17.03.2014
+ * @version 7.0.6 - 19.04.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -41,8 +41,8 @@ class carddav extends rcube_plugin {
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
-  static private $version = '7.0';
-  static private $date = '17-03-2014';
+  static private $version = '7.0.6';
+  static private $date = '19-04-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -67,6 +67,9 @@ class carddav extends rcube_plugin {
     'initial',
     '20130903',
     '20131110',
+    '20140406',
+    '20140410',
+    '20140411',
   );
   static private $prefs = array(
     'automatic_addressbook',
@@ -409,6 +412,18 @@ class carddav extends rcube_plugin {
               'email' => $recipient['mailto'],
               'name' => $recipient['name']
             );
+            $names_patterns  = $rcmail->config->get('auto_abook_exclude_names',  array());
+            $emails_patterns = $rcmail->config->get('auto_abook_exclude_emails', array());
+            foreach($names_patterns as $pattern){
+              if(preg_match($pattern, $contact['name'])){
+                return;
+              }
+            }
+            foreach($emails_patterns as $pattern){
+              if(preg_match($pattern, $contact['email'])){
+                return;
+              }
+            }
             if(empty($contact['name']) || $contact['name'] == $contact['email']){
               $contact['name'] = ucfirst(preg_replace('/[\.\-]/', ' ', substr($contact['email'], 0, strpos($contact['email'], '@'))));
             }

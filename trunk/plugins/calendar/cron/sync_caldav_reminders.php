@@ -31,7 +31,6 @@ else{
   include INSTALL_PATH . 'plugins/calendar/config.inc.php' . $ext;
 }
 
-define('RCMAIL_URL', $config['cron_rc_url']);
 /* End Configuration */
 
 /* Functions */
@@ -82,6 +81,8 @@ $config = array_merge($sconfig, $config);
 
 foreach($config as $key => $val)  
   $rcmail->config->set($key, $val);
+  
+define('RCMAIL_URL', $config['cron_rc_url']);
 
 if(!isset($config['log_dir']) || !is_dir($config['log_dir'])) 
   ini_set('error_log', INSTALL_PATH . 'logs/errors');

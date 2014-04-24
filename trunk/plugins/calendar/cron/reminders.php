@@ -31,7 +31,6 @@ else{
   include INSTALL_PATH . 'plugins/calendar/config.inc.php' . $ext;
 }
 
-define('RCMAIL_URL', $config['cron_rc_url']);
 /* End Configuration */
 
 /* Functions */
@@ -306,6 +305,8 @@ if($rcmail->config->get('smtp_user') != ''){
 if($rcmail->config->get('smtp_pass') != ''){
   $rcmail->config->set('smtp_pass',$rcmail->config->get('cron_smtp_pass'));
 }
+
+define('RCMAIL_URL', $config['cron_rc_url']);
 
 include_once INSTALL_PATH . 'plugins/calendar/program/utils.php';
 include_once INSTALL_PATH . 'plugins/http_request/class.http.php';
