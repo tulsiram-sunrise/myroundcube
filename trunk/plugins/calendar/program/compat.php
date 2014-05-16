@@ -1,5 +1,4 @@
 <?php
-//@compile 0a1a5a5d8ee6affa8ab79b4be4d87ea8
 if (!function_exists('json_encode'))
 {
   function json_encode($a=false)

@@ -600,13 +600,13 @@ function calendar_gui(){
     });
   
     // export/import handlers
-    $("#export_to_file").click(function(){
-      $('#send_invitation').prop('checked','');
-      window.setTimeout("$('#export_to_file').prop('checked','');var $dialogContent = $('#event');$dialogContent.dialog('close');",1500);
+    $("#export_as_file_chbox").click(function(){
+      $('#send_invitation_chbox').prop('checked','');
+      window.setTimeout("$('#export_as_file_chbox').prop('checked','');var $dialogContent = $('#event');$dialogContent.dialog('close');",1500);
       document.location.href = $('#export_as_file').attr('href');
     });
-    $("#send_invitation").click(function(){
-      $('#export_to_file').prop('checked','');
+    $("#send_invitation_chbox").click(function(){
+      $('#export_as_file_chbox').prop('checked','');
       window.setTimeout("$('#send_invitation').prop('checked','');var $dialogContent = $('#event');$dialogContent.dialog('close');",1500);
     });
     

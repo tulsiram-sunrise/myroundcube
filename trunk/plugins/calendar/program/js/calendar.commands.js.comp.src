@@ -42,7 +42,7 @@ function calendar_commands(){
   
   /* call compose tasks */
   this.compose = function(url){
-    url += '&_id=' + rcmail.env.edit_event.id;
+    url += '&_id=' + rcmail.env.edit_event.id + '&_edit=' + rcmail.env.edit_event.editable + '&_dbtable=' + rcmail.env.edit_event.dbtable;
     if(rcmail.env.compose_newwindow){
       opencomposewindowcaller(url);
     }

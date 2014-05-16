@@ -386,10 +386,13 @@ function calendar_callbacks(){
     catch(e){
     }
     if(!date){
-      var date = new Date(date.getTime()/1000);
+      date = new Date(date.getTime()/1000);
     }
     if(!endtime){
-      var endtime = new Date((date.getTime()/1000 + response.settings['duration']) * 1000);
+      endtime = new Date((date.getTime()/1000 + response.settings['duration']) * 1000);
+    }
+    if(!endtime){
+      endtime = new Date(date.getTime() + 3600000);
     }
     if(rcmail.env.cal_remindermailto)
       $('#remindermailto').html(rcmail.env.cal_remindermailto);
@@ -686,11 +689,11 @@ function calendar_callbacks(){
     $('#custommail').attr('onclick', "calendar_gui.custommail('edit')");
     if(event.onclick){
       if(event.onclick.indexOf('?_task=mail&_action=compose') > -1){
-        if(typeof opencomposewindow == 'function'){
-          opencomposewindow(event.onclick);
+        if(rcmail.env.compose_extwin == true){
+          rcmail.open_compose_step(event.onclick);
         }
         else{
-          window.open(event.onclick);
+          document.location.href = event.onclick;
         }
       }
       else{
@@ -918,8 +921,8 @@ function calendar_callbacks(){
     var expires = $('#expires').val(fexpires);
     var occurrences = $('#occurrences').val(event.occurrences);
     var base = './?_task=dummy&_action=plugin.calendar_';
-    $('#export_as_file').attr('href', base + 'single_export_as_file&_id=' + event.id + '&_edit=' + event.editable);
-    $('#send_invitation').attr('href', base + 'send_invitation&_id=' + event.id + '&_edit=' + event.editable);
+    $('#export_as_file').attr('href', base + 'single_export_as_file&_id=' + event.id + '&_edit=' + event.editable + '&_dbtable=' + event.dbtable);
+    $('#send_invitation').attr('href', base + 'send_invitation&_id=' + event.id + '&_edit=' + event.editable + '&_dbtable=' + event.dbtable);
     var recv = false;
     switch(event.rr){
       case 'd':
@@ -1327,8 +1330,9 @@ function calendar_callbacks(){
       $('input, textarea, select', '#form').each(
         function(){
           $(this).prop('disabled', true);
+          $('#send_invitation_chbox').prop('disabled', false);
+          $('#export_as_file_chbox').prop('disabled', false);
           $('#event').tabs('disable',1);
-          $('#event').tabs('disable',3);
           $('#event').tabs('disable',4);
         }
       );

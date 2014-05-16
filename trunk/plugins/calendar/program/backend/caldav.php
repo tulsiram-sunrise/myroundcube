@@ -253,13 +253,13 @@ final class calendar_caldav extends Backend{
     return $icalStamp."-".$rndStr;
   }
 
-  private function syncCalDAV($events,$request='PUT',$categories=false,$component='vevent'){
+  private function syncCalDAV($events, $request='PUT', $categories=false, $component='vevent'){
     if(!$this->sync){
       return true;
     }
     $return = false;
     if($this->type == 'caldav'){
-      $event = $this->utils->exportEvents(0,0,$events,false,false,false,$component);
+      $event = $this->utils->exportEvents(0, 0, $events, false, false, false, $component);
       $caldav_props = unserialize($events[0]['caldav']);
       $depth = true;
       if($request == 'DELETE'){
@@ -300,7 +300,7 @@ final class calendar_caldav extends Backend{
         if($ret){
           if(stripos($ret, 'HTTP/1.1') !== false){
             $code = $this->caldav->resultcode;
-            if($code == 403 || $code == 404 || $code == 412 || $code == 401){
+            if($code == 403 || $code == 404 || $code == 412 || $code == 401 || $code == 415){
               return false;
             }
             if($code == 201 || $code == 204 || $caldav_props[2] == '*'){
@@ -818,6 +818,7 @@ PROPP;
   ) {
     if (!empty($this->rcmail->user->ID)) {
       $srecur = (string) $recur;
+      $summary = addcslashes($summary, "\n\r"); 
       $description = addcslashes($description, "\n\r"); 
       $rr = substr($recur,0,1);
       $recur = substr($recur,1);
@@ -1015,7 +1016,7 @@ PROPP;
         $this->rcmail->action == 'plugin.resizeEvent' ||
         $this->rcmail->action == 'plugin.calendar_showlayer'
       ){
-        $events[0]['sync'] = $this->syncCalDAV($events,'PUT',$categories,$component);
+        $events[0]['sync'] = $this->syncCalDAV($events, 'PUT', $categories, $component);
       }
 
       $this->scheduleReminders($events[0]);
@@ -1056,6 +1057,7 @@ PROPP;
       $srecur = $recur;
       $rr = substr($recur,0,1);
       $recur = substr($recur,1);
+      $summary = addcslashes($summary, "\n\r");
       $description = addcslashes($description, "\n\r");
       // PostgreSQL sets 'f' instead of '0' for false, which messes up our conditionals! 
       if ($priority==false) $priority = '0';
@@ -1296,7 +1298,7 @@ PROPP;
       // find me: get uid from GUI and calendar.php
       $events = $this->getEventsByUID($event['uid']);
       if($this->rcmail->action == 'plugin.resizeEvent'){
-        $events[0]['sync'] = $this->syncCalDAV($events,'PUT',$events[0]['categories']);
+        $events[0]['sync'] = $this->syncCalDAV($events, 'PUT', $events[0]['categories']);
       }
       $this->scheduleReminders($events[0]);
       return $events[0];
@@ -1332,12 +1334,12 @@ PROPP;
           }
           $initialevent['exdates'] = serialize($exdates);
           $initialevent['recurrence_id'] = null;
-          $events[0]['sync'] = $this->syncCalDAV(array(0 => $initialevent),'PUT',$initialevent['categories']);
+          $events[0]['sync'] = $this->syncCalDAV(array(0 => $initialevent), 'PUT', $initialevent['categories']);
         }
         else{
           if(!$categories)
             $categories = $events[0]['categories'];
-          $events[0]['sync'] = $this->syncCalDAV($events,'DELETE',$categories);
+          $events[0]['sync'] = $this->syncCalDAV($events, 'DELETE', $categories);
         }
       }
       $this->scheduleReminders($events[0]);
@@ -1750,6 +1752,7 @@ PROPP;
       );
       $events = array();
       while ($result && ($event = $this->rcmail->db->fetch_assoc($result))) {
+        $event = $this->pass_dbtable($event);
         if($this->rcmail->action == 'plugin.getEvents'){
           $db_category = $event['categories'];
           if($category){
@@ -1831,6 +1834,7 @@ PROPP;
                 'reminder'        => (int)    $event['reminder'],
                 'reminderservice' => (string) $event['reminderservice'],
                 'remindermailto'  => (string) $event['remindermailto'],
+                'dbtable'         => (string) $event['dbtable'],
                 'editable'        => true,
                 'clone'           => false 
               );
@@ -2009,12 +2013,12 @@ PROPP;
     if (!empty($this->rcmail->user->ID)) {
       $result = $this->rcmail->db->query(
         "SELECT * FROM " . $this->dbtable . " 
-         WHERE ".$this->q('user_id')."=? AND ".$this->q('event_id')."=?",
-         $this->rcmail->user->ID,
+         WHERE ".$this->q('event_id')."=? LIMIT 1",
          $eventid
       );
       $event = $this->rcmail->db->fetch_assoc($result);
       if($event){
+        $event = $this->pass_dbtable($event);
         $event['recur'] = $event['recurring'];
         return $event;
       }
@@ -2033,7 +2037,7 @@ PROPP;
          $recurrence_id
       );
       while ($result && ($event = $this->rcmail->db->fetch_assoc($result))){
-        $events[] = $event;
+        $events[] = $this->pass_dbtable($event);
       }
       /*if(is_array($events) && count($events) > 1)
         write_log('calendar', "ERROR: Event with UID " . $event['uid'] . " is not unique");*/
@@ -2051,7 +2055,7 @@ PROPP;
          $uid
       );
       while ($result && ($event = $this->rcmail->db->fetch_assoc($result))){
-        $temparr[] = $event;
+        $temparr[] = $this->pass_dbtable($event);
       }
     }
     $i = 0;
@@ -2070,6 +2074,11 @@ PROPP;
       }
     }
     return $events;
+  }
+  
+  private function pass_dbtable($event){
+    $event['dbtable'] = $this->dbtable;
+    return $event;
   }
   
   private function offset($time = 0){

@@ -300,10 +300,10 @@ foreach($config as $key => $val){
   $rcmail->config->set($key, $val);
 }
 if($rcmail->config->get('smtp_user') != ''){
-  $rcmail->config->set('smtp_user',$rcmail->config->get('cron_smtp_user'));
+  $rcmail->config->set('smtp_user', $rcmail->config->get('cron_smtp_user'));
 }
 if($rcmail->config->get('smtp_pass') != ''){
-  $rcmail->config->set('smtp_pass',$rcmail->config->get('cron_smtp_pass'));
+  $rcmail->config->set('smtp_pass', $rcmail->config->get('cron_smtp_pass'));
 }
 
 define('RCMAIL_URL', $config['cron_rc_url']);

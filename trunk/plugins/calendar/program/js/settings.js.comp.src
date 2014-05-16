@@ -206,8 +206,8 @@ function addRowCalFeeds(size)
   var text = '&nbsp;';
   var feeds = '<input type="text" name="_calendarfeeds[]" size="' + size + '" />';
   var selector = '<select name="_feedscategories[]">';
-  for (var category in categories) {
-    selector += '<option value="' + category + '">' + category + '</option>';
+  for (var category in categories){
+    selector += '<option style="background-color: #' + categories[category] + '" value="' + category + '">' + category + '</option>';
   }
   selector += '</select>';
   var remove= '<input type="button" value="X" onclick="removeRow(this.parentNode.parentNode)" title="' + rcmail.gettext('remove_feed', 'calendar') + '" />'; 

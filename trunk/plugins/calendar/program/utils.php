@@ -159,7 +159,8 @@ class Utils
       'timestamp'           => $event['timestamp'],
       'past'                => $past,
       'del'                 => $event['del'],
-      'initial'             => $event['initial']
+      'initial'             => $event['initial'],
+      'dbtable'             => $event['dbtable'],
     );
     return $jevent;
   }
@@ -584,7 +585,15 @@ class Utils
               $component
             );
             if(is_array($ret)){
+              if(array_key_exists('sync', $ret) && !$ret['sync']){
+                $this->backend->removeEvent($ret['event_id']);
+                $this->backend->purgeEvents();
+                $ret = false;
+              }
               $this->importcnt ++;
+            }
+            else{
+              $ret = false;
             }
           }
           else{

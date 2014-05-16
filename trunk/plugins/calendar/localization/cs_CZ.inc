@@ -7,7 +7,7 @@
  | Copyright (C) 2010-2014, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: tachec - 04/11/2014 10:20:41
+ | Author: tachec - 04/29/2014 14:13:55
  +-----------------------------------------------------------------------+
 */
 
@@ -21,6 +21,8 @@ $labels['caldavserver'] = 'CalDAV Server';
 $labels['caldavsettings'] = 'CalDAV nastavení';
 $labels['unlink_caldav'] = 'Musíte nejdřív odstranit CalDAV server, aby bylo možné smazat tuto kategorii';
 $labels['unlink_caldav_warning'] = 'Opravdu chcete odstranit tento kalendář?';
+$labels['unlink_events_warning'] = 'Opravdu chcete trvale smazat všechny události v tomto kalendáři? Tuto akci nelze vzít zpět. Zvolte OK pro smazání tohoto kalendáře a všech událostí v něm nadefinovaných. Zvolte ZRUŠIT, pokud nechcete smazat události v tomto kalendáři.';
+$labels['unlink_events_warning_html'] = 'Opravdu chcete trvale smazat všechny události v tomto kalendáři? Tuto akci nelze vzít zpět. Zvolte ANO pro smazání tohoto kalendáře a všech událostí v něm nadefinovaných. Zvolte NE, pokud nechcete smazat události v tomto kalendáři.';
 $labels['caldavurl'] = 'CalDAV URL';
 $labels['passwordisset'] = 'Heslo je nastaveno';
 $labels['passwordisnotset'] = 'Heslo není nastaveno';
@@ -63,14 +65,8 @@ $labels['calfeedurl'] = 'URL kanálu';
 $labels['icsaccesshint'] = 'Použijte adresu výše pro přístup do kalendáře z aplikace Thunderbird nebo jiných klientů. Změňte nebo odstraňte adresu tokenu pro uzavření přístupu.';
 $labels['isenabled'] = 'je povolen';
 $labels['isdisabled'] = 'je zakázán';
-$labels['calendar_modified'] = 'Kalendář byl změněn';
-$labels['notify_header'] = 'Vážený %s,';
-$labels['event_modified'] = 'Byla provedena změna ve vašem kalendáři (%s). Byla přidána nebo změněna událost. Chtěli jste být informováni o těchto změnách. Přehled změn:';
-$labels['event_deleted'] = 'Byla provedena změna ve vašem kalendáři (%s). Byla smazána událost. Chtěli jste být informováni o těchto změnách. Přehled změn:';
-$labels['regards'] = 'S pozdravem, ';
-$labels['administrator'] = 'Administrátor';
-$labels['notify_footer'] = 'Tento e-mail jste obdrželi, protože jste chtěli být informováni o změnách ve vašem kalendáři. Neodpovídejte na tuto zprávu. V případě neoprávněného přístupu nebo zneužití zablokujte prosím přístup do sdílených kalendářů a informujte o tom ostatní účastníky sdílení.';
-$labels['notify_details'] = 'Detaily události:';
+$labels['sharehint'] = 'Výše uvedené údaje (uživatelské jméno, heslo (Token) a adresy URL) poskytněte ostatním, aby mohli sdílet vaše kalendáře. Tyto informace umožňují přístup pro čtení i zápis. Pro zamezení přístupu změňte token nebo jej smažte.';
+$labels['sharehint_readonly'] = 'Výše uvedené údaje (uživatelské jméno, heslo (Token) a adresy URL) poskytněte ostatním, aby mohli sdílet vaše kalendáře. Tyto informace umožňují pouze přístup pro čtení. Pro zamezení přístupu změňte token nebo jej smažte.';
 $labels['minutes'] = 'minuty';
 $labels['replicateautomatically'] = 'Replikuj CalDAV databázi každých';
 $labels['caldavreplicationrange'] = 'Replikuj CalDAV každý rok';
@@ -209,6 +205,7 @@ $labels['in'] = 'v';
 $labels['export_as_file'] = 'Jako soubor';
 $labels['send_invitation'] = 'Poslat pozvánku';
 $labels['invitation_subject'] = 'Předmět pozvánky';
+$labels['custommail'] = 'Naplánovat vlastní e-mail';
 $labels['reminder_before'] = 'Připomenout před začátkem události';
 $labels['removereminders'] = 'Odstraňuji upomínky';
 $labels['remindersloading'] = 'Načítám Upomínky...';

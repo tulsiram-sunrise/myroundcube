@@ -514,11 +514,11 @@
     <table>
       <tr>
         <td><roundcube:label name="calendar.export_as_file" /></td>
-        <td><a id="export_as_file" href="./?_task=dummy&_action=plugin.calendar_single_export_as_file"><input type="checkbox" id="export_to_file" /></a></td>
+        <td><a id="export_as_file" href="./?_task=dummy&_action=plugin.calendar_single_export_as_file"><input type="checkbox" id="export_as_file_chbox" /></a></td>
       </tr>
       <tr>
         <td><roundcube:label name="calendar.send_invitation" /></td>
-        <td><a id="send_invitation" onclick="calendar_commands.compose('./?_task=dummy&_action=plugin.calendar_send_invitation')" href="#"><input type="checkbox" id="send_invitation" /></a></td>
+        <td><a id="send_invitation" onclick="calendar_commands.compose('./?_task=dummy&_action=plugin.calendar_send_invitation')" href="#"><input type="checkbox" id="send_invitation_chbox" /></a></td>
       </tr>
     </table>
     </div>
@@ -526,13 +526,13 @@
     <table>
       <tr>
         <td colspan="2">
-          <input name="_reminderenable" id="reminderenable" type="radio" checked="checked" value="1" />
+          <input name="_reminderenable" id="reminderenable" type="radio" value="1" />
           <span>&nbsp;</span><roundcube:label name="calendar.reminderenable" />
         </td>
       </tr>
       <tr>
         <td colspan="2">
-          <input name="_reminderenable" id="reminderdisable" type="radio" checked="checked" value="0" />
+          <input name="_reminderenable" id="reminderdisable" type="radio" value="0" />
           <span>&nbsp;</span><roundcube:label name="calendar.reminderdisable" />
         </td>
       </tr>
