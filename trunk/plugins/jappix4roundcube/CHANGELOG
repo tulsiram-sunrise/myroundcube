@@ -9,3 +9,6 @@ VERSION                COMMENT
 2.0.9                  - Separated Gibberish encoding into a helper plugin
 2.0.10                 - Added User-Agent header to cURL requests
 2.0.11                 - Removed jappix iframe (Jappix has introduced same origin policy)
+2.0.12 - 2.0.13        - Roundcube 1.0 compatibility
+2.0.14                 - Bug fix: https://code.google.com/p/myroundcube/issues/detail?id=678
+2.0.15                 - Enhancement: https://code.google.com/p/myroundcube/issues/detail?id=674

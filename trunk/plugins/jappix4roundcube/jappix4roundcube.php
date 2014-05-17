@@ -2,7 +2,7 @@
 /**
  * jappix4roundcube
  *
- * @version 2.0.13 - 16.02.2014
+ * @version 2.0.15 - 17.05.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -32,8 +32,8 @@ class jappix4roundcube extends rcube_plugin {
   static private $plugin = 'jappix4roundcube';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '';
-  static private $version = '2.0.13';
-  static private $date = '16-02-2014';
+  static private $version = '2.0.15';
+  static private $date = '17-05-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -87,6 +87,19 @@ class jappix4roundcube extends rcube_plugin {
 
     $this->register_task('jappix');
     $this->register_action('jappix.getfile', array($this, 'getfile'));
+
+    if($rcmail->config->get('jabber_domain') == '%d'){
+      $rcmail->config->set('jabber_domain', end(explode('@', $rcmail->user->data['username'])));
+    }
+    if(!$rcmail->config->get('jabber_username') && $rcmail->config->get('jappix_inherit')){
+      $rcmail->config->set('jabber_username', current(explode('@', $rcmail->user->data['username'])));
+    }
+    
+    if(!$rcmail->config->get('jabber_enc') && $rcmail->config->get('jappix_inherit')){
+      gibberish::include_php();
+      $key = md5($rcmail->user->data['username'] . ':' . $rcmail->decrypt($_SESSION['password']));
+      $rcmail->config->set('jabber_enc', GibberishAES::enc($rcmail->decrypt($_SESSION['password']), $key));
+    }
 
     if(!$rcmail->config->get('jabber_username') || !$rcmail->config->get('jabber_domain', 'jappix.com')){
       return;
@@ -203,7 +216,7 @@ class jappix4roundcube extends rcube_plugin {
     }
     $rcmail = rcmail::get_instance();
     if($p['template'] != 'summary.summary'){
-      if($rcmail->config->get('jappix_mini', false) && (
+      if($rcmail->config->get('jappix_mini', true) && (
                                                           $p['template'] == 'mail' ||
                                                           $p['template'] == 'addressbook' ||
                                                           $p['template'] == 'settings' ||
@@ -244,8 +257,8 @@ class jappix4roundcube extends rcube_plugin {
       $rcmail->output->set_env('jabber_username', $rcmail->config->get('jabber_username'));
       $rcmail->output->set_env('jabber_domain', $rcmail->config->get('jabber_domain'));
       $rcmail->output->set_env('jabber_enc', $rcmail->config->get('jabber_enc'));
-      $rcmail->output->set_env('jabber_mini', $rcmail->config->get('jappix_mini'));
-      $rcmail->output->set_env('jabber_autologon', $rcmail->config->get('jappix_mini_autologon'));
+      $rcmail->output->set_env('jabber_mini', $rcmail->config->get('jappix_mini', true) ? 1 : 0);
+      $rcmail->output->set_env('jabber_autologon', $rcmail->config->get('jappix_mini_autologon', true));
       $this->include_script('jappix.js');
       gibberish::include_js();
       $file = 'mini.css';
@@ -285,10 +298,12 @@ class jappix4roundcube extends rcube_plugin {
   }
 
   function preferences_section($args){
-    $args['list']['jabber'] = array(
-      'id'      => 'jabber',
-      'section' => Q($this->gettext('jappixSection'))
-    );
+    if(!rcmail::get_instance()->config->get('jappix_lock_settings')){
+      $args['list']['jabber'] = array(
+        'id'      => 'jabber',
+        'section' => Q($this->gettext('jappixSection'))
+      );
+    }
     return($args);
   }
 
@@ -299,6 +314,9 @@ class jappix4roundcube extends rcube_plugin {
       $field_id_user = 'rcmfd_username';
       $input_user = new html_inputfield(array('name' => '_jabber_username', 'id' => $field_id_user, 'size' => 25));
       $jabber_domain = $rcmail->config->get('jabber_domain', 'jappix.com');
+      if($jabber_domain == '%d'){
+        $jabber_domain = end(explode('@', $rcmail->user->data['username']));
+      }
       $field_id_domain = 'rcmfd_domain';
       $input_domain = new html_inputfield(array('name' => '_jabber_domain', 'id' => $field_id_domain, 'size' => 25, 'readonly' => true));
       $args['blocks']['jabber']['options']['jabber_username'] = array(
@@ -366,6 +384,9 @@ class jappix4roundcube extends rcube_plugin {
         $rcmail->output->set_env('jabber_domain', $args['prefs']['jabber_domain']);
       }
       $password = trim(get_input_value('_jabber_password', RCUBE_INPUT_POST));
+      if(!$password && $rcmail->config->get('jappix_inherit')){
+        $password =  $rcmail->decrypt($_SESSION['password']);
+      }
       if($password){
         $key = md5($rcmail->user->data['username'] . ':' . $rcmail->decrypt($_SESSION['password']));
         $enc = GibberishAES::enc($password, $key);

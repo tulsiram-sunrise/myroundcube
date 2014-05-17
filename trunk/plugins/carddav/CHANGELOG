@@ -85,3 +85,4 @@ VERSION                COMMENT
 7.0.3                  - Re-implemented groups handling (as vcard property categories)
 7.0.4 - 7.0.5          - Add contraints to groupmembers to make sure that the contact exists in the database
 7.0.6                  - Introduce RegEx patterns to exclude certain names/emails to be collected automatically
+7.0.7                  - Don't initialize carddav_addressbook class for getting addressbook list

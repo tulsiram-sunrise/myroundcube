@@ -16,7 +16,7 @@ class folderbuttons extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'folderbuttons';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/folderbuttons-plugin" target="_new">Documentation</a>';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/folderbuttons-plugin" target="_blank">Documentation</a>';
   static private $version = '2.0';
   static private $date = '05-01-2014';
   static private $licence = 'GPL';

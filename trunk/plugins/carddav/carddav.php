@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 7.0.6 - 19.04.2014
+ * @version 7.0.7 - 16.05.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -40,9 +40,9 @@ class carddav extends rcube_plugin {
   /* unified plugin properties */
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_new">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_new">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new"><font color="red">IMPORTANT</font></a>';
-  static private $version = '7.0.6';
-  static private $date = '19-04-2014';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_blank">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_blank">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_blank"><font color="red">IMPORTANT</font></a>';
+  static private $version = '7.0.7';
+  static private $date = '16-05-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -763,7 +763,7 @@ class carddav extends rcube_plugin {
     return $args;
   }
 
-  public function get_carddav_addressbook_sources($addressbook){
+  public function get_carddav_addressbook_sources($addressbooks = array()){
     $servers = $this->get_carddav_server();
     $sorted = array();
     foreach($servers as $server){
@@ -771,19 +771,18 @@ class carddav extends rcube_plugin {
     }
     ksort($sorted);
     foreach ($sorted as $server){
-      $carddav_addressbook = new carddav_addressbook($server['carddav_server_id'], $server['label'], ($server['read_only'] == 1 ? true : false), $addressbook['id']);
       $label = $this->gettext($server['label']);
       if($server['edt'] || (substr($label, 0, 1) == '[' && substr($label, strlen($label) - 1, 1) == ']')){
         $label = $server['label'];
       }
-      $addressbook['sources'][$this->carddav_addressbook . $server['carddav_server_id']] = array(
+      $addressbooks['sources'][$this->carddav_addressbook . $server['carddav_server_id']] = array(
         'id' => $this->carddav_addressbook . $server['carddav_server_id'],
         'name' => $label,
-        'readonly' => $carddav_addressbook->readonly,
-        'groups' => $carddav_addressbook->groups
+        'readonly' => $server['read_only'] == 1 ? true : false,
+        'groups' => true
       );
     }
-    return $addressbook;
+    return $addressbooks;
   }
 
   private function check_curl_installed(){

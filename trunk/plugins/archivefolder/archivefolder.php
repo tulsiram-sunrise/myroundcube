@@ -21,7 +21,7 @@ class archivefolder extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'archivefolder';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_new">Documentation</a><br /><a href="http://trac.roundcube.net/ticket/1489423" target="_new">Related Roundcube Ticket</a>';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_blank">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
   static private $version = '2.9.5';
   static private $date = '12-03-2014';

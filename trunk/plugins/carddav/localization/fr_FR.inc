@@ -1,14 +1,14 @@
 <?php
 /*
- +-----------------------------------------------------------------------+
- | ./plugins/carddav/localization/fr_FR.inc
- |
- | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2013, Roland 'rosali' Liebl
- |
- +-----------------------------------------------------------------------+
- | Author: Thomas Parvais - 06/17/2013 11:12:29
- +-----------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+| ./plugins/carddav/localization/fr_FR.inc
+|
+| Language file of MyRoundcube Plugins Bundle
+| Copyright (C) 2010-2013, Roland 'rosali' Liebl
+|
++-----------------------------------------------------------------------+
+| Author: Thomas Parvais - 06/17/2013 11:12:29
++-----------------------------------------------------------------------+
 */
 
 $labels = array();
@@ -17,8 +17,18 @@ $labels['plugindescription'] = 'Gêrer vos contacts sur un serveur CardDAV';
 $labels['settings'] = 'Paramètres CardDAV';
 $labels['sharing'] = 'Partager';
 $labels['share'] = 'Partage';
+$labels['shareinvitation'] = 'Envoyer une invitation';
+$labels['send'] = 'Envoyer';
+$labels['cancel'] = 'Annuler';
 $labels['resource'] = 'Ressource';
+$labels['url'] = 'URL';
+$labels['access'] = 'Accès';
+$labels['username'] = 'Utilisateur';
+$labels['tutorials'] = 'Tutoriels';
+$labels['checkresources'] = 'Vérifier les ressources';
 $labels['confidentialcarddavaccess'] = 'Accès CardDAV confidentiel [%s]';
+$labels['copytoclipboard'] = 'Copier dans le presse-papier';
+$labels['copiedtoclipboard'] = 'Copié dans le presse-papier';
 $labels['sharehint'] = 'Veuillez fournir les informations demandées ce-dessus (login, mot de passe (jeton) et URLs) pour que les autres utilisateurs puissent se accéder à votre carnet d\'adresses partagé. Accès en écriture et lecture. Changer ou supprimer le mot de passe (jeton) pour fermer l\'accès';
 $labels['sharehint_readonly'] = 'Veuillez fournir les informations demandées ce-dessus (login, mot de passe (jeton) et URLs) pour que les autres utilisateurs puissent se accéder à votre carnet d\'adresses partagé. Accès en lecture uniquement. Changer ou supprimer le mot de passe (jeton) pour fermer l\'accès';
 $labels['readwrite'] = 'lecture/écriture';
@@ -38,6 +48,9 @@ $labels['settings_empty_values'] = 'Veuillez remplir tous les champs et l\'URL';
 $labels['settings_saved'] = 'Les paramètres CardDAV et les vCards sauvegardées';
 $labels['settings_save_failed'] = 'Echec lors de la sauvegarde des paramètres de configuration CardDAV';
 $labels['settings_delete_loading'] = 'Effacer les paramètres de configuration CardDAV et les contacts (local)';
+$labels['settings_delete_warning'] = 'Êtes vous sûr de vouloir effacer ce carnet d\'adresse ?';
+$labels['settings_delete_contacts_warning'] = 'Voulez-vous définitivement effacer tous les contacts de ce carnet d\'adresse ? Cette action ne peut être annulée. Choisissez OK pour effacer le carnet d\'adresse ET les contacts associés à ce carnet d\'adresse. Choisissez ANNULER pour ne pas effacer les contacts de ce carnet d\'adresse.';
+$labels['settings_delete_contacts_warning_html'] = 'Voulez-vous définitivement effacer tous les contacts de ce carnet d\'adresse ?<br />Cette action ne peut être annulée.<br /><br />Choisissez OK pour effacer le carnet d\'adresse ET les contacts associés à ce carnet d\'adresse.<br />Choisissez ANNULER pour ne pas effacer les contacts de ce carnet d\'adresse.';
 $labels['settings_deleted'] = 'Paramètres de configuration CardDAV effacés';
 $labels['settings_delete_failed'] = 'Echec lors de l\'effacement des paramètres de configuration CardDAV';
 $labels['settings_no_connection'] = 'Impossible de se connecter au service CardDAV';
@@ -62,7 +75,5 @@ $labels['Family'] = 'Famille';
 $labels['Personal'] = 'Personnel';
 $labels['Collected'] = 'Collecté';
 $labels['local'] = 'local';
-$labels['submenuprefix'] = '>>';
 $labels['blank'] = 'vide';
-
 ?>

@@ -1,18 +1,11 @@
 <?php
 
 /**
- * Captcha
- *
- * Plugin provides a captcha challenge
+ * captcha
  *
  * @version 3.2.11 - 02.01.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
- *
- **/
- 
-/**
- * Usage: http://myroundcube.com
  *
  **/
 
@@ -23,9 +16,9 @@ function captcha_translate($str = ""){
 
 #-- config
 define( 'EWIKI_FONT_DIR', dirname(__FILE__));  // which fonts to use
-define( 'CAPTCHA_INVERSE', 0);                 // white or black(=1)
-define( 'CAPTCHA_TIMEOUT', 5000);              // in seconds (=max 4 hours)
-define( 'CAPTCHA_MAXSIZE', 4500);              // preferred image size
+define( 'CAPTCHA_INVERSE', 0);                  // white or black(=1)
+define( 'CAPTCHA_TIMEOUT', 5000);               // in seconds (=max 4 hours)
+define( 'CAPTCHA_MAXSIZE', 4500);               // preferred image size
 
 /* static - (you could instantiate it, but...) */
 class captcha extends rcube_plugin {
@@ -36,7 +29,7 @@ class captcha extends rcube_plugin {
     /* unified plugin properties */
   static private $plugin = 'captcha';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/captcha-plugin" target="_new">Documentation</a>';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/captcha-plugin" target="_blank">Documentation</a>';
   static private $version = '3.2.11';
   static private $date = '02-01-2014';
   static private $licence = 'GPL';

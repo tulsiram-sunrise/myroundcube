@@ -234,7 +234,7 @@ $labels['editfuture'] = 'seulement celui-ci et tous les évènements à venir';
 $labels['applyrecurring'] = 'Appliquer les changements à...';
 $labels['birthday'] = 'Anniversaire';
 $labels['happybirthday'] = 'Joyeux anniversaire!';
-$labels['submenuprefix'] = '>>';
+$labels['submenuprefix'] = '» ';
 $labels['undefined'] = '---';
 
 ?>
