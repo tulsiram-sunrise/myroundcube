@@ -18,8 +18,7 @@ class timepicker extends rcube_plugin{
 
   static private $plugin = 'timepicker';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
-  static private $download = 'http://myroundcube.googlecode.com';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?timepicker" target="_blank">Documentation</a>';
   static private $version = '3.0';
   static private $date = '30-12-2013';
   static private $licence = 'GPL';
@@ -63,7 +62,6 @@ class timepicker extends rcube_plugin{
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array($keys)){

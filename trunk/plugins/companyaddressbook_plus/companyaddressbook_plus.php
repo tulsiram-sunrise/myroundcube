@@ -17,7 +17,7 @@ class companyaddressbook_plus extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'companyaddressbook_plus';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = 'This plugin requires <a href="#companyaddressbook" class="anchorLink">companyaddressbook</a> plugin.<br/>Currently supported drivers:<ol><li>hmail_com (hMailserver COM driver - Roundcube and hMailserver are running on the same Windows server and PHP COM is available)</li><li>hmail_db (hMailserver database driver - PHP COM is not available on Roundcube\'s server and Roundcube\'s server is able to connect to hMailserver database)</li></ol>';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?companyaddressbook_plus" target="_blank">Documentation</a><br />This plugin requires <a href="#companyaddressbook" class="anchorLink">companyaddressbook</a> plugin.<br/>Currently supported drivers:<ol><li>hmail_com (hMailserver COM driver - Roundcube and hMailserver are running on the same Windows server and PHP COM is available)</li><li>hmail_db (hMailserver database driver - PHP COM is not available on Roundcube\'s server and Roundcube\'s server is able to connect to hMailserver database)</li></ol>';
   static private $version = '1.2';
   static private $date = '02-01-2014';
   static private $licence = 'GPL';

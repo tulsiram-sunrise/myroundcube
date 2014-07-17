@@ -32,8 +32,7 @@ class savepassword extends rcube_plugin
     /* unified plugin properties */
     static private $plugin = 'savepassword';
     static private $author = 'myroundcube@mail4us.net';
-    static private $authors_comments = null;
-    static private $download = 'http://myroundcube.googlecode.com';
+    static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?savepassword" target="_blank">Documentation</a>';
     static private $version = '3.0.1';
     static private $date = '18-03-2014';
     static private $licence = 'GPL';
@@ -101,7 +100,6 @@ class savepassword extends rcube_plugin
         'author' => self::$author,
         'comments' => self::$authors_comments,
         'licence' => self::$licence,
-        'download' => self::$download,
         'requirements' => $requirements,
       );
       if(is_array(self::$prefs))

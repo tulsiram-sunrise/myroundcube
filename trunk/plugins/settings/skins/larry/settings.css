@@ -12,26 +12,6 @@
   left: 220px;
 }
 
-fieldset
-{
-  border-radius: 3px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  margin-left: 15px;
-  margin-right: 15px;
-  /*-moz-box-shadow: 1px 1px 12px #999;
-  -webkit-box-shadow: #999 1px 1px 12px;*/
-}
-
-.propform fieldset legend {
-  margin-left: -4px;
-}
-
-table.propform td
-{
-  /*background: #fff;*/
-}
-
 #userprefs-accountblocks
 {
   position: absolute;

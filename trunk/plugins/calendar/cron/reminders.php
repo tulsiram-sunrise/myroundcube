@@ -267,6 +267,7 @@ function compose($val,$tz,$labels,$rcmail,$ical){
 if(!isset($config['log_dir']) || !is_dir($config['log_dir']))
   ini_set('error_log', INSTALL_PATH.'logs/errors');
 
+$GLOBALS['NOSESSION'] = true;
 include INSTALL_PATH . 'program/include/iniset.php';
 
 $rcmail = rcmail::get_instance();
@@ -391,7 +392,7 @@ foreach($notifiers as $key => $notifier){
       );
     }
   }
-  $utils->curlRequest($rcmail->config->get('cron_rc_url') . '?_cron=1&_schedule=1&_userid=' . $notifier['user_id'] . '&_event_id=' . $notifier['event_id'] . '&_backend=' . $notifier['backend'] . '&_cronstart=' . $time_start_s);
+  $utils->curlRequest($rcmail->config->get('cron_rc_url') . '?_cron=1&_schedule=1&_userid=' . $notifier['user_id'] . '&_event_id=' . $notifier['event_id'] . '&_backend=' . $notifier['backend'] . '&_nosession=1&_cronstart=' . $time_start_s);
 }
 
 $time_end = microtime_float();
@@ -406,12 +407,6 @@ if($rcmail->config->get('cron_log') == true){
     write_log('calendar',"  $nupcoming upcoming event(s) notified.");
     write_log('calendar',"  Script terminated after $time seconds runtime.");
   }
-}
-
-$rcmail->session->destroy(session_id());
-$maxlifetime = @ini_get('session.gc_maxlifetime');
-if(is_numeric($maxlifetime)){
-  $rcmail->session->gc($maxlifetime);
 }
 print "done [$time seconds runtime] " . date('Y-m-d H:i:s',time()) . "\n";
 exit;

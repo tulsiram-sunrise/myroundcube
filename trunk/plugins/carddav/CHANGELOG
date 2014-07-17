@@ -75,8 +75,8 @@ VERSION                COMMENT
 5.4.43                 - @set_time_limit(0) for entire addressbook task to avoid timeout on first time sync
 5.4.44                 - Implementation of Google oAuth2 for CardDAV access to Google contacts
 5.4.45                 - Protect 'Google' label
-5.4.46                 - Bugfix: Roundcube < 1.0 does not handle all date formats properly (birthday, anniversary fails
-                         for dd/mm, dd.mm, ...)
+5.4.46                 - Bugfix: Roundcube < 1.0 does not handle all date formats properly (birthday, anniversary
+                         fails for dd/mm, dd.mm, ...)
 6.0                    - Roundcube 1.0 compatibility
 6.0.1                  - Handle groups correctly (changed in Roundcube 1.0 http://trac.roundcube.net/ticket/1488509)
 7.0                    - Re-coded carddav_addressbook class
@@ -86,3 +86,6 @@ VERSION                COMMENT
 7.0.4 - 7.0.5          - Add contraints to groupmembers to make sure that the contact exists in the database
 7.0.6                  - Introduce RegEx patterns to exclude certain names/emails to be collected automatically
 7.0.7                  - Don't initialize carddav_addressbook class for getting addressbook list
+7.0.8                  - Removed contact_copied hook
+7.0.9                  - Added MSSQL support (third party contribution (https://asphostpage.com/)
+7.0.10                 - Implement rcube_db::limitquery

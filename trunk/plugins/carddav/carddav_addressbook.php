@@ -1089,10 +1089,11 @@ class carddav_addressbook extends rcube_addressbook{
     $rcmail = rcmail::get_instance();
     
     $query = "SELECT * FROM " . get_table_name('carddav_contacts') .
-             " WHERE carddav_server_id=? AND user_id=? and vcard_id=? LIMIT 1";
+             " WHERE carddav_server_id=? AND user_id=? and vcard_id=?";
     
-    $result = $rcmail->db->query(
+    $result = $rcmail->db->limitquery(
       $query,
+      0, 1,
       $this->carddav_server_id,
       $rcmail->user->data['user_id'],
       $carddav_content['vcard_id']

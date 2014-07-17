@@ -12,7 +12,7 @@ class http_request extends rcube_plugin{
 
   static private $plugin = 'http_request';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?http_request" target="_blank">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
   static private $version = '1.5';
   static private $date = '30-04-2013';

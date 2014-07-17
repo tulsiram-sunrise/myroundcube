@@ -193,6 +193,16 @@ class Utils
     // find me: implement fetch local feeds directly from database
     $http = new MyRCHttp;
     $httpConfig['method'] = 'GET';
+    $parsed = parse_url($url);
+    if(!empty($parsed['query'])){
+      $conn = '&';
+    }
+    else{
+      $conn = '?';
+    }
+    if(strpos($url, '_nosession=1') === false){
+      $url .= $conn . '_nosession=1';
+    }
     $httpConfig['target'] = $url;
     $httpConfig['user_agent'] = 'MyRoundcube PHP/5.0';
     $http->initialize($httpConfig); 

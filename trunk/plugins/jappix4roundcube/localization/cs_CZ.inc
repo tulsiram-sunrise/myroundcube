@@ -17,17 +17,17 @@ $labels['plugindescription'] = 'Vložený Jappix Chat.';
 $labels['jappixUsername'] = 'Uživatel (ponechte prázdné pro zakázání)';
 $labels['usernameinvalid'] = 'Uživatelské jméno obsahuje neplatné znaky';
 $labels['domaininvalid'] = 'Doména obsahuje neplatné znaky';
-$labels['useminijappix'] = 'Použít Mini Jappix';
-$labels['minijappixautologon'] = 'Automatizované přihlášení do Mini Jappixu';
+$labels['useminijappix'] = 'Použít Mini Chat';
+$labels['minijappixautologon'] = 'Automatizované přihlášení do Mini Chat';
 $labels['jappixDomain'] = 'Doména';
 $labels['jappixPassword'] = 'Heslo';
 $labels['jappixSection'] = 'Chat';
 $labels['task'] = 'Chat';
 $labels['title'] = 'Jappix';
-$labels['manager'] = 'Spravovat Jappix';
+$labels['manager'] = 'Spravovat Chat';
 $labels['passwordisset'] = 'Heslo je nastaveno';
 $labels['pleaseenterpassword'] = 'Zadejte prosím heslo';
-$labels['success'] = 'Úspěšné přihlášení do vašeho účtu XMPP... %s přátel online.';
-$labels['failure'] = 'Jappix je v současnosti nedostupný.';
+$labels['success'] = 'Úspěšné přihlášení do vašeho účtu Chat... %s přátel online.';
+$labels['failure'] = 'Chat je v současnosti nedostupný.';
 
 ?>

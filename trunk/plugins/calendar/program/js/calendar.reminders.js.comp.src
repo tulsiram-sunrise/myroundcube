@@ -103,8 +103,11 @@ function calendar_reminders(){
                 '</tr></table>';
       $('#remindersoverlaysmall').html(content);
       $('#remindersoverlaysmall').attr('class', divclass);
-      for(i in response[1]){
-        calendar_common.qtip(response[1][i], $('#rli' + i),'reminders');
+     for(i in response[1]){
+        try{
+          calendar_common.qtip(response[1][i], $('#rli' + i),'reminders');
+        }
+        catch(e){ }
       }
       if(response[0]){
         $('#remindersoverlay').show();

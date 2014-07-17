@@ -1,19 +1,20 @@
 <?php
 /*
- +-----------------------------------------------------------------------+
- | ./plugins/calendar/localization/nl_NL.inc
- |
- | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2012, Roland 'rosali' Liebl
- |
- +-----------------------------------------------------------------------+
- | Author: Emiel Wieldraaijer - 12/26/2012 19:05:43
- +-----------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+| ./plugins/calendar/localization/nl_NL.inc
+|
+| Language file of MyRoundcube Plugins Bundle
+| Copyright (C) 2010-2012, Roland 'rosali' Liebl
+|
++-----------------------------------------------------------------------+
+| Author: Emiel Wieldraaijer - 12/26/2012 19:05:43
++-----------------------------------------------------------------------+
 */
 
 $labels = array();
 $labels['pluginname'] = 'Agenda';
 $labels['plugindescription'] = 'Beheer afspraken en gebeurtenissen in een webmailagenda.';
+$labels['view'] = 'Bekijk';
 $labels['calendarprovider'] = 'Provider';
 $labels['forinstance'] = 'bijv.';
 $labels['caldavserver'] = 'CalDAV Server';
@@ -28,13 +29,28 @@ $labels['workdays'] = 'Werkdagen';
 $labels['first_day'] = 'Eerste dag van de week';
 $labels['categories'] = 'Categorieën';
 $labels['add_category'] = 'Voeg categorie toe';
+$labels['add_caldav'] = 'Link CalDAV bron';
 $labels['remove_category'] = 'Verwijder categorie';
 $labels['calendar_feeds'] = 'Agenda feeds';
 $labels['feeds'] = 'Agenda Feeds';
 $labels['add_feed'] = 'Feed toevoegen';
 $labels['remove_feed'] = 'Feed verwijderen';
-$labels['share'] = 'Delen';
+$labels['sharing'] = 'Delen';
+$labels['share'] = 'Deel';
+$labels['shareinvitation'] = 'Stuur uitnodiging';
+$labels['send'] = 'Stuur';
+$labels['cancel'] = 'Annuleren';
 $labels['resource'] = 'Hulpbron';
+$labels['label'] = 'Label';
+$labels['url'] = 'Linkadres';
+$labels['access'] = 'Toegang';
+$labels['username'] = 'Gebruiker';
+$labels['tutorials'] = 'Voorbeelden';
+$labels['checkresources'] = 'Controleer bronnen';
+$labels['checkatleastoneresource'] = 'Selecteer teminste 1 bron';
+$labels['invitationsubject'] = '%s nodigt je uit voor CalDAV';
+$labels['copytoclipboard'] = 'Kopieer naar klembord';
+$labels['copiedtoclipboard'] = 'Gekopieerd naar klembord';
 $labels['caltoken'] = 'Token';
 $labels['confidentialcaldavaccess'] = 'Vertrouwelijke CalDAV toegang [%s]';
 $labels['readwrite'] = 'lezen/schrijven';
@@ -43,14 +59,26 @@ $labels['readonly'] = 'alleen lezen';
 $labels['calicsurl'] = 'ICS URL';
 $labels['calfeedurl'] = 'Feed URL';
 $labels['icsaccesshint'] = 'Kopiëer de URL hierboven en geef deze aan anderen om iemand alleen-lezen toegang tot uw agenda te geven. Wis of wijzig het token om de toegang tot uw agenda te verwijderen.';
+$labels['isenabled'] = 'is aan';
+$labels['isdisabled'] = 'is uitgeschakeld';
 $labels['sharehint'] = 'De informatie hierboven dient u op te geven (Aanmeldnaam, Wachtwoord (Token) and Internetadres) zodat andere gebruikers uw gedeelde agenda kunnen benaderen. Deze informatie geeft lees- en schrijfrechten op je agenda items. Verander of verwijder de token om te.....';
+$labels['sharehint_readonly'] = 'Geef volgende informatie: (gebruikersnaam, wachtwoord en URL) voor anderen om te verbinden met gedeelde contactpersonen <br /> read-only';
 $labels['minutes'] = 'minuten';
 $labels['replicateautomatically'] = 'Repliceer CalDAV database iedere';
 $labels['caldavreplicationrange'] = 'Repliceer CalDAV voor de jaren';
+$labels['caldavreplicationrangetasks'] = 'Toon volgende taak';
+$labels['twoweeks'] = '2 weken';
+$labels['threeweeks'] = '3 weken';
+$labels['onemonth'] = 'maand';
+$labels['twomonths'] = 'twee maanden';
+$labels['threemonths'] = 'drie maanden';
+$labels['sixmonths'] = 'zes maanden';
+$labels['oneyear'] = 'jaar';
 $labels['caldavauthentication'] = 'Autenticatie methode';
 $labels['basic'] = 'BASIC';
 $labels['detect'] = 'automatisch detecteren';
 $labels['cal_notify'] = 'Herinnering per email';
+$labels['caldav_notify'] = 'stuur mail bij gewijzigde gebeurtenis door co-beheerder';
 $labels['cal_notify_to'] = 'Ontvanger';
 $labels['showbirthdays'] = 'Toon verjaardagen';
 $labels['clickhere'] = 'Klik hier';
@@ -79,9 +107,11 @@ $labels['year'] = 'Jaar';
 $labels['new_event'] = 'Nieuwe afspraak';
 $labels['new_event_short'] = 'Maak afspsraak';
 $labels['edit_event'] = 'Wijzig afspraak';
+$labels['edit_task'] = 'bewerk taak';
+$labels['hide_tasks'] = 'verberg taak';
+$labels['show_tasks'] = 'toon taak';
 $labels['save'] = 'Opslaan';
 $labels['remove'] = 'Verwijderen';
-$labels['cancel'] = 'Annuleren';
 $labels['summary'] = 'Samenvatting';
 $labels['description'] = 'Omschrijving';
 $labels['all-day'] = 'Gehele dag';
@@ -117,16 +147,19 @@ $labels['edited_by'] = 'Gewijzigd door';
 $labels['addicalmsg'] = 'Importeer in de agenda';
 $labels['icalsavefailed'] = 'Kan agendabestand niet importeren';
 $labels['importedsuccessfully'] = 'Succesvol geïmporteerd';
+$labels['importedsuccessfullycnt'] = 'Succesvol geïmporteerd (%s item[s])';
 $labels['switch_calendar'] = 'Verander van agenda';
 $labels['user'] = 'Gebruiker';
 $labels['cal_user'] = 'Agenda gebruiker';
 $labels['submit'] = 'Opslaan';
-$labels['filter_events'] = 'Filter afspraken';
 $labels['filter'] = 'Filters';
 $labels['allevents'] = 'alle afspraken';
-$labels['removefilters'] = 'Verwijder filters';
+$labels['defaultcategorylabel'] = 'standaard agenda';
 $labels['defaultcategory'] = 'Standaard';
+$labels['backgroundcolor'] = 'achtergrondkleur';
 $labels['general'] = 'Algemeen';
+$labels['event'] = 'gebeurtenis';
+$labels['events'] = 'gebeurtenissen';
 $labels['schedule'] = 'Schema';
 $labels['every'] = 'Elke';
 $labels['bydays'] = 'Per dag';
@@ -168,25 +201,28 @@ $labels['in'] = 'in';
 $labels['export_as_file'] = 'Als bestand';
 $labels['send_invitation'] = 'Stuur uitnodiging';
 $labels['invitation_subject'] = 'Uitnodiging afspraak';
+$labels['custommail'] = 'plan aangepaste email';
 $labels['reminder_before'] = 'Herinnering voor aanvang';
 $labels['removereminders'] = 'Herinneringen verwijderen';
 $labels['remindersloading'] = 'Herinneringen ophalen...';
 $labels['reminderfooter'] = 'U ontvangt deze e-mail omdat u een herinnering voor deze gebeurtenis in uw agenda heeft geplaatst.';
 $labels['show_upcoming_cal'] = 'Komende afspraken laten zien';
 $labels['invalidresponse'] = 'Ongeldige reactie ontvangen van';
+$labels['verifyexpiredate'] = 'Controleer houdbaarheidsdatum. Deze is aangepast';
 $labels['importconfirmation'] = 'Wilt u de bijgevoegde afspraken importeren in uw agenda [%s item(s)]?';
 $labels['item'] = 'Item';
 $labels['errorsaving'] = 'Fout bij opslaan';
 $labels['calreadonly'] = 'Deze agenda is alleen lezen';
-$labels['mycalendar'] = 'mijn agenda';
 $labels['allcalendars'] = 'alle agenda\'s';
+$labels['subscriptions'] = 'Abonnement';
+$labels['feed'] = 'Stroom';
+$labels['caldav'] = 'CalDAV';
 $labels['protected'] = 'Beveiligd';
 $labels['calsearch'] = 'Zoekresultaten';
 $labels['calsearchnomatches'] = 'Geen overeenkomsten gevonden';
 $labels['properties'] = 'Eigenschappen';
 $labels['reload'] = 'Agenda opnieuw laden';
 $labels['sync'] = 'Synchroniseren';
-$labels['unloadwarning'] = 'Database acties zijn nog niet afgerond. Verlaat deze website nog niet!';
 $labels['backgroundreplication'] = 'Bezig met replicatie...';
 $labels['lastreplication'] = 'Laatste replicatie:';
 $labels['successfullyreplicated'] = 'Agenda is met succes gerepliceerd';
@@ -194,6 +230,7 @@ $labels['replicationtimeout'] = 'Agenda replicatie timed out';
 $labels['resumereplication'] = 'Replicatie hervatten';
 $labels['replicationfailed'] = 'Agenda replicatie beëindigd met onherstelbare fout';
 $labels['replicationincomplete'] = 'Agenda replicatie is incompleet';
+$labels['noresource'] = 'Voeg CalDAV toe of abonneer op agenda om te wijzigen';
 $labels['reminders'] = 'Herinneringen';
 $labels['reminder'] = 'Herinnering';
 $labels['externalreminders'] = 'Externe herinneringen service';
@@ -209,6 +246,7 @@ $labels['other'] = 'anders';
 $labels['reminderenable'] = 'Herinnering aan';
 $labels['reminderdisable'] = 'Herinnering uit';
 $labels['customreminder'] = 'Gebruiker gedefiniëerd';
+$labels['savefirst'] = 'Herinneringen kunnen alleen aan bestaande items worden toegevoegd';
 $labels['starts'] = 'begint';
 $labels['ends'] = 'eindigt';
 $labels['at'] = 'op';
@@ -224,6 +262,39 @@ $labels['editfuture'] = 'alleen deze en de volgende afspraken';
 $labels['applyrecurring'] = 'Pas wijzigingen toe op...';
 $labels['birthday'] = 'Verjaardag';
 $labels['happybirthday'] = 'Van harte gefeliciteerd met je verjaardag!';
+$labels['tasks'] = 'Taken';
+$labels['task'] = 'Taak';
+$labels['due'] = 'Doordat';
+$labels['completed'] = 'Gereed';
+$labels['status'] = 'Status';
+$labels['done'] = 'Klaar';
+$labels['percentage'] = 'Percentage';
+$labels['priority'] = 'Urgentie';
+$labels['IN-PROCESS'] = 'bezig';
+$labels['NEEDS-ACTION'] = 'moet worden afgemaakt';
+$labels['COMPLETED'] = 'klaar';
+$labels['CANCELLED'] = 'beeindigd';
+$labels['years'] = 'jaar(en)';
+$labels['months'] = 'maand(en)';
+$labels['weeks'] = 'week/weken';
+$labels['days'] = 'dag(en)';
+$labels['hours'] = 'uur(en)';
+$labels['all'] = 'alle';
+$labels['overdue'] = 'te laat';
+$labels['today'] = 'vandaag';
+$labels['tomorrow'] = 'morgen';
+$labels['sevendays'] = 'komende 7 dagen';
+$labels['later'] = 'later';
+$labels['complete'] = 'compleet';
+$labels['high'] = 'hoog';
+$labels['highpriority'] = 'hoge prioriteit';
+$labels['low'] = 'laag';
+$labels['lowpriority'] = 'lage prioriteit';
+$labels['nodate'] = 'geen datum';
+$labels['notasks'] = 'geen taken voor opgegeven criteria';
+$labels['mowthelawn'] = 'maai het gras';
+$labels['component'] = 'component';
+$labels['dst'] = 'bestemming';
 $labels['undefined'] = '---';
 
 ?>

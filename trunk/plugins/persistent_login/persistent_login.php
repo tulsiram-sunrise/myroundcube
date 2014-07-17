@@ -31,7 +31,7 @@ class persistent_login extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'persistent_login';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/persistent_login-plugin" target="_blank">Documentation</a>';
   static private $version = '1.2.6';
   static private $date = '16-02-2014';
   static private $licence = 'GPL';

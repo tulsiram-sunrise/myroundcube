@@ -30,6 +30,11 @@ function planner_drag_events(){
       rcmail.http_post('plugin.newEvent', '_summary=' + summary + '&_description=' + text + '&_color=' + color + '&_planner_datetime=' + date + '&_id=' + id);
       $('#overlay').show();
       $('#planner_help').hide();
+      if(parent.tabbed){
+        parent.getIFRAMEDiv('dummy:plugin.calendar');
+        var iframe = parent.rcmail.env.tabbed_target.replace('#tabbed_', '#tabbed_frame_');
+        parent.$(iframe).attr('src', './?_task=dummy&_action=plugin.calendar&_s=' + new Date().getTime());
+      }
     }
   });
 }

@@ -4,10 +4,10 @@
  | ./plugins/calendar/localization/de_DE.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2014, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: myroundcube@mail4us.net - 11/25/2013 09:35:34
+ | Author: myroundcube@mail4us.net - 07/06/2014 16:21:27
  +-----------------------------------------------------------------------+
 */
 
@@ -151,6 +151,7 @@ $labels['edited_by'] = 'Kalender geändert durch';
 $labels['addicalmsg'] = 'Alle Ereignisse in den Kalender importieren';
 $labels['icalsavefailed'] = 'Import ist gescheitert';
 $labels['importedsuccessfully'] = 'Erfolgreich importiert';
+$labels['importedsuccessfullycnt'] = 'Erfolgreich importiert (%s Einträge)';
 $labels['switch_calendar'] = 'Kalender wechseln';
 $labels['user'] = 'Benutzer';
 $labels['cal_user'] = 'Kalenderbenutzer';
@@ -182,6 +183,13 @@ $labels['wednesday'] = 'Mittwoch';
 $labels['thursday'] = 'Donnerstag';
 $labels['friday'] = 'Freitag';
 $labels['saturday'] = 'Samstag';
+$labels['sunday_short'] = 'So';
+$labels['monday_short'] = 'Mo';
+$labels['tuesday_short'] = 'Di';
+$labels['wednesday_short'] = 'Mi';
+$labels['thursday_short'] = 'Do';
+$labels['friday_short'] = 'Fr';
+$labels['saturday_short'] = 'Sa';
 $labels['january'] = 'Januar';
 $labels['february'] = 'Februar';
 $labels['march'] = 'März';
@@ -297,9 +305,10 @@ $labels['nodate'] = 'Ohne Datum';
 $labels['notasks'] = 'Kein Aufgaben vorhanden';
 $labels['mowthelawn'] = 'Rasenmähen';
 $labels['component'] = 'Komponente';
-$labels['submenuprefix'] = '» ';
 $labels['dst'] = 'Sommerzeit';
+$labels['submenuprefix'] = '» ';
 $labels['googledisabled'] = 'Bitte autorisieren Sie den Zugriff auf Ihr Google-Konto. Navigieren Sie dazu zu <i>"Einstellungen"</i> -> <i>"Server-Einstellungen"</i>.';
+$labels['googledisabled_redirect'] = 'Bitte autorisieren Sie den Zugriff auf Ihr Google-Konto.';
 $labels['undefined'] = '---';
 
 ?>

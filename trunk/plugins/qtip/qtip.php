@@ -20,7 +20,7 @@ class qtip extends rcube_plugin
 
   static private $plugin = 'qtip';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?qtip" target="_blank">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
   static private $version = '2.0';
   static private $date = '08-01-2014';

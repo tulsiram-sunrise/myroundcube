@@ -1,24 +1,28 @@
 <?php
 /*
- +-----------------------------------------------------------------------+
- | ./plugins/calendar/localization/fr_FR.inc
- |
- | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2013, Roland 'rosali' Liebl
- |
- +-----------------------------------------------------------------------+
- | Author: Thomas Parvais - 06/17/2013 11:08:55
- +-----------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+| ./plugins/calendar/localization/fr_FR.inc
+|
+| Language file of MyRoundcube Plugins Bundle
+| Copyright (C) 2010-2013, Roland 'rosali' Liebl
+|
++-----------------------------------------------------------------------+
+| Author: Thomas Parvais - 06/17/2013 11:08:55
++-----------------------------------------------------------------------+
 */
 
 $labels = array();
 $labels['pluginname'] = 'Calendrier';
 $labels['plugindescription'] = 'Gérer vos évenements avec ce calendrier Web.';
+$labels['view'] = 'Voir';
 $labels['calendarprovider'] = 'Fournisseur';
 $labels['forinstance'] = 'par ex.';
 $labels['caldavserver'] = 'Server CalDAV';
 $labels['caldavsettings'] = 'Paramètres CalDAV';
 $labels['unlink_caldav'] = 'Pour supprimer cette catégorie, veuillez supprimer le lien avec le server CalDAV en premier';
+$labels['unlink_caldav_warning'] = 'Etes vous sûr de vouloir retirer le lien de ce calendrier ?';
+$labels['unlink_events_warning'] = 'Voulez vous supprimer tous les évènements de ce calendrier de façon permantente ? Cette action est irreversible! Choisissez OK pour supprimer ce calendrier et tous les évènements qu\'il contient. Choisissez ANNULER pour NE PAS supprimer les évènements contenus dans ce calendrier.';
+$labels['unlink_events_warning_html'] = 'Voulez vous supprimer tous les évènements de ce calendrier de façon permantente ?<br />Cette action est irreversible!<br /><br />Choisissez OK pour supprimer ce calendrier et tous les évènements qu\'il contient.<br />Choisissez ANNULER pour NE PAS supprimer les évènements contenus dans ce calendrier.';
 $labels['caldavurl'] = 'CalDAV URL';
 $labels['passwordisset'] = 'Le mot de passe est défini';
 $labels['passwordisnotset'] = 'Le mot de passe n\'est pas défini';
@@ -37,7 +41,20 @@ $labels['add_feed'] = 'Ajouter un flux';
 $labels['remove_feed'] = 'Supprimer un flux';
 $labels['sharing'] = 'Partager';
 $labels['share'] = 'Partager';
+$labels['shareinvitation'] = 'Envoyer une invitation';
+$labels['send'] = 'Envoyer';
+$labels['cancel'] = 'Annuler';
 $labels['resource'] = 'Resource';
+$labels['label'] = 'Label';
+$labels['url'] = 'URL';
+$labels['access'] = 'Accès';
+$labels['username'] = 'Utilisateur';
+$labels['tutorials'] = 'Exemples';
+$labels['checkresources'] = 'Vérifier les ressources';
+$labels['checkatleastoneresource'] = 'Merci de sélectionner au moins une ressource';
+$labels['invitationsubject'] = '%s vous a invité à accéder aux calendriers CalDAV';
+$labels['copytoclipboard'] = 'Copier vers le presse papiers';
+$labels['copiedtoclipboard'] = 'Copié dans le presse papiers';
 $labels['caltoken'] = 'Jeton';
 $labels['confidentialcaldavaccess'] = 'Access confidentiel au CalDAV [%s]';
 $labels['readwrite'] = 'lecture/écriture';
@@ -53,6 +70,13 @@ $labels['sharehint_readonly'] = 'Introduisez les informations demandées (nom d\
 $labels['minutes'] = 'minutes';
 $labels['replicateautomatically'] = 'Répliquer la base de donnée CalDAV tous les';
 $labels['caldavreplicationrange'] = 'Répliquer la base de donnée CalDAV pour les années';
+$labels['twoweeks'] = 'deux semaines';
+$labels['threeweeks'] = 'trois semaines';
+$labels['onemonth'] = 'mois';
+$labels['twomonths'] = 'deux mois';
+$labels['threemonths'] = 'trois mois';
+$labels['sixmonths'] = 'six mois';
+$labels['oneyear'] = 'année';
 $labels['caldavauthentication'] = 'Méthode d\'authentification';
 $labels['basic'] = 'BASIC';
 $labels['detect'] = 'détecter automatiquement';
@@ -86,9 +110,11 @@ $labels['year'] = 'Année';
 $labels['new_event'] = 'Nouvel événement';
 $labels['new_event_short'] = 'Créer un évènement';
 $labels['edit_event'] = 'Éditer l\'événement';
+$labels['edit_task'] = 'Editer la tâche';
+$labels['hide_tasks'] = 'Masquer les tâches';
+$labels['show_tasks'] = 'Montrer les tâches';
 $labels['save'] = 'Enregistrer';
 $labels['remove'] = 'Supprimer';
-$labels['cancel'] = 'Annuler';
 $labels['summary'] = 'Sommaire';
 $labels['description'] = 'Description';
 $labels['all-day'] = 'Toute la journée';
@@ -124,6 +150,7 @@ $labels['edited_by'] = 'Modifié par';
 $labels['addicalmsg'] = 'Importer dans le calendrier';
 $labels['icalsavefailed'] = 'Impossible d\'importer le fichier calendrier';
 $labels['importedsuccessfully'] = 'Importé avec succès';
+$labels['importedsuccessfullycnt'] = 'Importé avec succès (%s objet[s])';
 $labels['switch_calendar'] = 'Changer de calendrier';
 $labels['user'] = 'Utilisateurs';
 $labels['cal_user'] = 'Utilisateur du calendrier';
@@ -134,6 +161,8 @@ $labels['defaultcategorylabel'] = 'Etiquette de calendrier par défaut';
 $labels['defaultcategory'] = 'Défaut';
 $labels['backgroundcolor'] = 'Couleur de fond';
 $labels['general'] = 'Général';
+$labels['event'] = 'Evènement';
+$labels['events'] = 'Evènements';
 $labels['schedule'] = 'Horaire';
 $labels['every'] = 'Tous les';
 $labels['bydays'] = 'Par jours';
@@ -182,6 +211,7 @@ $labels['remindersloading'] = 'Chargement des rappels';
 $labels['reminderfooter'] = 'Vous recevez cet email car vous avez demandé de recevoir des rappels des évènements futurs de votre calendrier';
 $labels['show_upcoming_cal'] = 'Activer l\'aperçu des évènements à venir';
 $labels['invalidresponse'] = 'Réponse invalide de';
+$labels['verifyexpiredate'] = 'Merci de vérifier les dates d\'expiration. Cela a été ajusté automatiquement.';
 $labels['importconfirmation'] = 'Souhaitez-vous importer les évènements attachés dans votre calendrier [%s item(s)]?';
 $labels['item'] = 'Item';
 $labels['errorsaving'] = 'Une erreur est survenue pendant l\'enregistrement';
@@ -196,7 +226,6 @@ $labels['calsearchnomatches'] = 'Aucun résultat';
 $labels['properties'] = 'Propriétés';
 $labels['reload'] = 'Recharger le calendrier';
 $labels['sync'] = 'Synchroniser';
-$labels['unloadwarning'] = 'Les mises à jours des bases de données est en cours. Veuillez rester sur cette page !';
 $labels['backgroundreplication'] = 'La réplication est en cours...';
 $labels['lastreplication'] = 'Dernière réplication:';
 $labels['successfullyreplicated'] = 'Le calendrier a été répliqué correctement';
@@ -204,6 +233,7 @@ $labels['replicationtimeout'] = 'La réplication a expiré';
 $labels['resumereplication'] = 'Reprendre la réplication';
 $labels['replicationfailed'] = 'La réplication a échoué';
 $labels['replicationincomplete'] = 'La réplication du calendrier est incomplète';
+$labels['noresource'] = 'Merci d\'ajouter ou de s\'abonner à un calendrier afin de pouvoir le modifier.';
 $labels['reminders'] = 'Rappels';
 $labels['reminder'] = 'Rappel';
 $labels['externalreminders'] = 'Service externe de rappels';
@@ -219,6 +249,7 @@ $labels['other'] = 'autre';
 $labels['reminderenable'] = 'Activer le rappel';
 $labels['reminderdisable'] = 'Désactiver le rappel';
 $labels['customreminder'] = 'Défini par l\'utilisateur';
+$labels['savefirst'] = 'Les rappels personnels ne peuvent être ajoutés qu\'aux objets déjà existants. Merci de d\'abord sauvegarder l\'objet';
 $labels['starts'] = 'commence';
 $labels['ends'] = 'fini';
 $labels['at'] = 'à';
@@ -234,7 +265,39 @@ $labels['editfuture'] = 'seulement celui-ci et tous les évènements à venir';
 $labels['applyrecurring'] = 'Appliquer les changements à...';
 $labels['birthday'] = 'Anniversaire';
 $labels['happybirthday'] = 'Joyeux anniversaire!';
+$labels['tasks'] = 'Tâches';
+$labels['task'] = 'Tâche';
+$labels['status'] = 'Statut';
+$labels['done'] = 'Fait';
+$labels['percentage'] = 'Pourcentage';
+$labels['priority'] = 'Priorité';
+$labels['IN-PROCESS'] = 'en cours';
+$labels['NEEDS-ACTION'] = 'nécessite une action';
+$labels['COMPLETED'] = 'complété';
+$labels['CANCELLED'] = 'annulé';
+$labels['years'] = 'année(s)';
+$labels['months'] = 'mois';
+$labels['weeks'] = 'semaine(s)';
+$labels['days'] = 'jour(s)';
+$labels['hours'] = 'heure(s)';
+$labels['all'] = 'tous';
+$labels['overdue'] = 'Retarder';
+$labels['today'] = 'Aujourd\'hui';
+$labels['tomorrow'] = 'Demain';
+$labels['sevendays'] = '7 prochains jours';
+$labels['later'] = 'Plus tard';
+$labels['complete'] = 'Complété';
+$labels['high'] = 'Haute';
+$labels['highpriority'] = 'Priorité haute';
+$labels['low'] = 'Basse';
+$labels['lowpriority'] = 'Priorité basse';
+$labels['nodate'] = 'Pas de date';
+$labels['notasks'] = 'Pas de tâche trouvée avec ce critère';
+$labels['component'] = 'Composant';
+$labels['dst'] = 'DST';
 $labels['submenuprefix'] = '» ';
+$labels['googledisabled'] = 'Veuillez autoriser l\'accès à votre compte Google (naviguer vers <i>"Options"</i> -> <i>"Options du serveur</i> et appliquer)';
+$labels['googledisabled_redirect'] = 'Veuillez autoriser l\'accès à votre compte Google.';
 $labels['undefined'] = '---';
 
 ?>

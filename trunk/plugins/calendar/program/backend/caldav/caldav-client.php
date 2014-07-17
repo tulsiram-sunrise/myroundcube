@@ -248,6 +248,7 @@ class CalDAVClient {
         write_log('cURL', "\r\nRequest:\r\n__________\r\n" . 'http'.$s.'://'.$this->server.':'.$this->port.slashify($this->base_url).$relative_url.$this->query_string."\r\n\r\n" .$this->body);
       }
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
       curl_setopt($ch, CURLOPT_HEADER, TRUE);
       curl_setopt($ch, CURLOPT_TIMEOUT, _FSOCK_TIMEOUT);

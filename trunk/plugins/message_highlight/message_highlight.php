@@ -22,7 +22,7 @@ class message_highlight extends rcube_plugin
   private $prefs;
   static private $plugin = 'message_highlight';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/message_highlight-plugin" target="_blank">Documentation</a>';
   static private $version = '1.1.3';
   static private $date = '16-02-2014';
   static private $licence = 'GPL';
@@ -80,7 +80,7 @@ class message_highlight extends rcube_plugin
         }
       }
     }
-    $ret = array(
+    return array(
       'plugin' => self::$plugin,
       'version' => self::$version,
       'date' => self::$date,
@@ -89,16 +89,6 @@ class message_highlight extends rcube_plugin
       'licence' => self::$licence,
       'requirements' => $requirements,
     );
-    if(is_array($keys)){
-      $return = array('plugin' => self::$plugin);
-      foreach($keys as $key){
-        $return[$key] = $ret[$key];
-      }
-      return $return;
-    }
-    else{
-      return $ret;
-    }
   }
 
   function storage_init($p)

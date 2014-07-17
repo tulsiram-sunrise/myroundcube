@@ -15,6 +15,9 @@ $config['jappix_lock_settings'] = false;
 /* Jappix URL */
 $config['jappix_url'] = 'https://jappix.com';
 
+/* Register account (null = don't show register hint) */
+$config['jappix_register_url'] = 'https://jappix.com';
+
 /* Use Mini Jappix */
 $config['jappix_mini'] = true;
 

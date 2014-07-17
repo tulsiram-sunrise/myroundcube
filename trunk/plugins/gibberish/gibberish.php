@@ -13,13 +13,13 @@ class gibberish extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'gibberish';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?gibberish" target="_blank">Documentation</a>';
   static private $version = '1.1';
   static private $date = '30-12-2013';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
-    'PHP' => '5.3'
+    'PHP' => '5.3 + OpenSSL'
   );
   static private $prefs = array(
   );

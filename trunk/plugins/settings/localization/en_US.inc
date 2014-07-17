@@ -10,6 +10,5 @@ $labels['classic'] = 'Default';
 $labels['larry'] = 'Larry';
 $labels['remotefolders'] = 'Special Folders';
 $labels['myroundcube'] = 'MyRoundCube';
-$labels['skin_preview'] = 'Skin Preview';
 
 ?>

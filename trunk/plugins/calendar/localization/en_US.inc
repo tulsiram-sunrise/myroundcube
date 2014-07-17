@@ -4,10 +4,10 @@
  | ./plugins/calendar/localization/en_US.inc
  |
  | Language file of MyRoundcube Plugins Bundle
- | Copyright (C) 2010-2013, Roland 'rosali' Liebl
+ | Copyright (C) 2010-2014, Roland 'rosali' Liebl
  |
  +-----------------------------------------------------------------------+
- | Author: Yoni - 10/11/2013 11:47:23
+ | Author: Yoni - 06/29/2014 21:02:24
  +-----------------------------------------------------------------------+
 */
 
@@ -27,7 +27,7 @@ $labels['caldavurl'] = 'CalDAV Url';
 $labels['passwordisset'] = 'Password is set';
 $labels['passwordisnotset'] = 'Password is not set';
 $labels['default_view'] = 'Default view';
-$labels['timeslots'] = 'Timeslots per hour';
+$labels['timeslots'] = 'Time slots per hour';
 $labels['duration'] = 'Event duration (default)';
 $labels['workdays'] = 'Workdays';
 $labels['first_day'] = 'First weekday';
@@ -55,7 +55,6 @@ $labels['checkatleastoneresource'] = 'Please check at least one resource';
 $labels['invitationsubject'] = '%s invites you to access CalDAV calendars';
 $labels['copytoclipboard'] = 'Copy to clipboard';
 $labels['copiedtoclipboard'] = 'Copied to clipboard';
-$labels['resource'] = 'Resource';
 $labels['caltoken'] = 'Token';
 $labels['confidentialcaldavaccess'] = 'Confidential CalDAV access [%s]';
 $labels['readwrite'] = 'read/write';
@@ -117,7 +116,6 @@ $labels['hide_tasks'] = 'Hide tasks';
 $labels['show_tasks'] = 'Show tasks';
 $labels['save'] = 'Save';
 $labels['remove'] = 'Remove';
-$labels['cancel'] = 'Cancel';
 $labels['summary'] = 'Summary';
 $labels['description'] = 'Description';
 $labels['all-day'] = 'all-day';
@@ -185,6 +183,13 @@ $labels['wednesday'] = 'Wednesday';
 $labels['thursday'] = 'Thursday';
 $labels['friday'] = 'Friday';
 $labels['saturday'] = 'Saturday';
+$labels['sunday_short'] = 'Sun';
+$labels['monday_short'] = 'Mon';
+$labels['tuesday_short'] = 'Tue';
+$labels['wednesday_short'] = 'Wed';
+$labels['thursday_short'] = 'Thu';
+$labels['friday_short'] = 'Fri';
+$labels['saturday_short'] = 'Sat';
 $labels['january'] = 'January';
 $labels['february'] = 'February';
 $labels['march'] = 'March';

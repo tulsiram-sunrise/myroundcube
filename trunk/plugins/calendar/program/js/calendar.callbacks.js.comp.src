@@ -738,7 +738,7 @@ function calendar_callbacks(){
       $('#startfulltext').html('(' + event.start.toLocaleString() + ')');
     }
     if(event.end && event.end != 0){
-      $('#endfulltext').html('(' + new Date(event.end * 1000).toLocaleString() + ')');
+      $('#endfulltext').html('(' + event.end.toLocaleString() + ')');
     }
     if(event.due && event.due != 0){
       $('#duefulltext').html('(' + new Date(event.due * 1000).toLocaleString() + ')');
@@ -917,8 +917,11 @@ function calendar_callbacks(){
       $('#catprotected').remove();
     }
     var old_categories = categories.val();
-    var fexpires = new Date((parseInt(event.expires) + (3600 * parseInt(new Date(event.start).getTimezoneOffset() / 60))) * 1000).format('yyyy-MM-dd');
-    var expires = $('#expires').val(fexpires);
+    if(event.recur != 0){
+      var fexpires = new Date((parseInt(event.expires) + (3600 * parseInt(new Date(event.start).getTimezoneOffset() / 60))) * 1000).format('yyyy-MM-dd');
+      $('#expires').val(fexpires);
+    }
+    expires = $('#expires');
     var occurrences = $('#occurrences').val(event.occurrences);
     var base = './?_task=dummy&_action=plugin.calendar_';
     $('#export_as_file').attr('href', base + 'single_export_as_file&_id=' + event.id + '&_edit=' + event.editable + '&_dbtable=' + event.dbtable);
@@ -1049,8 +1052,7 @@ function calendar_callbacks(){
     if(event.remindermailto){
       var opt = event.remindermailto;
       $('#remindermailto').val(opt);
-      if($('#remindermailto').val() != opt){
-        // Fix for shared CalDAVs to prevent overwriting of Attendee property
+      if(opt != 0 && $('#remindermailto').val() != opt){
         $('#remindermailto').html($('#remindermailto').html() + '<option value="' + opt + '">' + opt + '</option>');
         $('#remindermailto').val(opt);
       }

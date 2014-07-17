@@ -10,7 +10,7 @@ $config['archive_mbox'] = 'Archive';
 
 /* NOTE:
    If you want to create the Archive folder by default, then configure
-   ./config/main.inc.php as follows:
+   ./config/config.inc.php as follows:
    
   // display these folders separately in the mailbox list.
   // these folders will also be displayed with localized names

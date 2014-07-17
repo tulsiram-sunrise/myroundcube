@@ -18,7 +18,7 @@ class fancybox extends rcube_plugin{
 
   static private $plugin = 'fancybox';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?fancybox" target="_blank">Documentation</a>';
   static private $download = 'http://myroundcube.googlecode.com';
   static private $version = '3.0';
   static private $date = '05-01-2014';

@@ -4,7 +4,9 @@
     <li><a href="#event-2" id="tab2" class="dialoglink"><roundcube:label name="calendar.schedule" /></a></li>
     <li><a href="#event-3" id="tab3" class="dialoglink"><roundcube:label name="import" /></a></li>
     <li><a href="#event-4" id="tab4" class="dialoglink"><roundcube:label name="export" /></a></li>
+    <roundcube:if condition="!config:cal_disable_reminders" />
     <li><a href="#event-5" id="tab5" class="dialoglink"><roundcube:label name="calendar.reminders" /></a><li>
+    <roundcube:endif />
   </ul>
   <form autocomplete="off" id="form" target="uploader" name="form" method="post" enctype="multipart/form-data" action="./?_task=dummy&_action=plugin.calendar_upload">
     <input type="hidden" name="component" id="component" value="vevent" />
@@ -522,7 +524,7 @@
       </tr>
     </table>
     </div>
-    <div id="event-5">
+    <div id="event-5" <roundcube:if condition="config:cal_disable_reminders" />style="display: none;"<roundcube:endif />>
     <table>
       <tr>
         <td colspan="2">

@@ -22,7 +22,6 @@ class archivefolder extends rcube_plugin
   static private $plugin = 'archivefolder';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/archivefolder-plugin" target="_blank">Documentation</a>';
-  static private $download = 'http://myroundcube.googlecode.com';
   static private $version = '2.9.5';
   static private $date = '12-03-2014';
   static private $licence = 'GPL';
@@ -122,7 +121,6 @@ class archivefolder extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))

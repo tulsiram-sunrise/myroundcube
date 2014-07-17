@@ -26,3 +26,4 @@ VERSION                COMMENT
 4.0.28                 - Make turorial link section optional
 4.0.29                 - Escape '@' (%40) in URLs (SoGo does not like the '@')
 4.0.30                 - Remove global_alias plugin
+4.0.31 - 4.0.32        - Info page restyling

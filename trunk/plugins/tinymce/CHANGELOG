@@ -1,3 +1,7 @@
 VERSION                COMMENT
 ---------------------------------------------------------------------------------
-3.5.8                  - Roundcube 1.0 compatibility
+2.0.5                  - Roundcube 1.0 compatibility
+2.0.6                  - Implement http://trac.roundcube.net/ticket/1489945
+2.0.7                  - Default config could not be saved by HTML code editor
+2.0.8                  - Fix javascript error when switching identities in
+                         HTML compose mode

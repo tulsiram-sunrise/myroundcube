@@ -61,6 +61,7 @@ select.invimportcategory {
   background-color: #D9ECF4;
   cursor: auto;
   z-index: 5;
+  display: none;
 }
 
 #upcoming-content .boxtitle {

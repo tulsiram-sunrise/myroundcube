@@ -17,17 +17,21 @@ $labels['plugindescription'] = 'Jappix Chat einbinden.';
 $labels['jappixUsername'] = 'Benutzer (leer lassen um Jappix zu deaktivieren)';
 $labels['usernameinvalid'] = 'Der Benutzername ist ungültig';
 $labels['domaininvalid'] = 'Die Domäne ist ungültig';
-$labels['useminijappix'] = 'Mini-Jappix benutzen';
-$labels['minijappixautologon'] = 'Mini-Jappix automatische Anmeldung';
+$labels['useminijappix'] = 'Mini-Chat benutzen';
+$labels['usefulljappix'] = 'Full-featured-Chat benutzen';
+$labels['minijappixautologon'] = 'Mini-Chat automatische Anmeldung';
 $labels['jappixDomain'] = 'Domain';
 $labels['jappixPassword'] = 'Passwort';
 $labels['jappixSection'] = 'Chat';
 $labels['task'] = 'Chat';
-$labels['title'] = 'Jappix';
-$labels['manager'] = 'Jappix konfigurieren';
+$labels['title'] = 'Chat';
+$labels['manager'] = 'Chat konfigurieren';
 $labels['passwordisset'] = 'Passwort ist gespeichert';
 $labels['pleaseenterpassword'] = 'Bitte Passwort eingeben';
-$labels['success'] = 'Erfolgreiche Jappix-Anmeldung ... %s Freund(e) online.';
-$labels['failure'] = 'Jappix steht zur Zeit nicht zur Verfügung';
+$labels['success'] = 'Erfolgreiche Chat-Anmeldung ... %s Freund(e) online.';
+$labels['failure'] = 'Chat steht zur Zeit nicht zur Verfügung';
+$labels['clickhere'] = 'Hier klicken';
+$labels['requirement'] = 'Sie brauchen ein Chat-Konto, um sich mit einer Unterhaltung zu verbinden.';
+$labels['registeraccount'] = ', um ein Chat-Konto zu eröffnen.';
 
 ?>

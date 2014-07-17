@@ -50,6 +50,7 @@ function dbtable($str, $rcmail) {
 /* End Functions */
 
 /* Program */
+$GLOBALS['NOSESSION'] = true;
 include INSTALL_PATH . 'program/include/iniset.php';
 
 $rcmail = rcmail::get_instance();
@@ -103,12 +104,8 @@ foreach($users as $idx => $user){
   if($preferences['backend'] != 'database'){
     $numusers ++;
     print "Sync User " . $user['username'] . " ...\n";
-    $utils->curlRequest($rcmail->config->get('cron_rc_url') . '?_cron=1&_import=1&_userid=' . $user['user_id'] . '&_cronstart=' . $time_start_s);
+    $utils->curlRequest($rcmail->config->get('cron_rc_url') . '?_cron=1&_import=1&_userid=' . $user['user_id'] . '&_nosession=1&_cronstart=' . $time_start_s);
     print (microtime_float() - $time_start) . " secs runtime ...\n";
-    $maxlifetime = @ini_get('session.gc_maxlifetime');
-    if(is_numeric($maxlifetime)){
-      $rcmail->session->gc($maxlifetime);
-    }
     print "sleeping 1 seconds ...\n";
     sleep(1);
   }
@@ -126,8 +123,6 @@ if($rcmail->config->get('cron_log') == true){
     write_log('calendar',"  Script terminated after $time seconds runtime.");
   }
 }
-
-$rcmail->session->destroy(session_id());
 
 print "done [$time seconds runtime] " . date('Y-m-d H:i:s',time()) . "\n";
 exit;

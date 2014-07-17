@@ -57,6 +57,7 @@ select.invimportcategory {
   overflow: auto;
   overflow-y: auto;
   overflow-x: hidden;
+  display: none;
 }
 
 #upcoming {

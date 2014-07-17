@@ -5,7 +5,7 @@
 /* Captcha challenge to enter authenticated state */
 $config['captcha_auth'] = false;
 
-/* Define below pages where a check should be performed in not authenticated state */
+/* Define below pages where a check should not be performed in unauthenticated state */
 $config['captcha_page'] = array("contactus.contactus", "pwtools.recpw", "register.register");
 
 /* Textual Captcha */

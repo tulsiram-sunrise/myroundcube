@@ -2,21 +2,11 @@
 /**
  * tinymce
  *
- * @version 2.0.5 - 17.02.2014
+ * @version 2.0.8 - 15.07.2014
  * @author Roland 'rosali' Liebl
- * @website http://myroundcube.googlecode.com
+ * @website http://myroundcube.com
  * 
  **/
- 
-/**
- *
- * Usage: http://mail4us.net/myroundcube/
- *
- * NOTE: ./plugins/tinymce/cache must be writeable
- *
- * Requirements: http://www.tinymce.com/wiki.php/Compressors:PHP [Requirements]
- *
- **/    
  
 class tinymce extends rcube_plugin
 {
@@ -26,10 +16,9 @@ class tinymce extends rcube_plugin
   /* unified plugin properties */
   static private $plugin = 'tinymce';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
-  static private $download = 'http://myroundcube.googlecode.com';
-  static private $version = '2.0.5';
-  static private $date = '17-02-2014';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/tiny_mce-plugin" target="_blank">Documentation</a>';
+  static private $version = '2.0.8';
+  static private $date = '15-07-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -141,7 +130,6 @@ class tinymce extends rcube_plugin
       'author' => self::$author,
       'comments' => self::$authors_comments,
       'licence' => self::$licence,
-      'download' => self::$download,
       'requirements' => $requirements,
     );
     if(is_array(self::$prefs))

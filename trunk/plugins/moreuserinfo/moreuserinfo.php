@@ -3,7 +3,7 @@
  * moreuserinfo
  *
  *
- * @version 4.0.30 - 20.04.2014
+ * @version 4.0.32 - 01.07.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.com
  *
@@ -19,8 +19,8 @@ class moreuserinfo extends rcube_plugin
   static private $plugin = 'moreuserinfo';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/moreuserinfo-plugin" target="_blank">Documentation</a>';
-  static private $version = '4.0.30';
-  static private $date = '20-04-2014';
+  static private $version = '4.0.32';
+  static private $date = '01-07-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.0',
@@ -182,7 +182,7 @@ class moreuserinfo extends rcube_plugin
     $icon = '&nbsp;' . html::tag('img', array('class' => 'zclip', 'src' => 'plugins/moreuserinfo/skins/' . $skin . '/images/clipboard.png', 'title' => $this->gettext('copytoclipboard'), 'alt' => $this->gettext('copytoclipboard'), 'align' => 'baseline'));
 
 
-    $table = new html_table(array('cols' => 2, 'cellpadding' => 3));
+    $table = new html_table(array('class' => 'propform propform_settings', 'cols' => 2, 'cellpadding' => 3));
     
     $table->add('title', html::tag('h3', null, Q($this->gettext('mainoptions') . ':')));
     $table->add('', '');
@@ -342,7 +342,7 @@ class moreuserinfo extends rcube_plugin
         $clients .= html::tag('br') . '&nbsp;&nbsp;- ' . html::tag('a', array('href' => 'http://www.apple.com/iphone/', 'target' => '_blank'), 'iPhone') . html::tag('a', array('href' => $url, 'target' => '_blank'), html::tag('div', array('style' => 'display:inline;float:right;'), 'iPhone ' . $this->gettext('tutorial')));
       }
     }
-    $out  = $out .= html::tag('fieldset', null, html::tag('legend',  null, $this->gettext('userinfo') . ' ::: ' . $_SESSION['username']) . $table->show() . $clients);
+    $out  = $out .= html::tag('fieldset', array('class' => 'main'), html::tag('legend',  null, $this->gettext('userinfo') . ' ::: ' . $_SESSION['username']) . $table->show() . $clients);
     return $out;
   }
 

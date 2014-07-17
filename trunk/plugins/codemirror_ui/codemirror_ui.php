@@ -15,7 +15,7 @@ class codemirror_ui extends rcube_plugin{
   /* unified plugin properties */
   static private $plugin = 'codemirror_ui';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = null;
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?codemirror_ui" target="_blank">Documentation</a>';
   static private $version = '1.0.5';
   static private $date = '08-05-2014';
   static private $licence = 'GPL';

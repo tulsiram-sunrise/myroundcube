@@ -2,7 +2,7 @@
 /**
  * CardDAV
  *
- * @version 7.0.7 - 16.05.2014
+ * @version 7.0.10 - 25.06.2014
  * @author Roland 'rosali' Liebl
  * @website http://myroundcube.googlecode.com
  *
@@ -40,11 +40,12 @@ class carddav extends rcube_plugin {
   /* unified plugin properties */
   static private $plugin = 'carddav';
   static private $author = 'myroundcube@mail4us.net';
-  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_blank">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_blank">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_blank"><font color="red">IMPORTANT</font></a>';
-  static private $version = '7.0.7';
-  static private $date = '16-05-2014';
+  static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/carddav-plugin" target="_blank">Documentation</a><br /><a href="http://myroundcube.com/myroundcube-plugins/thunderbird-carddav" target="_blank">Desktop Client Configuration</a><br /><a href="http://mirror.myroundcube.com/docs/carddav.html" target="_blank"><font color="red">IMPORTANT</font></a><br /><a href="http://trac.roundcube.net/ticket/1489935 target="_blank">Related Roundcube Ticket</a>';
+  static private $version = '7.0.10';
+  static private $date = '25-06-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
+    'extra' => '<span style="color: #ff0000;">IMPORTANT</span> &#8211; <a href="http://mirror.myroundcube.com/docs/carddav.html" target="_new">Apply Core Patches</a>',
     'Roundcube' => '1.0',
     'PHP' => '5.3 + cURL',
     'required_plugins' => array(
@@ -140,7 +141,6 @@ class carddav extends rcube_plugin {
       case 'addressbook':
         @set_time_limit(0);
         $this->add_hook('addressbooks_list', array($this, 'get_automatic_addressbook_source'));
-        $this->add_hook('contact_copied', array($this, 'contact_copied'));
         $this->add_hook('addressbook_get', array($this, 'get_automatic_addressbook'));
         if($this->carddav_server_available()){
           $this->register_action('plugin.carddav-addressbook-sync', array($this, 'carddav_addressbook_sync'));
@@ -365,25 +365,6 @@ class carddav extends rcube_plugin {
       }
     }
     return $p;
-  }
-  
-  public function contact_copied($args){
-    $rcmail = rcmail::get_instance();
-    $CONTACTS = $rcmail->get_address_book($args['source'], true);
-    if(method_exists($CONTACTS, 'delete')){
-      if($CONTACTS->delete(array($args['record']['ID']))){
-        $this->moved ++;
-        $message = $this->gettext('contact_moved_single');
-        if($this->moved > 1){
-          $message = $this->gettext('contact_moved_multiple');
-        }
-        $rcmail->output->command('plugin.carddav_addressbook_message_copied', array(
-          'message' => $this->moved . ' ' . $message
-          )
-        );
-      }
-    }
-    return $args;
   }
   
   public function register_recipients($p){

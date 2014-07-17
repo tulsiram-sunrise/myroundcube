@@ -1,21 +1,29 @@
 <?php
-// caldav debug
+
+/** @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration **/
+
+// Enable 'true' or disable 'false' CalDAV debug logs for troubleshooting purposes if needed.
 $config['caldav_debug'] = false;
 
-// backend type (caldav, database)
+// Define calendar backend to be used.
+      /*
+      'caldav' - Used to connect to CalDAV servers such as SabreDAV, DaviCAL or Google calendars.
+      'database' - Store calendar resources and events in Roundcube database.
+      
+      If you don't want users to be able to overwrite calendar defaults, then add 'backend' in the
+      main configuration file ./config/config.inc.php to the array 'dont_override' as follows:
+      
+          // don't allow these settings to be overriden by the user
+          $config['dont_override'] = array('backend', 'other_protected_values');
+      */
 $config['backend'] = 'database';
+      
 
-/* If you don't want that users are able to overwrite defaults, then add
-   'backend' in main configuration file (./config/main.inc.php) to
-   'dont_override' array:
-   // don't allow these settings to be overriden by the user
-   $config['dont_override'] = array(
-     'backend',
-     //other protected values ...
-   );
-*/
-
-/* Database table mapping */
+// Database table mapping.
+      /*
+      This is a structural configuration that shouldn't be changed at all unless you really need
+      to do so for very specific reasons. You must really know what you are doing!
+      */
 $config['db_table_events'] = 'events';                    // Database backend
 $config['db_sequence_events'] = 'events_ids';
 $config['db_table_events_caldav'] = 'events_caldav';      // CalDAV backend
@@ -25,59 +33,148 @@ $config['db_sequence_events_cache'] = 'events_cache_ids';
 $config['db_table_events_reminders'] = 'reminders';       // Reminders
 $config['db_sequence_reminders'] = 'reminders_ids';
 
-/* Dont't allow users to overwrite defautl CalDAV settings */
+// Protect default CalDAV settings
+      /*
+       Configuration option to allow 'false' or prevent 'true' users from overwriting default CalDAV
+       Provider in webmail and adding additional CalDAV calendars.
+       @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#caldav_protect
+      */
 $config['caldav_protect'] = false;
 
-/* Max CalDavs */
+// Maxaximum number of CalDAV resources
+      /*
+      The maximum number of CalDAV resources users are allowed to connect to. You must define
+      the 'max_caldavs' property value high enough to accommodate default calendar categories plus
+      additional ones to be created by users later in webmail. This configuration option limits the
+      maximum CalDAV resources permitted in the installation. It is a hard limit cap to the amount
+      of resources users can have or connect at any given time. The more resources allowed, the
+      higher the load on your server.
+      Note that in the default configuration, 'max_caldavs' value is set to '3'. Which means that if
+      the administrator configured 3 default caldav resources in the initial configuration
+      (e.g: Default, Personal, Work), users won't be able to add additional caldav resources since
+      the 'max_caldavs' limit has been reached. Therefore, a higher limit might be needed.
+      With 'max_caldavs' set to a value such as 5, following the example above, users will be able to
+      add 2 additional caldav resources in addition to the 3 initial caldavs preconfigured by the
+      administrator e.g.: Default, Personal, Work, user_defined1, user_defined1.
+      */
 $config['max_caldavs'] = 3;
 
-/* Max Layers */
+// Maximum number of calendar feeds
+      /*
+      The maximum number of calendar feeds users are allowed to connect to. This configuration option
+      works similar to the one above. See 'max_caldavs'.
+      */
 $config['max_feeds'] = 3;
 
-/* mod_rewrite short urls
-User friendly URLs for calendar sharing
----------------------------------------
-NOTE: You need mod_rewrite
-Edit .htaccess in Roundcube Root Folder as follows:
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteRule ^favicon.ico$ skins/classic/images/favicon.ico
-# calendar
-RewriteRule ^ics/([0-9]+)/([a-z0-9]+)$ index.php?_task=dummy&_action=plugin.calendar_showlayer&_userid=$1&_ct=$2&_ics=1
-RewriteRule ^rc/([0-9]+)/([a-z0-9]+)$ index.php?_task=dummy&_action=plugin.calendar_showlayer&_userid=$1&_ct=$2
-# security rules
-RewriteRule .git/ - [F]
-RewriteRule ^README|INSTALL|LICENSE|SQL|bin|CHANGELOG$ - [F]
-</IfModule>
-*/
+//User-friendly short URLs for calendar sharing with mod_rewrite
+      /*
+      Using Apache mod_rewrite in your apache webserver for example, you can rewrite calendar URLs and
+      present them shortened to the user. Rewrite rules can be added to the apache webserver vhost
+      configuration or to the .htaccess file in roundcube root folder (if Apache's AllowOverride
+      directive is enabled).
+      Edit .htaccess in Roundcube root folder for example:
+          #### default Roundcube .htaccess file ####
+          <IfModule mod_rewrite.c>
+          RewriteEngine On
+          RewriteRule ^favicon\.ico$ skins/larry/images/favicon.ico
+          # security rules:
+          # - deny access to files not containing a dot or starting with a dot
+          #   in all locations except installer directory
+          RewriteRule ^(?!installer)(\.?[^\.]+)$ - [F]
+          # - deny access to some locations
+          RewriteRule ^/?(\.git|\.tx|SQL|bin|config|logs|temp|tests|program\/(include|lib|localization|steps)) - [F]
+          # - deny access to some documentation files
+          RewriteRule /?(README\.md|composer\.json-dist|composer\.json|package\.xml)$ - [F]
+          # calendar rewrite rules
+          RewriteRule ^ics/([0-9]+)/([a-z0-9]+)$ index.php?_task=dummy&_action=plugin.calendar_showlayer&_userid=$1&_ct=$2&_ics=1
+          RewriteRule ^rc/([0-9]+)/([a-z0-9]+)$ index.php?_task=dummy&_action=plugin.calendar_showlayer&_userid=$1&_ct=$2
+          # calendar rewrite rules end
+          </IfModule>
+      */
 $config['cal_short_urls'] = false;
 
-/* default CalDAV backend (null = no default settings)
-   %u  will be replaced by $_SESSION['username']
-   %su will be replaced by the user part (string before @ from $_SESSION['username'])
-   %p  will be replaced by Roundcube Login Password
-   %c  will be replaced by the category a CalDAV is associated with
-*/
+// Hide calendar sharing section
+      /*
+      Enable 'true' or disable 'false' calendar Sharing in Roundcube Webmail. If you do not want to offer
+      such feature in your deployment, or if you are running calendar_plus for additional functionality
+      other than calendar sharing, this is the "switch off" button.
+      */
+$config['cal_hide_sharing'] = false;
 
-/* Google example (requires 'google_oauth2' plugin) */
-/* $config['default_caldav_backend'] = 'google'; */
+// Disable calendar reminders
+      /*
+      Enable 'true' or disable 'false' calendar reminders. Calendar plugin offers different options for
+      receiving event reminders. Users can choose to receive event reminders via emails or popups within
+      Roundcube webmail itself. To turn event reminders off in your installation,
+      set 'cal_disable_reminders' to 'true'.
+      */
+$config['cal_disable_reminders'] = false;
 
-/* SabreDAV example */
-$config['default_caldav_backend'] = array(
-  'user' => '%u',
-  'pass' => '%p',
-  'principals' => '',
-  'home' => 'http://dav.domain.tld',
-  'url' => 'http://dav.domain.tld/calendars/%u/events',
-  'cat' => 'http://dav.domain.tld/calendars/%u/%c',
-  'auth' => 'detect', //basic or detect
-  'extr' => false,
-);
+// Enable CalDAV Tasks
+      /*
+      Enable 'true' or disable 'false' calendar tasks. This configuration option enables or disables the
+      tasks panel in calendar plugin.
+      @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#caldav_tasks
+      */
+$config['caldav_tasks'] = true;
 
-/* Associate default CaldDAV calendars */
-/*
-$config['caldavs'] = array(
-  'Work' => array(
+// CalDAV backend connection settings
+     /*
+     Default CalDAV backend (null = no default settings)
+     %u will be replaced by $_SESSION['username'] - E.g.: user@domain.tld
+     %su will be replaced by the user part (string before @ from $_SESSION['username']) e.g.: user@domain.tld
+     %p will be replaced by Roundcube Login Password.
+     %c will be replaced by the category a CalDAV resource is associated with.
+      */
+$config['default_caldav_backend'] = null;
+      /*
+      Configure how calendar plugin connects to the backend caldav service (CalDAV backend specific).
+          #### Google example ####
+          $config['default_caldav_backend'] = 'google';
+          // To use Google as 'default_caldav_backend' google_oauth2 plugin is required.
+          
+          //SabreDAV - Baikal - DAViCal examples
+          /*
+          #### SabreDAV example ####
+          $config['default_caldav_backend'] = array(
+            'user' => '%u',
+            'pass' => '%p',
+            'principals' => '',
+            'home' => 'http://dav.domain.tld',
+            'url' => 'http://dav.domain.tld/calendars/%u/events',
+            'cat' => 'http://dav.domain.tld/calendars/%u/%c',
+            'auth' => 'detect', //basic or detect
+            'extr' => false,
+          );
+          */
+          /*
+          #### Baikal example ####
+          $config['default_caldav_backend'] = array(
+            'user' => '%u',
+            'pass' => '%p',
+            'principals' => 'http://dav.domain.tld/cal.php/principals/%u',
+            'home' => 'http://dav.domain.tld',
+            'url' => 'http://dav.domain.tld/cal.php/calendars/%u/default',
+            'cat' => 'http://dav.domain.tld/cal.php/calendars/%u/%c',
+            'auth' => 'detect', //basic or detect
+            'extr' => false,
+          );
+          #### DAViCal example ####
+          $config['default_caldav_backend'] = array(
+            'user' => '%u',
+            'pass' => '%p',
+            'url' => 'http://davical.domain.tld/caldav.php/%u/calendar', 
+            'cat' => 'http://davical.domain.tld/caldav.php/%u/%c',
+            'auth' => 'basic',
+            'extr' => false, // external reminder service (f.e. google calendar reminders)
+          );
+          */
+
+// Associate default CaldDAV calendars
+$config['caldavs'] = array();
+          /*
+          $config['caldavs'] = array(
+            'Work' => array(
                    'user' => '%u',
                    'pass' => '%p',
                    'url' => 'http://dav.mydomain.tld/calendars/%u/work',
@@ -85,7 +182,7 @@ $config['caldavs'] = array(
                    'readonly' => false,
                    'extr' => false, // external reminder service
                  ),
-  'Holidays' => array(
+            'Holidays' => array(
                    'user' => '%u',
                    'pass' => '%p',
                    'url' => 'http://dav.mydomain.tld/calendars/%u/holidays',
@@ -93,7 +190,7 @@ $config['caldavs'] = array(
                    'readonly' => false,
                    'extr' => false, // external reminder service
                  ),
-  'Personal' => array(
+            'Personal' => array(
                    'user' => '%u',
                    'pass' => '%p',
                    'url' => 'http://dav.mydomain.tld/calendars/%u/personal',
@@ -101,7 +198,7 @@ $config['caldavs'] = array(
                    'readonly' => false,
                    'extr' => false, // external reminder service
                  ),
-  'Family' => array(
+            'Family' => array(
                    'user' => '%u',
                    'pass' => '%p',
                    'url' => 'http://dav.mydomain.tld/calendars/%u/family',
@@ -109,52 +206,83 @@ $config['caldavs'] = array(
                    'readonly' => false,
                    'extr' => false, // external reminder service
                  ),
-);
+          );
+          */
 
-*/
+// Remember defaults
+      /*
+      You should not change the following line. It must be present in the configuration due to
+      internal reasons.
+      */
+      $config['default_caldavs'] = isset($config['caldavs']) ? $config['caldavs'] : array();
 
-/* Remember defaults */
-$config['default_caldavs'] = isset($config['caldavs']) ? $config['caldavs'] : array();
+// Caldav calendar auto-detection execution
+      /*
+      Calendar plugin implements an auto-detection mechanism for caldav resources on every user
+      login. This configuration option allows administrators to specify the time frame in which
+      auto-detection should not run based on the last login time. To always run auto-detection on
+      login ignoring last login time, set 'sync_collections' value to 0 (zero) and calendar
+      auto-detection will be executed on every user login.
+      Do not run auto-detection if last login is less than 'sync_collections' value
+      (expressed in seconds). Executes auto-detection on login only if the last login time is
+      greater than the specified 'sync_collections' value.
+      */
+$config['sync_collections'] = 3600;
 
-/* Caldav calendar auto-detection is executed on login.
-   Do not run auto-detection if last login is younger than ... (seconds)
-*/
-$config['sync_collections'] = 3600; // 0 = always on login
-
-/* Do not autodetect the following collections.
-   If your collection resides on https://dav.mydomain.tld/calendars/users/roundcube/tasks/
-   then add to the array '/calendars/tasks'.
-*/
+// Exclude autodetect for specific collections
+      /*
+      If your collection resides at https://dav.mydomain.tld/calendars/users/roundcube/tasks/
+      then add to the array '/calendars/tasks'.
+      */
 $config['caldav_hidden_collections'] = array(
   '/calendars/tasks',
 );
 
-/* CalDAV Replication timeout
-   Assume timeout if replication for one your didn't terminate after (x) seconds
-*/
+// CalDAV Replication timeout
+      /*
+      Define a replication timeout value. Calendar will assume timeout if replication for one
+      year does not terminate before 'replication_timeout' value (expressed in seconds). 
+      */
 $config['replication_timeout'] = 60;
 
-/* CalDAV Replication
-   fetch events (x) years in past and (y) years in future
-*/
+// CalDAV Replication timeframe
+      /*
+      (CalDAV backend specific)
+      past: fetch events (x) years in the past
+      future: fetch events (y) years in the future
+      */
 $config['caldav_replication_range'] = array(
-  'past'   => 2, // (x)
-  'future' => 2, // (y)
+  'past'   => 2, 
+  'future' => 2, 
 );
 
-/* Tasks Replication */
-$config['caldav_replication_range_tasks'] = 92; // days
+// Tasks Replication
+      /*
+      Configure the range (value in days) for which calendar tasks will be replicated.
+      */
+$config['caldav_replication_range_tasks'] = 92;
 
-/* Replicate CalDAV automatically after (x) seconds
-   Recommended: 1800
-   Never replicate automatically: false
-*/
+// CalDAV calendar automatic replication
+      /*
+      Configure the interval (value expressed in seconds) for calendar automatic replication.
+      Default value: 1800 (30 minutes).
+      Set 'caldav_replicate_automatically' to 'false' to disable automatic replication.
+      Recommended: 1800
+      */
 $config['caldav_replicate_automatically'] = 1800;
 
-/* Don't save passwords */
+// Do not save passwords in the database
+      /*
+      Tell calendar not to save user's password in Roundcube database. When this option is enabled,
+      calendar will save a placeholder %p instead of the real password. When %p is detected by the
+      caldav php client, it will be replaced by the session password (equal to IMAP password).
+      */
 $config['cal_dont_save_passwords'] = false;
 
-/* fields where search is performed */
+// Calendar search fields 
+      /*
+      Define fields where calendar searches are performed.
+      */
 $config['cal_searchset'] = array(
   'summary',
   'description',
@@ -162,143 +290,260 @@ $config['cal_searchset'] = array(
   'categories'
 );
 
-/* display small basic agenda day in calendar view */
+// Hide daily basic agenda in calendar view
+      /*
+      Hide 'true' or display 'false' a daily basic agenda in calendar view.
+      @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#hide_agenda_day_basic
+      */
 $config['hide_agenda_day_basic'] = true;
 
-/* display upcoming calendar in mailbox view
-   If enabled it is resource consuming on the client side!
-*/
+// Enable daily event agenda in mailbox view
+      /*
+      This setting defines whether or not to display upcoming calendar events in mailbox view by default.
+      When enabled, this feature is somewhat resource-intensive for clients (not the server).
+      */
 $config['upcoming_cal'] = false;
 
-/* preview next x days */
+// Preview next x days
+      /*
+      Define how many days ahead (mailbox view) can be displayed in the preview box (value in days).
+      @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#cal_previews
+      */
 $config['cal_previews'] = 2;
 
-/* cron */
+// Cron configuration options for calendar.
+       /*
+       Cron jobs are used for event notifications in calendar plugin. We have coded calendar cron
+       to send email notifications using a SMTP server (either internal or external relay) to ensure
+       notifications are arriving to your users' inboxes. The directives are self explanatory.
+       Make sure to configure cron jobs accordingly. See:
+       @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/calendar-cron
+       */
 $config['cron_log'] = true;
 $config['cron_smtp_user'] = 'dummy@mydomain.tld'; //smtp user
 $config['cron_smtp_pass'] = 'pass'; //smtp password
 $config['cron_rc_url'] = 'http://where_is_roundcube/'; //trailing slash !!!
 $config['cron_sender'] = 'noreply@mydomain.tld';
 
-/* link colors for jquery-ui accordions 
-   set according to your css */
+// Link colors for jquery-ui accordions
+      /*
+      Directive option to define colors for jquery-ui accordions. You can use this option to customize
+      jquery-ui accordions according to your own custom css.
+      */ 
 $config['linkcolor'] = '#212121';
 $config['rgblinkcolor'] = 'rgb(33, 33, 33)';
 
-// use jqueryui theme
+// Use jqueryui theme
+      /*
+      Define whether or not to use jqueryui theme.
+      */
 $config['ui_theme_main_cal'] = true; // true is recommended
 $config['ui_theme_upcoming_cal'] = false; // false is recommended
 
-// default calendar view (agendaDay, agendaWeek, month)
-$config['default_view'] = "agendaWeek";
+// Default calendar view
+      /*
+      Specify the default calendar view for your installation.
+      Options: 'agendaDay', 'agendaWeek', 'month'.
+      @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#default_view
+      */
+$config['default_view'] = 'agendaWeek';
 
-// timeslots per hour (1, 2, 3, 4, 6)
-$config['timeslots'] = '4';
+// Time slots per hour
+      /*
+      Configure default timeslots per hour in calendar plugin.
+      By default, calendar plugin timeslots is set to 4. Considering 1 hour (60 minutes), a
+      timeslot = 4 creates 4 x 15 minutes time slots per calendar hour.
+      Acceptable Time slots values per hour: 1, 2, 4, 6, 12
+      @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#timeslots
+      */
+$config['timeslots'] = 4;
 
-// first day of the week (0-6)
-$config['first_day'] = '1';
+// First Weekday
+      /*
+      Define the "First Weekday" default option in calendar plugin.
+      Acceptable values:
+      0 => Sunday
+      1 => Monday
+      2 => Tuesday
+      3 => Wednesday
+      4 => Thursday
+      5 => Friday
+      6 => Saturday
+      */
+$config['first_day'] = 1;
 
-// first hour of the calendar (0-23)
-// -1: scroll to current time
+// First hour of the calendar
+      /*
+      Set the default first hour option for calendars. Value must range between 0-23.
+      Specifying a first_hour value will always take users to that initial first_hour
+      value when browsing to the calendar in webmail. To always scroll to the current
+      time when browsing to the calendar, set first_hour to '-1 ' (set by default) instead.
+      */
 $config['first_hour'] = -1;
-//$config['first_hour'] = '6';
+//$config['first_hour'] = 6;
 
-// default category
+// Default category color
+      /*
+      Set the default ('Default') category color.
+      @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#default_category
+      */
 $config['default_category'] = 'c0c0c0';
 
-// label for default category
+// Label for default category
+      /*
+      Change the default category label. This option has been included to allow administrators
+      to change the name of the 'Default' category. There are few considerations when doing so:
+        - The label is used just to label the default calendar category (e.g.: 'Personal').
+        - utf8_encode has to be used if value contains special characters (others than ASCII).
+        - Be aware of the name given to the default category. You must not have (e.g.: 'Personal')
+          as a category in $config['categories'] if you have used 'Personal' as the default category
+          name.
+      See @ http://myroundcube.com/myroundcube-plugins/calendar-plugin/configuration#default_category_label
+      */          
 $config['default_category_label'] = utf8_encode('Default');
 
-// default font color ('complementary' or 'blackwhite')
+// Default font color ('complementary' or 'blackwhite')
 $config['default_font_color'] = 'blackwhite';
 
-// default event categories (additional to 'default_category' / can be modified by user)
+// Default event categories
+      /*
+      Define additional default categories and their colors. (additional to 'default_category')
+      These categories can be modified by users.
+      */
 $config['categories'] = array(
   'Work' => 'ff0000',
   'Family' => '00ff00',
   'Holidays' => 'ff6600',
 );
 
-// remember default categories
+// Remember default categories
+      /*
+      Tell calendar to remember default categories
+      */
 $config['default_categories'] = $config['categories'];
 
-// event preview category
+// Event preview category
 $config['categories_preview'] = array(
   'preview' => '75FF42',
   'occupied' => 'FF0000',
   'schedule' => '75FF42',
 );
 
-// public calendar categories (can't be modified by user)
+// Public calendar categories
+      /*
+      Public calendar categories. As public categories, these categories are available to all webmail users
+      (read only permission/feeds). These categories cannot be modified by users.
+      */
 $config['public_categories'] = array(
-  'Personal' => 'ff6600',
+  'Public' => 'ff6600',
 );
 
-// associated CalDAVs (can't be modified by user)
-/* You can use here the same placeholders as in
-   'default_caldav_backend'.
-   Make sure to use unique keys. This array will
-   overwrite 'public_categories'.
-*/
+// Associate Public categories with CalDAVs
+      /* Associate Public categories with CalDAVs resources. These categories cannot be modified by users.
+      Here you can use the same placeholders as in 'default_caldav_backend'. Make sure to use unique keys.
+      This array will overwrite 'public_categories'.
+          #### Public Associated CalDAV example ####
+          'Public' => array(
+                'user' => '{caldav_account_username}',
+                'pass' => '{caldav_account_password}',
+                'url' => 'https://mycaldav.mydomain.tld/{caldav_account_username}/events/public',
+                'auth' => 'detect', // detect or basic
+                'readonly' => true,
+                'extr' => false,
+                );
+      
+      */
 $config['public_caldavs'] = array();
-/*$config['public_caldavs'] = array(
-  'Public' => array(
+      /*$config['public_caldavs'] = array(
+          'Public' => array(
                 'user' => '%u',
                 'pass' => '%p',
                 'url' => 'https://mycaldav.mydomain.tld/%u/events/public',
                 'auth' => 'detect', // detect or basic
                 'readonly' => false,
                 'extr' => false,
-              ),
-);*/
+                ),
+          );
+      */
 
-// work days (0 = Sunday)
-$config['workdays'] = array(1,2,3,4,5);
+// Work days
+      /*
+      Configuration option to define default calendar workdays.
+      Acceptable values:
+      0 => Sunday
+      1 => Monday
+      2 => Tuesday
+      3 => Wednesday
+      4 => Thursday
+      5 => Friday
+      6 => Saturday
+      */
+$config['workdays'] = array(1, 2, 3, 4, 5);
 
-// default event duration in hours (e.g. 0.25, 0.50, 1.00, 1.50, 2.00 ...)
+// Default event duration
+      /*
+      Set the default event duration.
+      Acceptable values: (expressed in hours)
+      0.25 => 15 minutes
+      0.50 => 30 minutes
+      0.75 => 45 minutes
+      1.00 => 1 hour
+      1.50 => 1 and a half hour
+      2.00 => 2 hours
+      */
 $config['default_duration'] = '1.00'; 
 
-// event feeds (can be deleted by user; use it for pre-settings)
+// Calendar feeds
+      /*
+      This option allows admins to predefine feeds. Add feeds you would like to make initially available
+      when users login to webmail for the first time. These feeds can be deleted by users as they see fit.
+          #### Calendar feed example ####
+      */
 $config['calendarfeeds'] = array(
   //'http://www.google.com/calendar/feeds/german__de@holiday.calendar.google.com/public/basic' => 'Holidays',
 );
 
-/* public feeds (can't be deleted by user; inject here feeds which all users should see)
-   
-   IMPORTANT: Do not link static feeds directly!
-     (*) Reason: If you do so, it builds a cache on a per user level.
-                 This makes no sense, if each user should see the same feed.
-                 It is not only slow, it blows up your cache database table.
-                 Conclusion: Link only dynamic feeds directly!
-     (*) The better way:
-         (**) Create a user who holds your static feeds, f.e. public_user@yourdomain.tld.
-         (**) Login as public_user@yourdomain.tld.
-         (**) Goto Settings -> Calendar Feeds and enable ...
-              ... 'Confidential feed access [read only]'
-         (**) Copy the 'Feed URL' to clipboard.
-         (**) Add this URL below and associate it with a category ...
-              (***) Add a separator '|' followed by 'cache' to the category ...
-              (***) If you want to inherit colorizing of public_user@yourdomain.tld,
-                    then add a further separator '|' followed by 'inherit' to the
-                    category.
-              (***) Now the config entry should be something like:
-              
-              './?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1&_islocal=1' => 'Holiday|cache|inherit'
-         
-         (**) Now add your static feeds to 'public_user@yourdomain.tld'.
-         (**) Navigate to calendar and wait until it is loaded. Notice: you have always
-              to load the calendar before you logout 'public_user@yourdomain.tld' to be
-              sure that the cache is built and up to date.
-         (**) Now you are done!
-         (**) If you make changes to your static feeds, login as 'public_user@yourdomain.tld'
-              and wait until the calendar is loaded.
-     (*) Notice: To be able to search events in feeds, the host of the webmail must be same as the host of the feed.
-                 F.e.: http://www.mydomain.tld (webmail) is not the same as http://mydomain.tld/?_task=... (feed url).
-                 Details: http://code.google.com/p/myroundcube/issues/detail?id=239
-*/
+// Public calendar feeds
+      /*
+      In contrast to 'calendarfeeds', public feeds cannot be deleted by users. Administrators can use this
+      configuration option to inject mandatory feeds which all users must have. It is important to properly
+      configure these mandatory feeds to avoid performance issues.
+      IMPORTANT: Administrators should never link static feeds directly!
+      Linking to static feeds directly will not only make browsing the calendar feed slow but it will also
+      oversize the cache database table. The reason behind it is that cache is built on a per-user level. It
+      makes no sense to cache feeds for each user account when they all need to 'see' the same feed.
+      Therefore, linking only dynamic feeds directly is highly recommended!
+          #### Configuring Static Feeds ####
+          Here are recommendations to create better static feeds for your webmail:
+          - Create a user account which will hold your static feeds, e.g.: public_user@yourdomain.tld.
+          - Login as the new created user public_user@yourdomain.tld into webmail.
+          - Navigate to Settings -> Preferences -> Calendar and change to Default view => All Calendars
+          - Go to Settings -> Preferences -> Calendar Feeds and enable Confidential feed access [read only].
+          - Copy the Feed URL to the clipboard.
+          - Add the copied feed URL to the calendar configuration and associate it with a category as shown
+            below adding a separator '|' followed by 'cache' to the category part of the URL.
+              - To inherit the color scheme of the public_user@yourdomain.tld calendar feed:
+              - Add a separator '|' followed by 'inherit' to the category part of the URL.
+          It should look similar to this:
+          './?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889' => 'Holiday|cache|inherit'
+          #### Adding feeds and creating cache ####
+          - Next, add your static feeds to public_user@yourdomain.tld.
+          - Navigate to calendar in webmail and wait until it is loaded.
+          IMPORTANT: You must always load the calendar before login out of the public_user@yourdomain.tld
+          account to ensure that cache is built and up-to-date.
+          To make changes to your static feeds, login as public_user@yourdomain.tld and wait until the calendar
+          feed is loaded to edit it. Remember, you must always reload the calendar tab before login out of the
+          public_user@yourdomain.tld account after edits to ensure that cache is built and up-to-date.
+      To be able to search events in feeds, the webmail host must be the same as the host of the feed.
+      E.g: http://www.mydomain.tld is not the same as http://mydomain.tld/?_task=… [feed url].
+      */
 $config['public_calendarfeeds'] = array(
-  'http://www.google.com/calendar/feeds/usa__en@holiday.calendar.google.com/public/basic' => 'Public',
-  //'http://yourdomain.tld/?_task=dummy&_action=plugin.calendar_showlayer&_userid=123&_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1&_islocal=1' => 'Holiday|cache|inherit'
+      /*  #### Calendar Public feed example 1 ####  */
+      'http://www.google.com/calendar/feeds/usa__en@holiday.calendar.google.com/public/basic' => 'Public',
+
+      /*  #### Calendar Public feed example 2 #### */
+      //'http://yourdomain.tld/?_task=dummy&_action=plugin.calendar_showlayer&_userid=123'.
+      //              &_ct=4a923b22b6d9ce51c5966a09fb6ad889&readonly=1' => 'Holiday|cache',
 );
 
 ?>

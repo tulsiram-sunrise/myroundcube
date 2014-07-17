@@ -26,7 +26,8 @@ final class calendar_caldav extends Backend{
     if(!class_exists('calendar_plus')){
       $type = 'database';
     }
-    if($type == 'database'){
+    if($type == 'database' || $this->rcmail->config->get('backend') == 'database'){
+      $type = 'database';
       $this->dbtable = $this->table('events');
     }
     else{
@@ -61,7 +62,7 @@ final class calendar_caldav extends Backend{
     );
     $this->account = $account;
     $lastdetection = time() - $this->rcmail->config->get('collections_sync', 0);
-    if(is_array($_SESSION['detected_caldavs']) || $lastdetection < $this->rcmail->config->get('collections_sync', 0)){
+    if(is_array($_SESSION['detected_caldavs']) || $lastdetection < $this->rcmail->config->get('collections_sync', 0) || !$this->rcmail->user->data['username']){
       $this->connect($account['url'], $account['user'], $account['pass'], $account['auth']);
       $public_caldavs = $this->rcmail->config->get('public_caldavs', array());
       foreach($public_caldavs as $category => $caldav){
@@ -1396,7 +1397,7 @@ PROPP;
   }
   
   public function truncateEvents($mode=0) {
-    if (!empty($this->rcmail->user->ID)) {
+    if(!empty($this->rcmail->user->ID) && $this->type != 'database'){
       if($mode == 0){
         $query = $this->rcmail->db->query(
           "DELETE FROM " . $this->dbtable . "
@@ -2011,10 +2012,10 @@ PROPP;
   
   public function getEvent($eventid){
     if (!empty($this->rcmail->user->ID)) {
-      $result = $this->rcmail->db->query(
+      $result = $this->rcmail->db->limitquery(
         "SELECT * FROM " . $this->dbtable . " 
-         WHERE ".$this->q('event_id')."=? LIMIT 1",
-         $eventid
+         WHERE ".$this->q('event_id')."=?",
+         0, 1, $eventid
       );
       $event = $this->rcmail->db->fetch_assoc($result);
       if($event){
