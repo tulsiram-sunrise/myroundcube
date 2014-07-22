@@ -211,8 +211,8 @@
      */
     function _run(command, action)
     {
-        var parameters;
-
+        var parameters, target;
+        var config_command = false;
         if(typeof Commands[command] === 'function') {
             Commands[command]();
         } else if(_config.commands[action].commands[command]) {
@@ -229,12 +229,23 @@
             // do we have a different function to call?
             if(_config.commands[action].commands[command].function) {
                 command = _config.commands[action].commands[command].function;
+                config_command = true;
             }
-
+            if(rcmail.env.framed && !config_command) {
+                target = parent.rcmail;
+            } else {
+                target = rcmail;
+            }
             // execute
-            rcmail.command(command, parameters);
+            target.command(command, parameters);
 
         } else if(rcmail.commands[command]) {
+            if(rcmail.env.framed) {
+                target = parent.rcmail;
+            } else {
+                target = rcmail;
+            }
+            // execute
             rcmail.command(command);
         } else {
             // we cant find a function that matches this

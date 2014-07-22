@@ -1,0 +1,288 @@
+Index: commands.inc.php-dist
+===================================================================
+--- commands.inc.php-dist	(revision 0)
++++ commands.inc.php-dist	(working copy)
+@@ -0,0 +1,55 @@
++<?php
++
++/**
++ * All the commands and their options. Each command is listed in the screen section they're active in.
++ *
++ * options:
++ *
++ * function     the function to call, default = name of command
++ * parameters   any parameters to the function we call, can be string or array
++ * label        a label for this command, default = name of command
++ */
++
++$rcmail_config['keyboard_shortcuts_commands'] = array(
++    'all'           => array(
++            'addressbook'   => array(),
++            'help'          => array(),
++            'logout'        => array(),
++            'mail'          => array(),
++            'settings'      => array(),
++            'search'        => array()
++    ),
++    'mail'          => array(
++            'compose'           => array(),
++            'delete'            => array(),
++            'download'          => array(),
++            'forward'           => array(),
++            'mark-flagged'      => array('function' => 'mark', 'parameters' => 'flagged'),
++            'mark-read'         => array('function' => 'mark', 'parameters' => 'read'),
++            'mark-unflagged'    => array('function' => 'mark', 'parameters' => 'unflagged'),
++            'mark-unread'       => array('function' => 'mark', 'parameters' => 'unread'),
++            'nextpage'          => array(),
++            'previouspage'      => array(),
++            'print'             => array(),
++            'reply'             => array(),
++            'replyall'          => array(),
++            'select-all'        => array(),
++            'select-flagged'    => array('function' => 'select-all', 'parameters' => 'flagged'),
++            'select-invert'     => array('function' => 'select-all', 'parameters' => 'invert'),
++            'select-none'       => array('function' => 'select-all', 'parameters' => 'none'),
++            'select-page'       => array('function' => 'select-all', 'parameters' => 'page'),
++            'select-unread'     => array('function' => 'select-all', 'parameters' => 'unread'),
++            'viewsource'        => array()
++    ),
++    'addressbook'   => array(),
++    'compose'       => array(),
++);
++
++/**
++ * if we support threads, add some extra commands
++ */
++if(isset($rcmail_config['keyboard_shortcuts_threads']) and $rcmail_config['keyboard_shortcuts_threads'] === true) {
++    $rcmail_config['keyboard_shortcuts_commands']['mail']['collapse-all'] = array();
++    $rcmail_config['keyboard_shortcuts_commands']['mail']['expand-all'] = array();
++    $rcmail_config['keyboard_shortcuts_commands']['mail']['expand-unread'] = array();
++}
+Index: config.inc.php-dist
+===================================================================
+--- config.inc.php-dist	(revision 44)
++++ config.inc.php-dist	(working copy)
+@@ -11,9 +11,14 @@
+ $rcmail_config['keyboard_shortcuts_userconfigurable'] = true;
+ 
+ /**
++ * Tasks
++ */
++$rcmail_config['keyboard_shortcut_tasks'] = array('mail','compose','addressbook','settings','dummy');
++
++/**
+  * checking if the server supports threads is expensive. Just tell me.
+  */
+-$rcmail_config['keyboard_shortcuts_threads'] = true;
++$rcmail_config['keyboard_shortcuts_threads'] = false;
+ 
+ /**
+  * default key bindings
+Index: keyboard_shortcuts.php
+===================================================================
+--- keyboard_shortcuts.php	(revision 44)
++++ keyboard_shortcuts.php	(working copy)
+@@ -13,7 +13,7 @@
+ 
+ class keyboard_shortcuts extends rcube_plugin
+ {
+-    public $task = 'mail|compose|addressbook|settings';
++    public $task = '?(?!login|logout).*';
+     private $rcmail;
+     private $config;
+     private $commands = false;
+@@ -31,8 +31,9 @@
+         $this->load_config();
+ 
+         // load commands
++        $this->load_config('commands.inc.php-dist');
+         $this->load_config('commands.inc.php');
+-
++        
+         // set up localization
+         $this->add_texts('localization', true);
+ 
+@@ -64,19 +65,11 @@
+         if (is_file($this->home . "/$skin/keyboard_shortcuts.css")) {
+             $this->include_stylesheet("$skin/keyboard_shortcuts.css");
+         }
++        
++        // We need the config_get hook processed here. So, make sure that all other plugins have initialized before we add
++        // configuration to client output (js)
++        $this->add_hook('render_page', array($this, 'render_page'));
+ 
+-        // add the keys to js
+-        if(in_array($this->rcmail->task, array('mail','compose','addressbook','settings'))) {
+-
+-            $this->config['shortcuts'] = $this->get_shortcuts();
+-            $this->config['commands']  = $this->get_commands();
+-
+-            // we need json output
+-            $config = json_serialize($this->config);
+-
+-            $this->rcmail->output->add_script("Shortcuts.config($config);", 'foot');
+-        }
+-
+     }
+ 
+     /**
+@@ -86,7 +79,16 @@
+     private function get_shortcuts()
+     {
+         // shortcuts
+-        return $this->rcmail->config->get('keyboard_shortcuts_v3', $this->rcmail->config->get('keyboard_shortcuts_default'));
++        $shortcuts = $this->rcmail->config->get('keyboard_shortcuts_v3', $this->rcmail->config->get('keyboard_shortcuts_default'));
++        
++        // unset empty defaults
++        foreach ($shortcuts as $section => $props) {
++          if(empty($props)) {
++              unset($shortcuts[$section]);
++          }
++        }
++        
++        return $shortcuts;
+     }
+ 
+     /**
+@@ -102,7 +104,6 @@
+ 
+         // load commands from config
+         $config = $this->rcmail->config->get('keyboard_shortcuts_commands', array());
+-
+         foreach($config as $action => $acommands) {
+             $commands[$action] = array(
+                 'label'     => Q($this->gettext($action)),
+@@ -113,7 +114,6 @@
+                 $commands[$action]['commands'][$command]['label'] = Q($this->gettext($command));
+             }
+         }
+-
+         // read in plugin commands;
+         $plugins = $this->rcmail->plugins->exec_hook('shortcut_register', array());
+ 
+@@ -138,7 +138,31 @@
+ 
+         return $commands;
+     }
++    
++    /**
++     * add configuration to client output (js)
++     * @param  array $args
++     * @return array
++     */
++    function render_page($args)
++    {
++        // add the keys to client output (js)
++        if(in_array($this->rcmail->task, $this->rcmail->config->get('keyboard_shortcut_tasks', array('mail','compose','addressbook','settings','dummy')))) {
+ 
++            // trigger config_get hook for other plugins which may need it
++            $this->rcmail->config->get('keyboard_shortcuts_threads');
++            
++            // populate configuarion
++            $this->config['shortcuts'] = $this->get_shortcuts();
++            $this->config['commands']  = $this->get_commands();
++
++            // we need json output
++            $config = json_serialize($this->config);
++            $this->rcmail->output->add_script("Shortcuts.config($config);", 'foot');
++        }
++        return $args;
++    }
++
+     /**
+      * add header to the preferences section
+      * @param  array $args
+@@ -253,7 +277,6 @@
+      */
+     private function create_title($action, $commands, $command = false)
+     {
+-
+         if($command !== false) {
+             // label should always be set
+             $label = isset($commands[$action]['commands'][$command]['label']) ? $commands[$action]['commands'][$command]['label'] : Q($this->gettext($command));
+@@ -314,10 +337,9 @@
+         if($args['section'] == 'keyboard_shortcuts') {
+             if(!$this->rcmail) $this->rcmail = rcmail::get_instance();
+             $prefs = array();
++            $input_sequence = get_input_value('_ks_sequence', RCUBE_INPUT_POST);
++            $input_command  = get_input_value('_ks_command',  RCUBE_INPUT_POST);
+ 
+-            $input_sequence   = get_input_value('_ks_sequence',   RCUBE_INPUT_POST);
+-            $input_command = get_input_value('_ks_command', RCUBE_INPUT_POST);
+-
+             foreach($input_sequence as $section => $keys) {
+                 foreach($keys as $i => $key) {
+                     if($this->validate($key)) {
+@@ -388,13 +410,12 @@
+         $table = new html_table(array('cols' => '2'));
+ 
+         foreach($shortcuts as $section => $keys) {
+-            if(count($keys) > 0) {
+-                $table->add(array('class' => 'title', 'colspan' => 2), $this->gettext($section));
+-                foreach($keys as $key => $command) {
+-                    $table->add(array('class' => 'shortcut_key'),  $key);
++            $table->add(array('class' => 'title', 'colspan' => 2), $this->gettext($section));
++            //$s = html::tag('h4', array(), $this->gettext($section));
++            foreach($keys as $key => $command) {
++                $table->add(array('class' => 'shortcut_key'),  $key);
+ 
+-                    $table->add(array('class' => 'command'), isset($commands[$section][$command]['label']) ? $this->gettext($commands[$section][$command]['label']) : $this->gettext($command));
+-                }
++                $table->add(array('class' => 'command'), isset($commands[$section][$command]['label']) ? $this->gettext($commands[$section][$command]['label']) : $this->gettext($command));
+             }
+         }
+ 
+Index: localization/en_US.inc
+===================================================================
+--- localization/en_US.inc	(revision 44)
++++ localization/en_US.inc	(working copy)
+@@ -12,7 +12,7 @@
+ /**
+  * commands
+  */
+-$labels['help'] = 'Show shortcuts';
++$labels['help'] = 'Help';
+ $labels['select-page'] = 'Select all messages on page';
+ $labels['select-all'] = 'Select all messages';
+ $labels['select-flagged'] = 'Select flagged messages';
+Index: shortcuts.js
+===================================================================
+--- shortcuts.js	(revision 44)
++++ shortcuts.js	(working copy)
+@@ -211,8 +211,8 @@
+      */
+     function _run(command, action)
+     {
+-        var parameters;
+-
++        var parameters, target;
++        var config_command = false;
+         if(typeof Commands[command] === 'function') {
+             Commands[command]();
+         } else if(_config.commands[action].commands[command]) {
+@@ -229,12 +229,23 @@
+             // do we have a different function to call?
+             if(_config.commands[action].commands[command].function) {
+                 command = _config.commands[action].commands[command].function;
++                config_command = true;
+             }
+-
++            if(rcmail.env.framed && !config_command) {
++                target = parent.rcmail;
++            } else {
++                target = rcmail;
++            }
+             // execute
+-            rcmail.command(command, parameters);
++            target.command(command, parameters);
+ 
+         } else if(rcmail.commands[command]) {
++            if(rcmail.env.framed) {
++                target = parent.rcmail;
++            } else {
++                target = rcmail;
++            }
++            // execute
+             rcmail.command(command);
+         } else {
+             // we cant find a function that matches this

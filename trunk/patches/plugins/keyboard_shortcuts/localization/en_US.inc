@@ -12,7 +12,7 @@ $labels['multiple_modifiers'] = 'Combinations of shift/ctrl/alt are not supporte
 /**
  * commands
  */
-$labels['help'] = 'Show shortcuts';
+$labels['help'] = 'Help';
 $labels['select-page'] = 'Select all messages on page';
 $labels['select-all'] = 'Select all messages';
 $labels['select-flagged'] = 'Select flagged messages';

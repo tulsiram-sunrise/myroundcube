@@ -11,9 +11,14 @@
 $rcmail_config['keyboard_shortcuts_userconfigurable'] = true;
 
 /**
+ * Tasks
+ */
+$rcmail_config['keyboard_shortcut_tasks'] = array('mail','compose','addressbook','settings','dummy');
+
+/**
  * checking if the server supports threads is expensive. Just tell me.
  */
-$rcmail_config['keyboard_shortcuts_threads'] = true;
+$rcmail_config['keyboard_shortcuts_threads'] = false;
 
 /**
  * default key bindings
