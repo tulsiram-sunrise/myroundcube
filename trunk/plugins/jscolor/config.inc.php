@@ -1,6 +1,0 @@
-<?php
-
-/* Do not display color string in input elements */
-$rcmail_config['jscolor_removeHexString'] = true;
-
-?>

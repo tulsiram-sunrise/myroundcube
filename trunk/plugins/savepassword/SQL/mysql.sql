@@ -1,1 +1,0 @@
-ALTER TABLE users ADD password TEXT NULL AFTER last_login;
