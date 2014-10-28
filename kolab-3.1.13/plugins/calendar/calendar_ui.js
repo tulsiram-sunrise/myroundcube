@@ -34,8 +34,7 @@ function rcube_calendar_ui(settings)
     this.selected_calendar = null;
     this.search_request = null;
     this.saving_lock;
-
-
+    
     /***  private vars  ***/
     var DAY_MS = 86400000;
     var HOUR_MS = 3600000;
@@ -66,7 +65,7 @@ function rcube_calendar_ui(settings)
       showOtherMonths: true,
       selectOtherMonths: true
     };
-
+    
     /***  imports  ***/
     var Q = this.quote_html;
     var text2html = this.text2html;
@@ -278,6 +277,7 @@ function rcube_calendar_ui(settings)
     {
       var $dialog = $("#eventshow").removeClass().addClass('uidialog');
       var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { editable:false };
+
       me.selected_event = event;
 
       // allow other plugins to do actions when event form is opened
@@ -314,6 +314,8 @@ function rcube_calendar_ui(settings)
         $('#event-priority').show().children('.event-text').html(Q(event.priority+' '+priolabels[event.priority]));
       }
 
+      $dialog.removeClass('sensitivity-private');
+      $dialog.removeClass('sensitivity-confidential');
       if (event.sensitivity && event.sensitivity != 'public') {
         $('#event-sensitivity').show().children('.event-text').html(Q(sensitivitylabels[event.sensitivity]));
         $dialog.addClass('sensitivity-'+event.sensitivity);
@@ -426,7 +428,11 @@ function rcube_calendar_ui(settings)
         .insertBefore($dialog.parent().find('.ui-dialog-buttonset').children().first());
 */
     };
-
+    
+    // Begin mod by Rosali (Use the dialog from outside this class);
+    calendar_ui_event_show_dialog = event_show_dialog;
+    // End mod by Rosali
+    
     // bring up the event dialog (jquery-ui popup)
     var event_edit_dialog = function(action, event)
     {
@@ -466,7 +472,9 @@ function rcube_calendar_ui(settings)
       var invite = $('#edit-attendees-invite').get(0);
       notify.checked = has_attendees(event), invite.checked = true;
       
-      if (event.allDay) {
+      // Begin mod by Rosali (https://issues.kolab.org/show_bug.cgi?id=3481)
+      if (event.allDay && !event.allDayfake) {
+      // End mod by Rosali
         starttime.val("12:00").hide();
         endtime.val("13:00").hide();
         allday.checked = true;
@@ -474,6 +482,22 @@ function rcube_calendar_ui(settings)
       else {
         allday.checked = false;
       }
+      
+      // Begin mod by Rosali (disable GUI element for recurring events)
+      if(event.recurrence || event.recurrence_id){
+        $('#edit-calendar').prop('disabled', true);
+      }
+      else{
+        $('#edit-calendar').prop('disabled', false);
+      }
+
+      if(event.recurrence_id){
+        $('#eventtabs').tabs('option', 'disabled', [1]);
+      }
+      else{
+        $('#eventtabs').tabs('option', 'disabled', []);
+      }
+      // End mod by Rosali
       
       // set alarm(s)
       // TODO: support multiple alarm entries
@@ -560,14 +584,47 @@ function rcube_calendar_ui(settings)
       };
       
       // show warning if editing a recurring event
+      // Begin mod by Rosali (enable/disable recurrence tab)
       if (event.id && event.recurrence) {
-        var sel = event.thisandfuture ? 'future' : (event.isexception ? 'current' : 'all');
+        var sel = event.thisandfuture ? 'future' : (event.isclone ? 'current' : 'all');
+        if (sel != 'current') {
+          $('#eventtabs').tabs('option', 'disabled', []);
+        }
         $('#edit-recurring-warning').show();
         $('input.edit-recurring-savemode[value="'+sel+'"]').prop('checked', true);
+        $('input.edit-recurring-savemode[value="all"]').click(function(){
+          if ($(this).prop('checked')) {
+            $('#eventtabs').tabs('option', 'disabled', []);
+          }
+        });
+        $('input.edit-recurring-savemode[value="current"]').click(function(){
+          if ($(this).prop('checked')) {
+            $('#eventtabs').tabs('option', 'disabled', [1]);
+            if ($('#eventtabs').tabs('option', 'active') == 1) {
+              $('#eventtabs').tabs('option', 'active', 0)
+            }
+          }
+        });
+        $('input.edit-recurring-savemode[value="new"]').click(function(){
+          if ($(this).prop('checked')) {
+            $('#eventtabs').tabs('option', 'disabled', []);
+          }
+        });
+        $('input.edit-recurring-savemode[value="future"]').click(function(){
+          if ($(this).prop('checked')) {
+            $('#eventtabs').tabs('option', 'disabled', []);
+          }
+        });
+        $('input.edit-recurring-savemode[value="all"]').click(function(){
+          if ($(this).prop('checked')) {
+            $('#eventtabs').tabs('option', 'disabled', [0]);
+          }
+        });
       }
       else
         $('#edit-recurring-warning').hide();
-
+      // End mod by Rosali
+      
       // init attendees tab
       var organizer = !event.attendees || is_organizer(event),
         allow_invitations = organizer || (calendar.owner && calendar.owner == 'anonymous') || settings.invite_shared;
@@ -679,7 +736,7 @@ function rcube_calendar_ui(settings)
           data.attendees = [];
         
         // tell server to send notifications
-        if ((data.attendees.length || (event.id && event.attendees.length)) && allow_invitations && (notify.checked || invite.checked)) {
+        if ((data.attendees.length || (event.id && event.attendees && event.attendees.length)) && allow_invitations && (notify.checked || invite.checked)) {
           data._notify = 1;
         }
 
@@ -742,7 +799,7 @@ function rcube_calendar_ui(settings)
           if (data.calendar && data.calendar != event.calendar)
             data._fromcalendar = event.calendar;
         }
-
+        
         update_event(action, data);
         $dialog.dialog("close");
       };
@@ -770,7 +827,7 @@ function rcube_calendar_ui(settings)
       rcmail.env.comm_path = comm_path_before.replace(/_task=[a-z]+/, '_task=calendar');
 
       var editform = $("#eventedit");
-
+      
       // open jquery UI dialog
       $dialog.dialog({
         modal: true,
@@ -1616,7 +1673,6 @@ function rcube_calendar_ui(settings)
     {
       me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
       rcmail.http_post('calendar/event', { action:action, e:data });
-      
       // render event temporarily into the calendar
       if ((data.start && data.end) || data.id) {
         var event = data.id ? $.extend(fc.fullCalendar('clientEvents', function(e){ return e.id == data.id; })[0], data) : data;
@@ -1626,6 +1682,12 @@ function rcube_calendar_ui(settings)
           event.end = data.end;
         if (data.allday !== undefined)
           event.allDay = data.allday;
+        // Begin mods by Rosali (https://issues.kolab.org/show_bug.cgi?id=3481)
+        var range = settings['treat_as_allday'] ? settings['treat_as_allday'] : 6;
+        if(new Date(event.end).getTime() - new Date(event.start).getTime() > (range * 3600000)){
+          event.allDay = true;
+        }
+        // End mods by Rosali
         event.editable = false;
         event.temp = true;
         event.className = 'fc-event-cal-'+data.calendar+' fc-event-temp';
@@ -1759,6 +1821,16 @@ function rcube_calendar_ui(settings)
     /*** fullcalendar event handlers ***/
 
     var fc_event_render = function(event, element, view) {
+      // Begin mod by Rosali
+      if (event.exdate && event.parent) {
+        window.setTimeout(function() { fc.fullCalendar('removeEvents', event._id); }, 10);
+      }
+      // End mod by Rosali
+      // Begin mod by Rosali (https://issues.kolab.org/show_bug.cgi?id=3481)
+      if (event.allDayfake && event.left !== undefined && event.right !== undefined) {
+        element.find('div.fc-event-inner').html('<div><div class="fc-event-time" style="display:inline-block;float:left">' + event.left + '</div>&nbsp;' + event.title + '&nbsp;<div class="fc-event-time" style="display:inline-block;float:right">' + event.right + '</div></div>');
+      }
+      // End mod by Rosali
       if (view.name != 'list' && view.name != 'table') {
         var prefix = event.sensitivity && event.sensitivity != 'public' ? String(sensitivitylabels[event.sensitivity]).toUpperCase()+': ' : '';
         element.attr('title', prefix + event.title);
@@ -1784,9 +1856,21 @@ function rcube_calendar_ui(settings)
      */
     this.unlock_saving = function()
     {
-        if (me.saving_lock)
-            rcmail.set_busy(false, null, me.saving_lock);
+      if (me.saving_lock)
+        rcmail.set_busy(false, null, me.saving_lock);
     };
+    
+    this.calendar_action = function(success)
+    {
+      this.unlock_saving();
+      
+      if (success) {
+        var $dialog = $("#calendarform");
+        if ($dialog.is(':ui-dialog')) {
+          $dialog.dialog('close');
+        }
+      }
+    }
 
     // opens calendar day-view in a popup
     this.fisheye_view = function(date)
@@ -1888,7 +1972,7 @@ function rcube_calendar_ui(settings)
     // delete the given event after showing a confirmation dialog
     this.delete_event = function(event) {
       // show confirm dialog for recurring events, use jquery UI dialog
-      return update_event_confirm('remove', event, { id:event.id, calendar:event.calendar, attendees:event.attendees });
+      return update_event_confirm('remove', event, { id:event.id, calendar:event.calendar, attendees:event.attendees, start:date2servertime(event.start), end:date2servertime(event.end), exception:event.exception?1:0}); // Mod by Rosali (we need start/end for EXDATE and savemode 'future' and we need exception to know that a RECURRENCE-ID event is removed)
     };
     
     // opens a jquery UI dialog with event properties (or empty for creating a new calendar)
@@ -1899,9 +1983,6 @@ function rcube_calendar_ui(settings)
       if ($dialog.is(':ui-dialog'))
         $dialog.dialog('close');
       
-      if (!calendar)
-        calendar = { name:'', color:'cc0000', editable:true, showalarms:true };
-      
       var form, name, color, alarms;
       
       $dialog.html(rcmail.get_label('loading'));
@@ -1909,13 +1990,13 @@ function rcube_calendar_ui(settings)
         type: 'GET',
         dataType: 'html',
         url: rcmail.url('calendar'),
-        data: { action:(calendar.id ? 'form-edit' : 'form-new'), c:{ id:calendar.id } },
+        data: { action:(calendar.id ? 'form-edit' : 'form-new'), c:{ id:calendar.id }, driver: calendar.driver },
         success: function(data) {
           $dialog.html(data);
           // resize and reposition dialog window
           form = $('#calendarpropform');
           me.dialog_resize('#calendarform', form.height(), form.width());
-          name = $('#calendar-name').prop('disabled', !calendar.editable).val(calendar.editname || calendar.name);
+          name = $('#calendar-name').prop('disabled', !calendar.editable && !calendar.editable_name).val(calendar.editname || calendar.name);
           color = $('#calendar-color').val(calendar.color).miniColors({ value: calendar.color, colorValues:rcmail.env.mscolors });
           alarms = $('#calendar-showalarms').prop('checked', calendar.showalarms).get(0);
           name.select();
@@ -1947,8 +2028,8 @@ function rcube_calendar_ui(settings)
           data.showalarms = alarms.checked ? 1 : 0;
 
         me.saving_lock = rcmail.set_busy(true, 'calendar.savingdata');
-        rcmail.http_post('calendar', { action:(calendar.id ? 'edit' : 'new'), c:data });
-        $dialog.dialog("close");
+        rcmail.http_post('calendar', { action:(calendar.id ? 'edit' : 'new'), c:data, driver: calendar.driver });
+        //$dialog.dialog("close");
       };
 
       buttons[rcmail.gettext('cancel', 'calendar')] = function() {
@@ -1974,7 +2055,7 @@ function rcube_calendar_ui(settings)
     this.calendar_remove = function(calendar)
     {
       if (confirm(rcmail.gettext(calendar.children ? 'deletecalendarconfirmrecursive' : 'deletecalendarconfirm', 'calendar'))) {
-        rcmail.http_post('calendar', { action:'remove', c:{ id:calendar.id } });
+        rcmail.http_post('calendar', { action:'remove', c:{ id:calendar.id }, driver: calendar.driver });
         return true;
       }
       return false;
@@ -2170,12 +2251,12 @@ function rcube_calendar_ui(settings)
         $('#calfeedurl').val(calendar.feedurl).select();
       }
     };
-
+    
+    // Begin mod by Rosali (make it possible to add/update serveral events with only one callback from backend
     // refresh the calendar view after saving event data
     this.refresh = function(p)
     {
       var source = me.calendars[p.source];
-
       if (source && (p.refetch || (p.update && !source.active))) {
         // activate event source if new event was added to an invisible calendar
         if (!source.active) {
@@ -2186,23 +2267,19 @@ function rcube_calendar_ui(settings)
         else
           fc.fullCalendar('refetchEvents', source);
       }
+      // add/update multiple events objects
+      else if (source && p.multi_update) {
+        var i;
+        var events = p.multi_update;
+        for (i in events) {
+          if (events[i]._id) { // Prevent possible error if anywhere Array.Prototype is used
+            this.add_update_event(events[i], source);
+          }
+        }
+      }
       // add/update single event object
       else if (source && p.update) {
-        var event = p.update;
-        event.temp = false;
-        event.editable = source.editable;
-        var existing = fc.fullCalendar('clientEvents', event._id);
-        if (existing.length) {
-          $.extend(existing[0], event);
-          fc.fullCalendar('updateEvent', existing[0]);
-        }
-        else {
-          event.source = source;  // link with source
-          fc.fullCalendar('renderEvent', event);
-        }
-        // refresh fish-eye view
-        if (me.fisheye_date)
-          me.fisheye_view(me.fisheye_date);
+        this.add_update_event(p.update, source);
       }
       // refetch all calendars
       else if (p.refetch) {
@@ -2212,7 +2289,31 @@ function rcube_calendar_ui(settings)
       // remove temp events
       fc.fullCalendar('removeEvents', function(e){ return e.temp; });
     };
-
+    
+    this.add_update_event = function(event, source)
+    {
+      event.temp = false;
+      event.editable = source.editable;
+      var existing = fc.fullCalendar('clientEvents', event._id);
+      if (existing.length) {
+        $.extend(existing[0], event);
+        fc.fullCalendar('updateEvent', existing[0]);
+      }
+      else {
+        event.source = source;  // link with source
+        fc.fullCalendar('renderEvent', event);
+      }
+      var parent = fc.fullCalendar('clientEvents', event.calendar + ':' + event.parent);
+      if (parent.length) {
+        fc.fullCalendar('removeEvents', event.calendar + ':' + event.parent);
+        fc.fullCalendar('removeEvents', event._id);
+      }
+      // refresh fish-eye view
+      if (me.fisheye_date)
+        me.fisheye_view(me.fisheye_date);
+    }
+    // End mod by Rosali
+    
     // modify query parameters for refresh requests
     this.before_refresh = function(query)
     {
@@ -2362,7 +2463,7 @@ function rcube_calendar_ui(settings)
     this.dialog_resize = function(id, height, width)
     {
       var win = $(window), w = win.width(), h = win.height();
-      $(id).dialog('option', { height: Math.min(h-20, height+130), width: Math.min(w-20, width+50) })
+      $(id).dialog('option', { height: Math.min(h-20, height+135), width: Math.min(w-20, width+50) }) // Mod by Rosali (avoid scrollbars)
         .dialog('option', 'position', ['center', 'center']);  // only works in a separate call (!?)
     };
 
@@ -2382,7 +2483,7 @@ function rcube_calendar_ui(settings)
     for (var id in rcmail.env.calendars) {
       cal = rcmail.env.calendars[id];
       this.calendars[id] = $.extend({
-        url: "./?_task=calendar&_action=load_events&source="+escape(id),
+        url: "./?_task=calendar&_action=load_events&source="+escape(id)+"&driver="+cal.driver,
         editable: !cal.readonly,
         className: 'fc-event-cal-'+id,
         id: id
@@ -2454,6 +2555,14 @@ function rcube_calendar_ui(settings)
       ignoreTimezone: true,  // will treat the given date strings as in local (browser's) timezone
       height: $('#calendar').height(),
       eventSources: event_sources,
+      // Begin mod by Rosali (https://issues.kolab.org/show_bug.cgi?id=3584)
+      eventAfterRender: function(event, element, view) {
+        rcmail.triggerEvent('eventAfterRender', { evt: event, element: element, view: view });
+      },
+      eventAfterAllRender: function(view) {
+        rcmail.triggerEvent('eventAfterAllRender', view);
+      },
+      // End mod by Rosali
       monthNames : settings['months'],
       monthNamesShort : settings['months_short'],
       dayNames : settings['days'],
@@ -2610,6 +2719,21 @@ function rcube_calendar_ui(settings)
       },
       viewDisplay: function(view) {
         $('#agendaoptions')[view.name == 'table' ? 'show' : 'hide']();
+        // Begin mod by Rosali (we have to refetch events if selected view time range is smaller than
+        //                      the previous time range in order to handle start or end time out of
+        //                      calendar time range) - https://issues.kolab.org/show_bug.cgi?id=3481
+        if (fc && current_view) {
+          if(current_view == 'month' && (view.name == 'agendaWeek' || view.name == 'agendaDay')) {
+            fc.fullCalendar('refetchEvents');
+          }
+          else if(current_view == 'agendaWeek' && view.name == 'agendaDay') {
+            fc.fullCalendar('refetchEvents');
+          }
+          else if(view.name == 'agendaDay'){
+            fc.fullCalendar('refetchEvents');
+          }
+        }
+        // End mod by Rosali
         if (minical) {
           window.setTimeout(function(){ minical.datepicker('setDate', fc.fullCalendar('getDate')); }, exec_deferred);
           if (view.name != current_view)
@@ -2716,9 +2840,9 @@ function rcube_calendar_ui(settings)
       // initialize small calendar widget using jQuery UI datepicker
       minical = $('#datepicker').datepicker($.extend(datepicker_settings, {
         inline: true,
+        changeMonth: true, // maybe enable? // Mod by Rosali
+        changeYear: true,  // maybe enable? // Mod by Rosali
         showWeek: true,
-        changeMonth: false, // maybe enable?
-        changeYear: false,  // maybe enable?
         onSelect: function(dateText, inst) {
           ignore_click = true;
           var d = minical.datepicker('getDate'); //parse_datetime('0:0', dateText);
@@ -2916,6 +3040,9 @@ function rcube_calendar_ui(settings)
     }
 } // end rcube_calendar class
 
+// Begin mod by Rosali
+var calendar_ui_event_show_dialog;
+// End mod by Rosali
 
 /* calendar plugin initialization */
 window.rcmail && rcmail.addEventListener('init', function(evt) {
@@ -2924,7 +3051,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.register_command('print', function(){ cal.print_calendars(); }, true);
 
   // configure list operations
-  rcmail.register_command('calendar-create', function(){ cal.calendar_edit_dialog(null); }, true);
+  rcmail.register_command('calendar-create', function(props){ cal.calendar_edit_dialog($.extend($.parseJSON(props), { name:'', color:'cc0000', editable:true, showalarms:true })); }, true);
   rcmail.register_command('calendar-edit', function(){ cal.calendar_edit_dialog(cal.calendars[cal.selected_calendar]); }, false);
   rcmail.register_command('calendar-remove', function(){ cal.calendar_remove(cal.calendars[cal.selected_calendar]); }, false);
   rcmail.register_command('events-import', function(){ cal.import_events(cal.calendars[cal.selected_calendar]); }, true);
@@ -2937,6 +3064,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   // register callback commands
   rcmail.addEventListener('plugin.destroy_source', function(p){ cal.calendar_destroy_source(p.id); });
+  rcmail.addEventListener('plugin.calendar_action', function(p){ cal.calendar_action(p); });
   rcmail.addEventListener('plugin.unlock_saving', function(p){ cal.unlock_saving(); });
   rcmail.addEventListener('plugin.refresh_calendar', function(p){ cal.refresh(p); });
   rcmail.addEventListener('plugin.import_success', function(p){ cal.import_success(p); });
@@ -2945,7 +3073,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
 
   // let's go
   var cal = new rcube_calendar_ui($.extend(rcmail.env.calendar_settings, rcmail.env.libcal_settings));
-
+  
   $(window).resize(function(e) {
     // check target due to bugs in jquery
     // http://bugs.jqueryui.com/ticket/7514

@@ -150,6 +150,7 @@ class libvcalendar implements Iterator
                     'file' => __FILE__, 'line' => __LINE__,
                     'message' => "iCal data parse error: " . $e->getMessage()),
                     true, false);
+                write_log('errors', $vcal);
             }
         }
 
@@ -315,7 +316,7 @@ class libvcalendar implements Iterator
                         // parse recurrence exceptions
                         if ($object['recurrence']) {
                             foreach ($vobject->children as $i => $component) {
-                                if ($component->name == 'VEVENT' && isset($component->{'RECURRENCE-ID'})) {
+                                if (($component->name == 'VEVENT' || $component->name == 'VTODO') && isset($component->{'RECURRENCE-ID'})) {
                                     $object['recurrence']['EXCEPTIONS'][] = $this->_to_array($component);
                                 }
                             }
@@ -409,8 +410,11 @@ class libvcalendar implements Iterator
                     $event['free_busy'] = 'tentative';
                 else if ($prop->value == 'CANCELLED')
                     $event['cancelled'] = true;
-                else if ($prop->value == 'COMPLETED')
-                    $event['complete'] = 100;
+                // Begin mod by Rosali
+                //else if ($prop->value == 'COMPLETED')
+                    //$event['complete'] = 100;
+                $event['status'] = $prop->value;
+                // End mod by Rosali
                 break;
 
             case 'PRIORITY':
@@ -608,7 +612,7 @@ class libvcalendar implements Iterator
         }
 
         // minimal validation
-        if (empty($event['uid']) || ($event['_type'] == 'event' && empty($event['start']) != empty($event['end']))) {
+        if (empty($event['uid']) || ($event['_type'] == 'event' && empty($event['start']))) { // Mod by Rosali was "empty($event['start']) != empty($event['end'])"
             throw new VObject\ParseException('Object validation failed: missing mandatory object properties');
         }
 
@@ -857,9 +861,9 @@ class libvcalendar implements Iterator
         if (!empty($event['start']))
             $ve->add(self::datetime_prop('DTSTART', $event['start'], false, (bool)$event['allday']));
         if (!empty($event['end']))
-            $ve->add(self::datetime_prop('DTEND',   $event['end'], false, (bool)$event['allday']));
+            $ve->add(self::datetime_prop('DTEND', $event['end'], false, (bool)$event['allday']));
         if (!empty($event['due']))
-            $ve->add(self::datetime_prop('DUE',   $event['due'], false));
+            $ve->add(self::datetime_prop('DUE', $event['due'], false));
 
         if ($recurrence_id)
             $ve->add($recurrence_id);
@@ -873,7 +877,6 @@ class libvcalendar implements Iterator
 
         if ($event['sequence'])
             $ve->add('SEQUENCE', $event['sequence']);
-
         if ($event['recurrence'] && !$recurrence_id) {
             if ($exdates = $event['recurrence']['EXDATE']) {
                 unset($event['recurrence']['EXDATE']);  // don't serialize EXDATEs into RRULE value
@@ -890,7 +893,7 @@ class libvcalendar implements Iterator
             if ($exdates) {
                 foreach ($exdates as $ex) {
                     if ($ex instanceof \DateTime) {
-                        $exd = clone $event['start'];
+                        $exd = clone $ex; //$event['start']; // Mod by Rosali
                         $exd->setDate($ex->format('Y'), $ex->format('n'), $ex->format('j'));
                         $exd->setTimeZone(new \DateTimeZone('UTC'));
                         $ve->add(new VObject\Property('EXDATE', $exd->format('Ymd\\THis\\Z')));
@@ -920,17 +923,24 @@ class libvcalendar implements Iterator
                 $ve->add('X-MICROSOFT-CDO-BUSYSTATUS', $event['free_busy'] == 'outofoffice' ? 'OOF' : strtoupper($event['free_busy']));
             }
         }
-
+        
+        // Begin mod by Rosali (adjust float value to percent)
+        if ($event['complete'] && $event['complete'] <= 1)
+          $event['complete'] = round($event['complete'] * 100, 0);
+        // End mod by Rosali
         if ($event['priority'])
           $ve->add('PRIORITY', $event['priority']);
-
         if ($event['cancelled'])
             $ve->add('STATUS', 'CANCELLED');
         else if ($event['free_busy'] == 'tentative')
             $ve->add('STATUS', 'TENTATIVE');
+        // Begin mod by Rosali (export status field)
         else if ($event['complete'] == 100)
             $ve->add('STATUS', 'COMPLETED');
-
+        else if ($event['status'])
+            $ve->add('STATUS', $event['status']);
+        // End mod by Rosali
+        
         if (!empty($event['sensitivity']))
             $ve->add('CLASS', strtoupper($event['sensitivity']));
 
@@ -952,13 +962,15 @@ class libvcalendar implements Iterator
         }
 
         foreach ((array)$event['attendees'] as $attendee) {
-            if ($attendee['role'] == 'ORGANIZER') {
-                if (empty($event['organizer']))
-                    $event['organizer'] = $attendee;
-            }
-            else if (!empty($attendee['email'])) {
-                $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : null;
-                $ve->add('ATTENDEE', 'mailto:' . $attendee['email'], array_filter(self::map_keys($attendee, $this->attendee_keymap)));
+            if (is_array($attendee)) { // Mod by Rosali (check type array)
+                if ($attendee['role'] == 'ORGANIZER') {
+                    if (empty($event['organizer']))
+                        $event['organizer'] = $attendee;
+                }
+                else if (!empty($attendee['email'])) {
+                    $attendee['rsvp'] = $attendee['rsvp'] ? 'TRUE' : null;
+                    $ve->add('ATTENDEE', 'mailto:' . $attendee['email'], array_filter(self::map_keys($attendee, $this->attendee_keymap)));
+                }
             }
         }
 
@@ -1023,7 +1035,7 @@ class libvcalendar implements Iterator
         }
 
         // append recurrence exceptions
-        if ($event['recurrence']['EXCEPTIONS']) {
+        if (isset($event['recurrence']['EXCEPTIONS']) && is_array($event['recurrence']['EXCEPTIONS'])) {
             foreach ($event['recurrence']['EXCEPTIONS'] as $ex) {
                 $exdate = clone $event['start'];
                 $exdate->setDate($ex['start']->format('Y'), $ex['start']->format('n'), $ex['start']->format('j'));

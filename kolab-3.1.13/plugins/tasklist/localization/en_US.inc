@@ -18,6 +18,12 @@ $labels['description'] = 'Description';
 $labels['datetime'] = 'Due';
 $labels['start'] = 'Start';
 $labels['alarms'] = 'Reminder';
+$labels['repeat'] = 'Repeat';
+$labels['status'] = 'Status';
+$labels['status-needs-action'] = 'Needs action';
+$labels['status-in-process'] = 'In process';
+$labels['status-completed'] = 'Completed';
+$labels['status-cancelled'] = 'Cancelled';
 
 $labels['all'] = 'All';
 $labels['flagged'] = 'Flagged';
@@ -60,10 +66,11 @@ $labels['at'] = 'at';
 $labels['this'] = 'this';
 $labels['next'] = 'next';
 
-// mesages
+// messages
 $labels['savingdata'] = 'Saving data...';
 $labels['errorsaving'] = 'Failed to save data.';
 $labels['notasksfound'] = 'No tasks found for the given criteria';
+$labels['subscribe'] = 'Please subscribe to a tasklist in order to create a task.';
 $labels['invalidstartduedates'] = 'Start date must not be greater than due date.';
 $labels['deletetasktconfirm'] = 'Do you really want to delete this task?';
 $labels['deleteparenttasktconfirm'] = 'Do you really want to delete this task and all its subtasks?';

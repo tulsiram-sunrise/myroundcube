@@ -67,13 +67,15 @@ class tasklist_ui
     {
         $this->plugin->register_handler('plugin.tasklists', array($this, 'tasklists'));
         $this->plugin->register_handler('plugin.tasklist_select', array($this, 'tasklist_select'));
-        $this->plugin->register_handler('plugin.category_select', array($this, 'category_select'));
+        $this->plugin->register_handler('plugin.status_select', array($this, 'status_select'));
         $this->plugin->register_handler('plugin.searchform', array($this->rc->output, 'search_form'));
         $this->plugin->register_handler('plugin.quickaddform', array($this, 'quickadd_form'));
         $this->plugin->register_handler('plugin.tasklist_editform', array($this, 'tasklist_editform'));
         $this->plugin->register_handler('plugin.tasks', array($this, 'tasks_resultview'));
         $this->plugin->register_handler('plugin.tagslist', array($this, 'tagslist'));
         $this->plugin->register_handler('plugin.tags_editline', array($this, 'tags_editline'));
+        $this->plugin->register_handler('plugin.recurrence_form', array($this->plugin->lib, 'recurrence_form'));
+        $this->plugin->register_handler('plugin.recurrence_warning', array($this->plugin->lib, 'recurrence_warning'));
         $this->plugin->register_handler('plugin.alarm_select', array($this, 'alarm_select'));
         $this->plugin->register_handler('plugin.attachments_form', array($this, 'attachments_form'));
         $this->plugin->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
@@ -127,6 +129,21 @@ class tasklist_ui
         return html::tag('ul', $attrib, $li, html::$common_attrib);
     }
 
+    /**
+     * Render HTML form for task status selector
+     */
+    function status_select($attrib = array())
+    {
+        $attrib['name'] = 'status';
+        $select = new html_select($attrib);
+        $select->add('---', '');
+        $select->add($this->plugin->gettext('status-needs-action'), 'NEEDS-ACTION');
+        $select->add($this->plugin->gettext('status-in-process'),   'IN-PROCESS');
+        $select->add($this->plugin->gettext('status-completed'),    'COMPLETED');
+        $select->add($this->plugin->gettext('status-cancelled'),    'CANCELLED');
+
+        return $select->show(null);
+    }
 
     /**
      * Render a HTML select box for list selection
@@ -180,7 +197,7 @@ class tasklist_ui
     {
         return $this->plugin->lib->alarm_select($attrib, $this->plugin->driver->alarm_types, $this->plugin->driver->alarm_absolute);
     }
-
+    
     /**
      *
      */

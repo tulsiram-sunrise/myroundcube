@@ -27,6 +27,7 @@ CREATE TABLE calendars (
     name varchar(255) NOT NULL,
     color varchar(8) NOT NULL,
     showalarms smallint NOT NULL DEFAULT 1,
+    subscribed smallint NOT NULL DEFAULT 1,
     PRIMARY KEY (calendar_id)
 );
 

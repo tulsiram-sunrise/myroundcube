@@ -179,6 +179,7 @@ $labels['deletecalendarconfirm'] = 'Do you really want to delete this calendar w
 $labels['deletecalendarconfirmrecursive'] = 'Do you really want to delete this calendar with all its events and sub-calendars?';
 $labels['savingdata'] = 'Saving data...';
 $labels['errorsaving'] = 'Failed to save changes.';
+$labels['connectionfailed'] = 'Failed to establish connection. Please check your data.';
 $labels['operationfailed'] = 'The requested operation failed.';
 $labels['invalideventdates'] = 'Invalid dates entered! Please check your input.';
 $labels['invalidcalendarproperties'] = 'Invalid calendar properties! Please set a valid name.';

@@ -281,6 +281,8 @@ pre {
 
 #calendartoolbar a.button {
 	background-image: url(images/toolbar.png);
+	min-width: 45px;
+	max-width: 50px;
 }
 
 #calendartoolbar a.button.addevent {
@@ -288,14 +290,10 @@ pre {
 }
 
 #calendartoolbar a.button.export {
-	min-width: 50px;
-	max-width: 55px;
 	background-position: center -40px;
 }
 
 #calendartoolbar a.button.import {
-	min-width: 50px;
-	max-width: 55px;
 	background-position: center -440px;
 }
 
@@ -572,10 +570,25 @@ div.form-section,
 #eventshow label,
 #eventedit label,
 .form-section label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 	display: inline-block;
-	min-width: 7em;
+	min-width: 12em;
+	max-width: 12em;
 	padding-right: 0.5em;
 }
+
+/* Begin mod by Rosali (don't wrap savemode, don't truncate attendees notification message) */
+.savemode label {
+  min-width: 0 !important;
+}
+
+#edit-attendees-notify label {
+  min-width: 540px !important;
+  max-width: 540px !important;
+}
+/* End mod by Rosali */
 
 #eventedit .formtable td.label {
 	min-width: 6em;

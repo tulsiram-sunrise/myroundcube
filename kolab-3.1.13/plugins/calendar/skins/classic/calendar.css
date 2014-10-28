@@ -470,6 +470,12 @@ a.miniColors-trigger {
 	width: 97%;
 }
 
+/* Begin mod by Rosali (don't wrap savemode)*/
+.savemode label {
+  min-width: 0 !important;
+}
+/* End mod by Rosali */
+
 #eventtabs {
 	position: relative;
 	padding: 0;
@@ -512,7 +518,7 @@ div.form-section,
 #eventedit label,
 .form-section label {
 	display: inline-block;
-	min-width: 7em;
+	min-width: 10em;
 	padding-right: 0.5em;
 }
 

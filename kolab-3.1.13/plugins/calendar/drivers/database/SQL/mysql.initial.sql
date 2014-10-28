@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `calendars` (
   `name` varchar(255) NOT NULL,
   `color` varchar(8) NOT NULL,
   `showalarms` tinyint(1) NOT NULL DEFAULT '1',
+  `subscribed` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY(`calendar_id`),
   INDEX `user_name_idx` (`user_id`, `name`),
   CONSTRAINT `fk_calendars_user_id` FOREIGN KEY (`user_id`)

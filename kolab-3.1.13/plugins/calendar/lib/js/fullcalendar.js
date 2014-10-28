@@ -1088,7 +1088,7 @@ function EventManager(options, _sources) {
 		var i, len = cache.length, e,
 			defaultEventEnd = getView().defaultEventEnd, // getView???
 			startDelta = event.start - event._start,
-			endDelta = event.end ?
+			endDelta = (event.end && getView().name != 'table') ? // Mod by Rosali
 				(event.end - (event._end || defaultEventEnd(event))) // event._end would be null if event.end
 				: 0;                                                      // was null and event was just resized
 		for (i=0; i<len; i++) {

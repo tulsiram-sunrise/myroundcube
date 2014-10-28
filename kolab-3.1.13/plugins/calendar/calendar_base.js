@@ -26,8 +26,10 @@
 function rcube_calendar(settings)
 {
     // extend base class
-    rcube_libcalendaring.call(this, settings);
-
+    if(typeof rcube_libcalendaring != 'undefined') { // Mod by Rosali (is undefined on events import from ics)
+      rcube_libcalendaring.call(this, settings);
+    }
+    
     // member vars
     this.ui;
     this.ui_loaded = false;
@@ -78,11 +80,24 @@ function rcube_calendar(settings)
 }
 
 // static methods
-rcube_calendar.add_event_from_mail = function(mime_id, status)
+rcube_calendar.add_event_from_mail = function(mime_id, obj, status) // Begin mod by Rosali (calendar selector can exist multiple times - can't be referenced by ID)
 {
+  var calendar_obj = $($(obj).parent().children().last());
+  var calendar = calendar_obj.val();
+  if(!calendar){
+    calendar_obj = $($(obj).parent().children().last().children());
+    calendar = calendar_obj.val();
+    var calendar_text = $(obj).parent().find('option[value=' + calendar + ']').attr('selected','selected').text();
+    $(calendar_obj.parent()).replaceWith('<input type="hidden" class="calendar-saveto" value="' + calendar + '" /><span>' + calendar_text + '</span>');
+  }
+
   // ask user to delete the declined event from the local calendar (#1670)
   var del = false;
   if (rcmail.env.rsvp_saved && status == 'declined') {
+    $(obj).next().remove();
+    $(obj).next().remove();
+    $(obj).next().remove();
+    // End mod by Rosli
     del = confirm(rcmail.gettext('calendar.declinedeleteconfirm'));
   }
 
@@ -91,7 +106,7 @@ rcube_calendar.add_event_from_mail = function(mime_id, status)
       '_uid': rcmail.env.uid,
       '_mbox': rcmail.env.mailbox,
       '_part': mime_id,
-      '_calendar': $('#calendar-saveto').val(),
+      '_calendar': calendar,
       '_status': status,
       '_del': del?1:0
     }, lock);
@@ -142,9 +157,9 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
       }
 
       // enable/disable rsvp buttons
-      $('.rsvp-buttons input.button').prop('disabled', false)
-        .filter('.'+String(p.status).toLowerCase()).prop('disabled', p.latest);
-
+      $('.rsvp-buttons input.button').prop('disabled', false);
+      if(p.status) $('.rsvp-buttons input.button').filter('.'+String(p.status).toLowerCase()).prop('disabled', p.latest);
+      $('.rsvp-buttons').children().first().show(); // Mod by Rosali (always show the buttons to be able to modify status for accepted events)
       // show rsvp/import buttons with or without calendar selector
       if (!p.select)
         $('#rsvp-'+p.id+' .calendar-select').remove();

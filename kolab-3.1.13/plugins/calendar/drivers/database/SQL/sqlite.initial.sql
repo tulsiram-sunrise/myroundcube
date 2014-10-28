@@ -19,6 +19,7 @@ CREATE TABLE calendars (
   name varchar(255) NOT NULL default '',
   color varchar(255) NOT NULL default '',
   showalarms tinyint(1) NOT NULL default '1',
+  subscribed tinyint(1) NOT NULL default '1',
   CONSTRAINT fk_calendars_user_id FOREIGN KEY (user_id)
     REFERENCES users(user_id)
 );

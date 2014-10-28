@@ -78,7 +78,8 @@ class calendar_ui
     $this->cal->register_handler('plugin.priority_select', array($this, 'priority_select'));
     $this->cal->register_handler('plugin.sensitivity_select', array($this, 'sensitivity_select'));
     $this->cal->register_handler('plugin.alarm_select', array($this, 'alarm_select'));
-    $this->cal->register_handler('plugin.recurrence_form', array($this, 'recurrence_form'));
+    $this->cal->register_handler('plugin.recurrence_form', array($this->cal->lib, 'recurrence_form'));
+    $this->cal->register_handler('plugin.recurrence_warning', array($this->cal->lib, 'recurrence_warning'));
     $this->cal->register_handler('plugin.attachments_form', array($this, 'attachments_form'));
     $this->cal->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
     $this->cal->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));
@@ -86,12 +87,12 @@ class calendar_ui
     $this->cal->register_handler('plugin.attendees_form', array($this, 'attendees_form'));
     $this->cal->register_handler('plugin.attendees_freebusy_table', array($this, 'attendees_freebusy_table'));
     $this->cal->register_handler('plugin.edit_attendees_notify', array($this, 'edit_attendees_notify'));
-    $this->cal->register_handler('plugin.edit_recurring_warning', array($this, 'recurring_event_warning'));
     $this->cal->register_handler('plugin.event_rsvp_buttons', array($this, 'event_rsvp_buttons'));
     $this->cal->register_handler('plugin.angenda_options', array($this, 'angenda_options'));
     $this->cal->register_handler('plugin.events_import_form', array($this, 'events_import_form'));
     $this->cal->register_handler('plugin.events_export_form', array($this, 'events_export_form'));
     $this->cal->register_handler('plugin.searchform', array($this->rc->output, 'search_form'));  // use generic method from rcube_template
+    $this->cal->register_handler('plugin.calendar_create_menu', array($this, 'calendar_create_menu'));
   }
 
   /**
@@ -120,57 +121,61 @@ class calendar_ui
   function calendar_css($attrib = array())
   {
     $mode = $this->rc->config->get('calendar_event_coloring', $this->cal->defaults['calendar_event_coloring']);
-    $categories = $this->cal->driver->list_categories();
     $css = "\n";
+
+    foreach($this->cal->get_drivers() as $name => $driver)
+    {
+      $categories = $driver->list_categories();
     
-    foreach ((array)$categories as $class => $color) {
-      if (empty($color))
-        continue;
-      
-      $class = 'cat-' . asciiwords(strtolower($class), true);
-      $css  .= ".$class { color: #$color }\n";
-      if ($mode > 0) {
-        if ($mode == 2) {
-          $css .= ".fc-event-$class .fc-event-bg {";
-          $css .= " opacity: 0.9;";
-          $css .= " filter: alpha(opacity=90);";
+      foreach ((array)$categories as $class => $color) {
+        if (empty($color))
+          continue;
+
+        $class = 'cat-' . asciiwords(strtolower($class), true);
+        $css  .= ".$class { color: #$color }\n";
+        if ($mode > 0) {
+          if ($mode == 2) {
+            $css .= ".fc-event-$class .fc-event-bg {";
+            $css .= " opacity: 0.9;";
+            $css .= " filter: alpha(opacity=90);";
+          }
+          else {
+            $css .= ".fc-event-$class.fc-event-skin, ";
+            $css .= ".fc-event-$class .fc-event-skin, ";
+            $css .= ".fc-event-$class .fc-event-inner {";
+          }
+          $css .= " background-color: #" . $color . ";";
+          if ($mode % 2)
+            $css .= " border-color: #$color;";
+          $css .= "}\n";
         }
-        else {
-          $css .= ".fc-event-$class.fc-event-skin, ";
-          $css .= ".fc-event-$class .fc-event-skin, ";
-          $css .= ".fc-event-$class .fc-event-inner {";
-        }
-        $css .= " background-color: #" . $color . ";";
-        if ($mode % 2)
+      }
+
+      $calendars = $driver->list_calendars();
+      foreach ((array)$calendars as $id => $prop) {
+        if (!$prop['color'])
+          continue;
+        $color = $prop['color'];
+        $class = 'cal-' . asciiwords($id, true);
+        $css .= "li.$class, #eventshow .$class { color: #$color }\n";
+        if ($mode != 1) {
+          if ($mode == 3) {
+            $css .= ".fc-event-$class .fc-event-bg {";
+            $css .= " opacity: 0.9;";
+            $css .= " filter: alpha(opacity=90);";
+          }
+          else {
+            $css .= ".fc-event-$class, ";
+            $css .= ".fc-event-$class .fc-event-inner {";
+          }
+          if (!$attrib['printmode'])
+            $css .= " background-color: #$color;";
+          if ($mode % 2 == 0)
           $css .= " border-color: #$color;";
-        $css .= "}\n";
-      }
-    }
-    
-    $calendars = $this->cal->driver->list_calendars();
-    foreach ((array)$calendars as $id => $prop) {
-      if (!$prop['color'])
-        continue;
-      $color = $prop['color'];
-      $class = 'cal-' . asciiwords($id, true);
-      $css .= "li.$class, #eventshow .$class { color: #$color }\n";
-      if ($mode != 1) {
-        if ($mode == 3) {
-          $css .= ".fc-event-$class .fc-event-bg {";
-          $css .= " opacity: 0.9;";
-          $css .= " filter: alpha(opacity=90);";
+          $css .= "}\n";
         }
-        else {
-          $css .= ".fc-event-$class, ";
-          $css .= ".fc-event-$class .fc-event-inner {";
-        }
-        if (!$attrib['printmode'])
-          $css .= " background-color: #$color;";
-        if ($mode % 2 == 0)
-        $css .= " border-color: #$color;";
-        $css .= "}\n";
+        $css .= ".$class .handle { background-color: #$color; }";
       }
-      $css .= ".$class .handle { background-color: #$color; }";
     }
     
     return html::tag('style', array('type' => 'text/css'), $css);
@@ -181,19 +186,20 @@ class calendar_ui
    */
   function calendar_list($attrib = array())
   {
-    $calendars = $this->cal->driver->list_calendars();
-
     $li = '';
-    foreach ((array)$calendars as $id => $prop) {
+    foreach($this->cal->get_calendars() as $id => $prop)
+    {
+      $driver = $this->cal->get_driver_by_cal($id);
+
       if ($attrib['activeonly'] && !$prop['active'])
         continue;
-      
+
       unset($prop['user_id']);
-      $prop['alarms'] = $this->cal->driver->alarms;
-      $prop['attendees'] = $this->cal->driver->attendees;
-      $prop['freebusy'] = $this->cal->driver->freebusy;
-      $prop['attachments'] = $this->cal->driver->attachments;
-      $prop['undelete'] = $this->cal->driver->undelete;
+      $prop['alarms'] = $driver->alarms;
+      $prop['attendees'] = $driver->attendees;
+      $prop['freebusy'] = $driver->freebusy;
+      $prop['attachments'] = $driver->attachments;
+      $prop['undelete'] = $driver->undelete;
       $prop['feedurl'] = $this->cal->get_url(array('_cal' => $this->cal->ical_feed_hash($id) . '.ics', 'action' => 'feed'));
 
       if (!$prop['virtual'])
@@ -215,10 +221,10 @@ class calendar_ui
         html::span('handle', '&nbsp;')) .
         html::span(array('class' => 'calname', 'title' => $title), $prop['listname']));
     }
-
+  
     $this->rc->output->set_env('calendars', $jsenv);
     $this->rc->output->add_gui_object('folderlist', $attrib['id']);
-
+    
     return html::tag('ul', $attrib, $li, html::$common_attrib);
   }
 
@@ -259,12 +265,15 @@ class calendar_ui
     $attrib['is_escaped'] = true;
     $select = new html_select($attrib);
 
-    foreach ((array)$this->cal->driver->list_calendars() as $id => $prop) {
-      if (!$prop['readonly'])
+    $driver_fields = "";
+    foreach($this->cal->get_calendars() as $id => $prop) {
+      if (!$prop['readonly']) {
         $select->add($prop['name'], $id);
+      }
     }
 
-    return $select->show(null);
+
+    return $select->show(null).$driver_fields;
   }
 
   /**
@@ -291,10 +300,19 @@ class calendar_ui
     $attrib['name'] = 'categories';
     $select = new html_select($attrib);
     $select->add('---', '');
-    foreach (array_keys((array)$this->cal->driver->list_categories()) as $cat) {
+    // TODO: Categories are taken from kolab driver by default. Use categories from all available drivers.
+    // Begin Mod by Rosali (avoid duplicates)
+    $categories = array();
+    foreach ($this->cal->get_drivers() as $driver) {
+      foreach (array_keys((array)$driver->list_categories()) as $cat) {
+        $categories[$cat] = $cat; // filter duplicates
+      }
+    }
+    foreach($categories as $cat) {
       $select->add($cat, $cat);
     }
-
+    // End mod by Rosali
+    
     return $select->show(null);
   }
 
@@ -350,7 +368,13 @@ class calendar_ui
    */
   function alarm_select($attrib = array())
   {
-    return $this->cal->lib->alarm_select($attrib, $this->cal->driver->alarm_types, $this->cal->driver->alarm_absolute);
+    // Try GPC
+    $driver = $this->cal->get_driver_by_gpc(true /* quiet */);
+
+    // We assume that each calendar has equal alarm types, so fallback to default calendar is ok.
+    if(!$driver) $driver = $this->cal->get_default_driver();
+
+    return $this->cal->lib->alarm_select($attrib, $driver->alarm_types, $driver->alarm_absolute);
   }
 
   /**
@@ -360,137 +384,6 @@ class calendar_ui
   {
     $checkbox = new html_checkbox(array('name' => '_notify', 'id' => 'edit-attendees-donotify', 'value' => 1));
     return html::div($attrib, html::label(null, $checkbox->show(1) . ' ' . $this->cal->gettext('sendnotifications')));
-  }
-
-  /**
-   * Generate the form for recurrence settings
-   */
-  function recurring_event_warning($attrib = array())
-  {
-    $attrib['id'] = 'edit-recurring-warning';
-    
-    $radio = new html_radiobutton(array('name' => '_savemode', 'class' => 'edit-recurring-savemode'));
-    $form = html::label(null, $radio->show('', array('value' => 'current')) . $this->cal->gettext('currentevent')) . ' ' .
-       html::label(null, $radio->show('', array('value' => 'future')) . $this->cal->gettext('futurevents')) . ' ' .
-       html::label(null, $radio->show('all', array('value' => 'all')) . $this->cal->gettext('allevents')) . ' ' .
-       html::label(null, $radio->show('', array('value' => 'new')) . $this->cal->gettext('saveasnew'));
-       
-    return html::div($attrib, html::div('message', html::span('ui-icon ui-icon-alert', '') . $this->cal->gettext('changerecurringeventwarning')) . html::div('savemode', $form));
-  }
-  
-  /**
-   * Generate the form for recurrence settings
-   */
-  function recurrence_form($attrib = array())
-  {
-    switch ($attrib['part']) {
-      // frequency selector
-      case 'frequency':
-        $select = new html_select(array('name' => 'frequency', 'id' => 'edit-recurrence-frequency'));
-        $select->add($this->cal->gettext('never'), '');
-        $select->add($this->cal->gettext('daily'), 'DAILY');
-        $select->add($this->cal->gettext('weekly'), 'WEEKLY');
-        $select->add($this->cal->gettext('monthly'), 'MONTHLY');
-        $select->add($this->cal->gettext('yearly'), 'YEARLY');
-        $select->add($this->cal->gettext('rdate'), 'RDATE');
-        $html = html::label('edit-frequency', $this->cal->gettext('frequency')) . $select->show('');
-        break;
-
-      // daily recurrence
-      case 'daily':
-        $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-daily'));
-        $html = html::div($attrib, html::label(null, $this->cal->gettext('every')) . $select->show(1) . html::span('label-after', $this->cal->gettext('days')));
-        break;
-
-      // weekly recurrence form
-      case 'weekly':
-        $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-weekly'));
-        $html = html::div($attrib, html::label(null, $this->cal->gettext('every')) . $select->show(1) . html::span('label-after', $this->cal->gettext('weeks')));
-        // weekday selection
-        $daymap = array('sun','mon','tue','wed','thu','fri','sat');
-        $checkbox = new html_checkbox(array('name' => 'byday', 'class' => 'edit-recurrence-weekly-byday'));
-        $first = $this->rc->config->get('calendar_first_day', 1);
-        for ($weekdays = '', $j = $first; $j <= $first+6; $j++) {
-            $d = $j % 7;
-            $weekdays .= html::label(array('class' => 'weekday'), $checkbox->show('', array('value' => strtoupper(substr($daymap[$d], 0, 2)))) . $this->cal->gettext($daymap[$d])) . ' ';
-        }
-        $html .= html::div($attrib, html::label(null, $this->cal->gettext('bydays')) . $weekdays);
-        break;
-
-      // monthly recurrence form
-      case 'monthly':
-        $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-monthly'));
-        $html = html::div($attrib, html::label(null, $this->cal->gettext('every')) . $select->show(1) . html::span('label-after', $this->cal->gettext('months')));
-
-        $checkbox = new html_checkbox(array('name' => 'bymonthday', 'class' => 'edit-recurrence-monthly-bymonthday'));
-        for ($monthdays = '', $d = 1; $d <= 31; $d++) {
-            $monthdays .= html::label(array('class' => 'monthday'), $checkbox->show('', array('value' => $d)) . $d);
-            $monthdays .= $d % 7 ? ' ' : html::br();
-        }
-
-        // rule selectors
-        $radio = new html_radiobutton(array('name' => 'repeatmode', 'class' => 'edit-recurrence-monthly-mode'));
-        $table = new html_table(array('cols' => 2, 'border' => 0, 'cellpadding' => 0, 'class' => 'formtable'));
-        $table->add('label', html::label(null, $radio->show('BYMONTHDAY', array('value' => 'BYMONTHDAY')) . ' ' . $this->cal->gettext('each')));
-        $table->add(null, $monthdays);
-        $table->add('label', html::label(null, $radio->show('', array('value' => 'BYDAY')) . ' ' . $this->cal->gettext('onevery')));
-        $table->add(null, $this->rrule_selectors($attrib['part']));
-        
-        $html .= html::div($attrib, $table->show());
-
-        break;
-
-      // annually recurrence form
-      case 'yearly':
-        $select = $this->interval_selector(array('name' => 'interval', 'class' => 'edit-recurrence-interval', 'id' => 'edit-recurrence-interval-yearly'));
-        $html = html::div($attrib, html::label(null, $this->cal->gettext('every')) . $select->show(1) . html::span('label-after', $this->cal->gettext('years')));
-        // month selector
-        $monthmap = array('','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
-        $checkbox = new html_checkbox(array('name' => 'bymonth', 'class' => 'edit-recurrence-yearly-bymonth'));
-        for ($months = '', $m = 1; $m <= 12; $m++) {
-            $months .= html::label(array('class' => 'month'), $checkbox->show(null, array('value' => $m)) . $this->cal->gettext($monthmap[$m]));
-            $months .= $m % 4 ? ' ' : html::br();
-        }
-        $html .= html::div($attrib + array('id' => 'edit-recurrence-yearly-bymonthblock'), $months);
-        
-        // day rule selection
-        $html .= html::div($attrib, html::label(null, $this->cal->gettext('onevery')) . $this->rrule_selectors($attrib['part'], '---'));
-        break;
-
-      // end of recurrence form
-      case 'until':
-        $radio = new html_radiobutton(array('name' => 'repeat', 'class' => 'edit-recurrence-until'));
-        $select = $this->interval_selector(array('name' => 'times', 'id' => 'edit-recurrence-repeat-times'));
-        $input = new html_inputfield(array('name' => 'untildate', 'id' => 'edit-recurrence-enddate', 'size' => "10"));
-
-        $table = new html_table(array('cols' => 2, 'border' => 0, 'cellpadding' => 0, 'class' => 'formtable'));
-
-        $table->add('label', ucfirst($this->cal->gettext('recurrencend')));
-        $table->add(null, html::label(null, $radio->show('', array('value' => '', 'id' => 'edit-recurrence-repeat-forever')) . ' ' .
-          $this->cal->gettext('forever')));
-
-        $table->add('label', '');
-        $table->add(null, $radio->show('', array('value' => 'count', 'id' => 'edit-recurrence-repeat-count')) . ' ' .
-          $this->cal->gettext(array(
-            'name' => 'forntimes',
-            'vars' => array('nr' => $select->show(1)))
-          ));
-
-        $table->add('label', '');
-        $table->add(null, $radio->show('', array('value' => 'until', 'id' => 'edit-recurrence-repeat-until')) . ' ' .
-          $this->cal->gettext('untildate') . ' ' . $input->show(''));
-        $html = $table->show();
-        break;
-
-      case 'rdate':
-        $ul = html::tag('ul', array('id' => 'edit-recurrence-rdates'), '');
-        $input = new html_inputfield(array('name' => 'rdate', 'id' => 'edit-recurrence-rdate-input', 'size' => "10"));
-        $button = new html_inputfield(array('type' => 'button', 'class' => 'button add', 'value' => $this->cal->gettext('addrdate')));
-        $html .= html::div($attrib, $ul . html::div('inputform', $input->show() . $button->show()));
-        break;
-    }
-
-    return $html;
   }
 
   /**
@@ -690,6 +583,25 @@ class calendar_ui
   }
 
   /**
+   * Handler for menu to choose the driver for calendar creation.
+   */
+  function calendar_create_menu($attrib = array())
+  {
+    $content = "";
+    foreach($this->cal->get_drivers() as $name => $driver)
+    {
+      $content .= html::tag('li', null, $this->rc->output->button(
+          array('label' => 'calendar.calendar_'.$name,
+                'class' => 'active',
+                'prop' => json_encode(array('driver' => $name)),
+                'command' => 'calendar-create',
+                'title' => 'calendar.createcalendar')));
+    }
+
+    return $content;
+  }
+
+  /**
    * Handler for calendar form template.
    * The form content could be overriden by the driver
    */
@@ -698,6 +610,7 @@ class calendar_ui
     // compose default calendar form fields
     $input_name = new html_inputfield(array('name' => 'name', 'id' => 'calendar-name', 'size' => 20));
     $input_color = new html_inputfield(array('name' => 'color', 'id' => 'calendar-color', 'size' => 6));
+    $driver = $this->cal->get_driver_by_gpc();
 
     $formfields = array(
       'name' => array(
@@ -712,7 +625,7 @@ class calendar_ui
       ),
     );
 
-    if ($this->cal->driver->alarms) {
+    if ($driver->alarms) {
       $checkbox = new html_checkbox(array('name' => 'showalarms', 'id' => 'calendar-showalarms', 'value' => 1));
       $formfields['showalarms'] = array(
         'label' => $this->cal->gettext('showalarms'),
@@ -723,7 +636,7 @@ class calendar_ui
 
     // allow driver to extend or replace the form content
     return html::tag('form', array('action' => "#", 'method' => "get", 'id' => 'calendarpropform'),
-      $this->cal->driver->calendar_form($action, $calendar, $formfields)
+      $driver->calendar_form($action, $calendar, $formfields)
     );
   }
 

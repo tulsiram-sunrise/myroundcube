@@ -228,7 +228,7 @@ abstract class calendar_driver
    * @return array Event object as hash array
    */
   abstract function get_event($event, $writeable = false, $active = false, $personal = false);
-
+  
   /**
    * Get events from source.
    *

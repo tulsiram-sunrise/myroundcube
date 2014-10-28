@@ -1,0 +1,48 @@
+Index: localization/de_DE.inc
+===================================================================
+--- localization/de_DE.inc	(revision 50)
++++ localization/de_DE.inc	(working copy)
+@@ -20,6 +20,9 @@
+ 
+ // calendar
+ $labels['calendar'] = 'Kalender';
++$labels['calendar_kolab'] = 'Kolab Kalender';
++$labels['calendar_caldav'] = 'CalDAV Kalender';
++$labels['calendar_ical'] = 'iCAL Kalender';
+ $labels['calendars'] = 'Kalender';
+ $labels['category'] = 'Kategorie';
+ $labels['categories'] = 'Kategorien';
+Index: localization/en_US.inc
+===================================================================
+--- localization/en_US.inc	(revision 50)
++++ localization/en_US.inc	(working copy)
+@@ -4,6 +4,8 @@
+ 
+ // preferences
+ $labels['default_view'] = 'Default view';
++$labels['treat_as_allday'] = 'Show event as all-day if it takes more than';
++$labels['hours'] = 'hours';
+ $labels['time_format'] = 'Time format';
+ $labels['timeslots'] = 'Timeslots per hour';
+ $labels['first_day'] = 'First weekday';
+@@ -21,6 +23,11 @@
+ // calendar
+ $labels['calendar'] = 'Calendar';
+ $labels['calendars'] = 'Calendars';
++$labels['calendar_kolab'] = 'Kolab Calendar';
++$labels['calendar_database'] = 'Local Calendar';
++$labels['calendar_caldav'] = 'CalDAV Calendar';
++$labels['calendar_ical'] = 'iCAL Calendar';
++$labels['calendar_google_xml'] = 'Google XML Calendar';
+ $labels['category'] = 'Category';
+ $labels['categories'] = 'Categories';
+ $labels['createcalendar'] = 'Create new calendar';
+@@ -81,6 +88,8 @@
+ $labels['showurl'] = 'Show calendar URL';
+ $labels['showurldescription'] = 'Use the following address to access (read only) your calendar from other applications. You can copy and paste this into any calendar software that supports the iCal format.';
+ $labels['caldavurldescription'] = 'Copy this address to a <a href="http://en.wikipedia.org/wiki/CalDAV" target="_blank">CalDAV</a> client application (e.g. Evolution or Mozilla Thunderbird) to fully synchronize this specific calendar with your computer or mobile device.';
++$labels['caldavurl'] = "CalDAV URL";
++$labels['icalurl'] = "iCal URL";
+ 
+ // agenda view
+ $labels['listrange'] = 'Range to display:';

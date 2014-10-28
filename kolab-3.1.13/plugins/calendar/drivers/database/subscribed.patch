@@ -1,0 +1,183 @@
+Index: database_driver.php
+===================================================================
+--- database_driver.php	(revision 50)
++++ database_driver.php	(working copy)
+@@ -34,7 +34,7 @@
+   public $attendees = true;
+   public $freebusy = false;
+   public $attachments = true;
+-  public $alarm_types = array('DISPLAY');
++  public $alarm_types = array('DISPLAY', 'EMAIL');
+ 
+   private $rc;
+   private $cal;
+@@ -74,10 +74,8 @@
+   /**
+    * Read available calendars for the current user and store them internally
+    */
+-  private function _read_calendars()
++  protected function _read_calendars()
+   {
+-    $hidden = array_filter(explode(',', $this->rc->config->get('hidden_calendars', '')));
+-    
+     if (!empty($this->rc->user->ID)) {
+       $calendar_ids = array();
+       $result = $this->rc->db->query(
+@@ -88,7 +86,7 @@
+       );
+       while ($result && ($arr = $this->rc->db->fetch_assoc($result))) {
+         $arr['showalarms'] = intval($arr['showalarms']);
+-        $arr['active']     = !in_array($arr['id'], $hidden);
++        $arr['active']     = $arr['subscribed'] ? true : false;
+         $arr['name']       = html::quote($arr['name']);
+         $arr['listname']   = html::quote($arr['name']);
+         $this->calendars[$arr['calendar_id']] = $arr;
+@@ -109,7 +107,7 @@
+   public function list_calendars($active = false, $personal = false)
+   {
+     // attempt to create a default calendar for this user
+-    if (empty($this->calendars)) {
++    if (get_class($this) == "database_driver" && empty($this->calendars)) {
+       if ($this->create_calendar(array('name' => 'Default', 'color' => 'cc0000')))
+         $this->_read_calendars();
+     }
+@@ -180,20 +178,21 @@
+ 
+   /**
+    * Set active/subscribed state of a calendar
+-   * Save a list of hidden calendars in user prefs
+    *
+    * @see calendar_driver::subscribe_calendar()
+    */
+   public function subscribe_calendar($prop)
+   {
+-    $hidden = array_flip(explode(',', $this->rc->config->get('hidden_calendars', '')));
++    $query = $this->rc->db->query(
++      "UPDATE " . $this->db_calendars . "
++       SET subscribed=? WHERE calendar_id=?
++       AND user_id=?",
++       $prop['active'],
++       $prop['id'],
++       $this->rc->user->ID
++    );
+     
+-    if ($prop['active'])
+-      unset($hidden[$prop['id']]);
+-    else
+-      $hidden[$prop['id']] = 1;
+-    
+-    return $this->rc->user->save_prefs(array('hidden_calendars' => join(',', array_keys($hidden))));
++    return $this->rc->db->affected_rows($query);
+   }
+ 
+   /**
+@@ -254,7 +253,7 @@
+         strval($event['title']),
+         strval($event['description']),
+         strval($event['location']),
+-        strval($event['categories']),
++        join(',', (array)$event['categories']),
+         strval($event['url']),
+         intval($event['free_busy']),
+         intval($event['priority']),
+@@ -310,7 +309,7 @@
+         // keep saved exceptions (not submitted by the client)
+         if ($old['recurrence']['EXDATE'])
+           $event['recurrence']['EXDATE'] = $old['recurrence']['EXDATE'];
+-        
++
+         switch ($event['_savemode']) {
+           case 'new':
+             $event['uid'] = $this->cal->generate_uid();
+@@ -441,9 +440,10 @@
+   {
+     if ($event['alarms'] && $event['start'] > new DateTime()) {
+       $alarm = libcalendaring::get_next_alarm($event);
+-
+-      if ($alarm['time'] && $alarm['action'] == 'DISPLAY')
++      // Begin mod by Rosali (use notifyat field for email reminders - https://issues.kolab.org/show_bug.cgi?id=3507)
++      if ($alarm['time']) // && $alarm['action'] == 'DISPLAY')
+         return date('Y-m-d H:i:s', $alarm['time']);
++      // End mod by Rosali
+     }
+ 
+     return null;
+@@ -463,6 +463,8 @@
+     foreach ($set_cols as $col) {
+       if (is_object($event[$col]) && is_a($event[$col], 'DateTime'))
+         $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . $this->rc->db->quote($event[$col]->format(self::DB_DATE_FORMAT));
++      else if (is_array($event[$col]))
++        $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . $this->rc->db->quote(join(',', $event[$col]));
+       else if (isset($event[$col]))
+         $sql_set[] = $this->rc->db->quote_identifier($col) . '=' . $this->rc->db->quote($event[$col]);
+     }
+@@ -483,7 +485,6 @@
+       ),
+       $event['id']
+     );
+-
+     $success = $this->rc->db->affected_rows($query);
+ 
+     // add attachments
+@@ -663,8 +664,9 @@
+       }
+ 
+       $success = $this->rc->db->affected_rows($query);
+-      if ($success && $update_master)
++      if ($success && $update_master) {
+         $this->_update_event($master, true);
++      }
+ 
+       return $success;
+     }
+@@ -860,8 +862,12 @@
+          $this->rc->db->fromunixtime($time)
+        ));
+ 
+-      while ($result && ($event = $this->rc->db->fetch_assoc($result)))
+-        $alarms[] = $this->_read_postprocess($event);
++      // Begin mod by Rosali (use notifyat field for email reminders - https://issues.kolab.org/show_bug.cgi?id=3507)
++      while ($result && ($event = $this->rc->db->fetch_assoc($result))) {
++        if(stripos($event['alarms'], ':DISPLAY') !== false)
++          $alarms[] = $this->_read_postprocess($event);
++      }
++      // End mod by Rosali
+     }
+ 
+     return $alarms;
+Index: SQL/mysql.initial.sql
+===================================================================
+--- SQL/mysql.initial.sql	(revision 50)
++++ SQL/mysql.initial.sql	(working copy)
+@@ -18,6 +18,7 @@
+   `name` varchar(255) NOT NULL,
+   `color` varchar(8) NOT NULL,
+   `showalarms` tinyint(1) NOT NULL DEFAULT '1',
++  `subscribed` tinyint(1) NOT NULL DEFAULT '1',
+   PRIMARY KEY(`calendar_id`),
+   INDEX `user_name_idx` (`user_id`, `name`),
+   CONSTRAINT `fk_calendars_user_id` FOREIGN KEY (`user_id`)
+Index: SQL/postgres.initial.sql
+===================================================================
+--- SQL/postgres.initial.sql	(revision 50)
++++ SQL/postgres.initial.sql	(working copy)
+@@ -27,6 +27,7 @@
+     name varchar(255) NOT NULL,
+     color varchar(8) NOT NULL,
+     showalarms smallint NOT NULL DEFAULT 1,
++    subscribed smallint NOT NULL DEFAULT 1,
+     PRIMARY KEY (calendar_id)
+ );
+ 
+Index: SQL/sqlite.initial.sql
+===================================================================
+--- SQL/sqlite.initial.sql	(revision 50)
++++ SQL/sqlite.initial.sql	(working copy)
+@@ -19,6 +19,7 @@
+   name varchar(255) NOT NULL default '',
+   color varchar(255) NOT NULL default '',
+   showalarms tinyint(1) NOT NULL default '1',
++  subscribed tinyint(1) NOT NULL default '1',
+   CONSTRAINT fk_calendars_user_id FOREIGN KEY (user_id)
+     REFERENCES users(user_id)
+ );

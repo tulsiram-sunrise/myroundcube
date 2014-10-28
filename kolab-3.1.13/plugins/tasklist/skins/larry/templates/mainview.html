@@ -124,6 +124,10 @@
 		<span class="task-text"></span>
 		<span id="task-time"></span>
 	</div>
+	<div id="task-recurrence" class="form-section">
+		<label><roundcube:label name="tasklist.repeat" /></label>
+		<span class="task-text"></span>
+	</div>
 	<div id="task-alarm" class="form-section">
 		<label><roundcube:label name="tasklist.alarms" /></label>
 		<span class="task-text"></span>
@@ -132,10 +136,18 @@
 		<label><roundcube:label name="tasklist.list" /></label>
 		<span class="task-text"></span>
 	</div>
+	<div id="task-priority" class="form-section">
+		<label><roundcube:label name="calendar.priority" /></label>
+		<span class="task-text"></span>
+	</div>
 	<div id="task-completeness" class="form-section">
 		<label><roundcube:label name="tasklist.complete" /></label>
 		<span class="task-text"></span>
 	</div>
+  <div id="task-status" class="form-section">
+    <label><roundcube:label name="tasklist.status" /></label>
+    <span class="task-text"></span>
+  </div>
 	<div id="task-attachments" class="form-section">
 		<label><roundcube:label name="attachments" /></label>
 		<div class="task-text"></div>
@@ -147,7 +159,15 @@
 <div id="tasklistform" class="uidialog">
 	<roundcube:object name="plugin.tasklist_editform" />
 </div>
+<!-- Begin mod by Rosali -->
+<div id="eventsimport" class="uidialog">
+	<roundcube:object name="plugin.events_import_form" id="events-import-form" uploadFieldSize="30" />
+</div>
 
+<div id="eventsexport" class="uidialog">
+	<roundcube:object name="plugin.events_export_form" id="events-export-form" />
+</div>
+<!-- End mod by Rosali -->
 <script type="text/javascript">
 
 // UI startup

@@ -87,7 +87,7 @@ class tasklist extends rcube_plugin
             return;
 
         // load localizations
-        $this->add_texts('localization/', $args['task'] == 'tasks' && (!$args['action'] || $args['action'] == 'print'));
+        $this->add_texts('localization/', $args['task'] == 'tasks' && !$args['action']);
         $this->rc->load_language($_SESSION['language'], array('tasks.tasks' => $this->gettext('navtitle')));  // add label for task title
 
         if ($args['task'] == 'tasks' && $args['action'] != 'save-pref') {
@@ -146,7 +146,7 @@ class tasklist extends rcube_plugin
     /**
      * Helper method to load the backend driver according to local config
      */
-    private function load_driver()
+    protected function load_driver() // Mod by Rosali (declare as protected)
     {
         if (is_object($this->driver))
             return;
@@ -168,7 +168,6 @@ class tasklist extends rcube_plugin
         $this->rc->output->set_env('tasklist_driver', $driver_name);
     }
 
-
     /**
      * Dispatcher for task-related actions initiated by the client
      */
@@ -179,9 +178,18 @@ class tasklist extends rcube_plugin
         $rec  = get_input_value('t', RCUBE_INPUT_POST, true);
         $oldrec = $rec;
         $success = $refresh = false;
-
         switch ($action) {
-        case 'new':
+          case 'new':
+            // Begin mod by Rosali (catch no subscriptions case)
+            $lists = (array) $this->driver->get_lists(true);
+            if (empty($lists)) {
+              $this->rc->output->show_message('tasklist.subscribe', 'error');
+              // unlock client
+              $this->rc->output->command('plugin.unlock_saving');
+              $this->rc->output->command('plugin.update_task', array('id' => $rec['tempid'], 'tempid' => false));
+              return false;
+            }
+            // End mod by Rosali
             $oldrec = null;
             $rec = $this->prepare_task($rec);
             $rec['uid'] = $this->generate_uid();
@@ -193,24 +201,43 @@ class tasklist extends rcube_plugin
             }
             break;
 
-        case 'edit':
+          case 'edit':
             $rec = $this->prepare_task($rec);
+            $savemode = $rec['_savemode'];
             if ($success = $this->driver->edit_task($rec)) {
-                $refresh[] = $this->driver->get_task($rec);
-                $this->cleanup_task($rec);
+              switch ($savemode) {
+                case 'new':
+                case 'current':
+                case 'future':
+                case 'all':
+                  $lists = (array) $this->_active_lists($this->driver->get_lists());
+                  $lists = implode(',', array_keys($lists));
+                  $this->fetch_tasks($lists);
+                  break;
+                default:
+                  if ($rec['recurrence']) {
+                    $lists = (array) $this->_active_lists($this->driver->get_lists());
+                    $lists = implode(',', array_keys($lists));
+                    $this->fetch_tasks($lists);
+                  }
+                  else {
+                    $refresh[] = $this->driver->get_task($rec);
+                  }
+              }
+              $this->cleanup_task($rec);
 
-                // move all childs if list assignment was changed
-                if (!empty($rec['_fromlist']) && !empty($rec['list']) && $rec['_fromlist'] != $rec['list']) {
-                    foreach ($this->driver->get_childs(array('id' => $rec['id'], 'list' => $rec['_fromlist']), true) as $cid) {
-                        $child = array('id' => $cid, 'list' => $rec['list'], '_fromlist' => $rec['_fromlist']);
-                        if ($this->driver->move_task($child)) {
-                            $r = $this->driver->get_task($child);
-                            if ((bool)($filter & self::FILTER_MASK_COMPLETE) == ($r['complete'] == 1.0)) {
-                                $refresh[] = $r;
-                            }
-                        }
+              // move all childs if list assignment was changed
+              if (!empty($rec['_fromlist']) && !empty($rec['list']) && $rec['_fromlist'] != $rec['list']) {
+                foreach ($this->driver->get_childs(array('id' => $rec['id'], 'list' => $rec['_fromlist']), true) as $cid) {
+                  $child = array('id' => $cid, 'list' => $rec['list'], '_fromlist' => $rec['_fromlist']);
+                  if ($this->driver->move_task($child)) {
+                    $r = $this->driver->get_task($child);
+                    if ((bool)($filter & self::FILTER_MASK_COMPLETE) == $this->driver->is_complete($r)) {
+                      $refresh[] = $r;
                     }
+                  }
                 }
+              }
             }
             break;
 
@@ -238,35 +265,31 @@ class tasklist extends rcube_plugin
               break;
 
         case 'delete':
-            $mode  = intval(get_input_value('mode', RCUBE_INPUT_POST));
-            $oldrec = $this->driver->get_task($rec);
-            if ($success = $this->driver->delete_task($rec, false)) {
-                // delete/modify all childs
-                foreach ($this->driver->get_childs($rec, $mode) as $cid) {
-                    $child = array('id' => $cid, 'list' => $rec['list']);
-
-                    if ($mode == 1) {  // delete all childs
-                        if ($this->driver->delete_task($child, false)) {
-                            if ($this->driver->undelete)
-                                $_SESSION['tasklist_undelete'][$rec['id']][] = $cid;
-                        }
-                        else
-                            $success = false;
-                    }
-                    else {
-                        $child['parent_id'] = strval($oldrec['parent_id']);
-                        $this->driver->edit_task($child);
-                    }
-                }
-                // update parent task to adjust list of children
+          $mode  = intval(get_input_value('mode', RCUBE_INPUT_POST));
+          $oldrec = $this->driver->get_task($rec);
+          $rec = $this->prepare_task($rec);
+          $rec['mode'] = $mode;
+          if ($success = $this->driver->delete_task($rec, false)) {
+            switch ($mode) {
+              case 0:
+              case 1:
                 if (!empty($oldrec['parent_id'])) {
-                    $refresh[] = $this->driver->get_task(array('id' => $oldrec['parent_id'], 'list' => $rec['list']));
+                  $refresh[] = $this->driver->get_task(array('id' => $oldrec['parent_id'], 'list' => $rec['list']));
                 }
+                break;
+              case 2:
+              case 3:
+              case 4:
+                $lists = (array) $this->_active_lists($this->driver->get_lists());
+                $lists = implode(',', array_keys($lists));
+                $this->fetch_tasks($lists);
+                break;
             }
+          }
 
-            if (!$success)
-                $this->rc->output->command('plugin.reload_data');
-            break;
+          if (!$success)
+            $this->rc->output->command('plugin.reload_data');
+          break;
 
         case 'undelete':
             if ($success = $this->driver->undelete_task($rec)) {
@@ -304,7 +327,7 @@ class tasklist extends rcube_plugin
 
         // unlock client
         $this->rc->output->command('plugin.unlock_saving');
-
+        
         if ($refresh) {
             if ($refresh['id']) {
                 $this->encode_task($refresh);
@@ -410,6 +433,38 @@ class tasklist extends rcube_plugin
         if ($rec['alarms'] && !$rec['date'] && !$rec['startdate'] && strpos($rec['alarms'], '@') === false)
             $rec['alarms'] = '';
 
+        // convert the submitted recurrence settings
+        if (is_array($rec['recurrence'])) {
+            $refdate = null;
+            /* Mod by Rosali (startdate/starttime is the only reference date)
+            if (!empty($rec['date'])) {
+                $refdate = new DateTime($rec['date'] . ' ' . $rec['time'], $this->timezone);
+            }
+            
+            else*/ if (!empty($rec['startdate'])) {
+                $refdate = new DateTime($rec['startdate'] . ' ' . $rec['starttime'], $this->timezone);
+            }
+
+            if ($refdate) {
+                $rec['recurrence'] = $this->lib->from_client_recurrence($rec['recurrence'], $refdate);
+
+                // translate count into an absolute end date.
+                // why? because when shifting completed tasks to the next recurrence,
+                // the initial start date to count from gets lost.
+                if ($rec['recurrence']['COUNT']) {
+                    $engine = libcalendaring::get_recurrence();
+                    $engine->init($rec['recurrence'], $refdate);
+                    if ($until = $engine->end()) {
+                        $rec['recurrence']['UNTIL'] = $until;
+                        unset($rec['recurrence']['COUNT']);
+                    }
+                }
+            }
+            else {  // recurrence requires a reference date
+                $rec['recurrence'] = '';
+            }
+        }
+
         $attachments = array();
         $taskid = $rec['id'];
         if (is_array($_SESSION[self::SESSION_KEY]) && $_SESSION[self::SESSION_KEY]['id'] == $taskid) {
@@ -471,6 +526,19 @@ class tasklist extends rcube_plugin
         }
     }
 
+    /**
+     * Get subscribed lists
+     */
+    private function _active_lists($lists)
+    {
+      $active = array();
+      foreach ($lists as $list) {
+        if ($list['active']) {
+          $active[$list['calendar_id']] = $list;
+        }
+      }
+      return $active;
+    }
 
     /**
      * Dispatcher for tasklist actions initiated by the client
@@ -553,12 +621,14 @@ class tasklist extends rcube_plugin
     /**
      *
      */
-    public function fetch_tasks()
+    public function fetch_tasks($lists = false)
     {
         $f = intval(get_input_value('filter', RCUBE_INPUT_GPC));
         $search = get_input_value('q', RCUBE_INPUT_GPC);
         $filter = array('mask' => $f, 'search' => $search);
-        $lists = get_input_value('lists', RCUBE_INPUT_GPC);;
+        if (!$lists) {
+            $lists = get_input_value('lists', RCUBE_INPUT_GPC);
+        }
 /*
         // convert magic date filters into a real date range
         switch ($f) {
@@ -591,6 +661,7 @@ class tasklist extends rcube_plugin
 
         }
 */
+
         $data = $this->tasks_data($this->driver->list_tasks($filter, $lists), $f, $tags);
         $this->rc->output->command('plugin.data_ready', array('filter' => $f, 'lists' => $lists, 'search' => $search, 'data' => $data, 'tags' => array_values(array_unique($tags))));
     }
@@ -608,9 +679,8 @@ class tasklist extends rcube_plugin
             $this->encode_task($rec);
             if (!empty($rec['tags']))
                 $tags = array_merge($tags, (array)$rec['tags']);
-
             // apply filter; don't trust the driver on this :-)
-            if ((!$f && $rec['complete'] < 1.0) || ($rec['mask'] & $f))
+            if ((!$f && !$this->driver->is_complete($rec)) || ($rec['mask'] & $f))
                 $data[] = $rec;
         }
 
@@ -661,6 +731,11 @@ class tasklist extends rcube_plugin
         if ($rec['alarms'])
             $rec['alarms_text'] = libcalendaring::alarms_text($rec['alarms']);
 
+        if ($rec['recurrence']) {
+            $rec['recurrence_text'] = $this->lib->recurrence_text($rec['recurrence']);
+            $rec['recurrence'] = $this->lib->to_client_recurrence($rec['recurrence'], $rec['time'] || $rec['starttime']);
+        }
+
         foreach ((array)$rec['attachments'] as $k => $attachment) {
             $rec['attachments'][$k]['classname'] = rcube_utils::file2class($attachment['mimetype'], $attachment['name']);
         }
@@ -697,12 +772,38 @@ class tasklist extends rcube_plugin
      * Compare function for task list sorting.
      * Nested tasks need to be sorted to the end.
      */
-    private function task_sort_cmp($a, $b)
+    protected function task_sort_cmp($a, $b)
     {
         $d = $a['_depth'] - $b['_depth'];
-        if (!$d) $d = $b['_hasdate'] - $a['_hasdate'];
-        if (!$d) $d = $a['datetime'] - $b['datetime'];
-        return $d;
+        if (!$d) {
+              $d = $b['_hasdate'] - $a['_hasdate'];
+        }
+        if (!$d) {
+            $d = $a['datetime'] - $b['datetime'];
+        }
+        if (!$d) {
+            $a_sort_title = $a['title'] ? strtolower($a['title']) : '';
+            $b_sort_title = $b['title'] ? strtolower($b['title']) : '';
+            $length = max(strlen($a_sort_title), strlen($b_sort_title));
+            while (strlen($a_sort_title) < $length || strlen($b_sort_title) < $length) {
+                $a_sort_title .= ' ';
+                $b_sort_title .= ' ';
+                $a_sort_title = substr($a_sort_title, 0, $length);
+                $b_sort_title = substr($b_sort_title, 0, $length);
+            }
+            $a_sort_startdatetime = $a['startdatetime'] ? $a['startdatetime'] : '9999999999'; 
+            while (strlen($a_sort_startdatetime) < 10) {
+                $a_sort_startdatetime = '0' . $a_sort_startdatetime;
+            }
+            $b_sort_startdatetime = $b['startdatetime'] ? $b['startdatetime'] : '9999999999'; 
+            while (strlen($b_sort_startdatetime) < 10) {
+                $b_sort_startdatetime = '0' . $b_sort_startdatetime;
+            }
+            $a_sort = $a_sort_startdatetime . $a_sort_title;
+            $b_sort = $b_sort_startdatetime . $b_sort_title;
+            $d = $a_sort > $b_sort;
+          } 
+          return $d ? $d : 0;
     }
 
     /**
@@ -730,7 +831,7 @@ class tasklist extends rcube_plugin
 
         if ($rec['flagged'])
             $mask |= self::FILTER_MASK_FLAGGED;
-        if ($rec['complete'] == 1.0)
+        if ($this->driver->is_complete($rec))
             $mask |= self::FILTER_MASK_COMPLETE;
 
         if (empty($rec['date']))
@@ -761,9 +862,8 @@ class tasklist extends rcube_plugin
         $this->ui->init();
         $this->ui->init_templates();
         $this->rc->output->set_pagetitle($this->gettext('navtitle'));
-        $this->rc->output->send('tasklist.mainview');
+        $this->rc->output->send('mainnav');
     }
-
 
     /**
      *
@@ -774,7 +874,6 @@ class tasklist extends rcube_plugin
             $texts['tasklist.'.$label] = $this->gettext($label);
 
         $texts['tasklist.newtask'] = $this->gettext('createfrommail');
-
         $this->ui->init_templates();
         echo $this->api->output->parse('tasklist.taskedit', false, false);
         echo html::tag('script', array('type' => 'text/javascript'),
@@ -794,7 +893,13 @@ class tasklist extends rcube_plugin
     public function refresh($attr)
     {
         // refresh the entire list every 10th time to also sync deleted items
-        if (rand(0,10) == 10) {
+        // Begin mod by Rosali (random is not reliable - https://issues.kolab.org/show_bug.cgi?id=3495)
+        isset($_SESSION['cal_refresh']) ? ($_SESSION['cal_refresh'] = $_SESSION['cal_refresh'] + 1) : ($_SESSION['cal_refresh'] = 1);
+        //if (rand(0,10) == 10) {
+        if ($_SESSION['cal_refresh'] == 10) {
+            $_SESSION['cal_refresh'] = 0;
+            // End mod by Rosali
+
             $this->rc->output->command('plugin.reload_data');
             return;
         }

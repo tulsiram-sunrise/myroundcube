@@ -43,7 +43,7 @@ class calendar_recurrence
   {
     // use Horde classes to compute recurring instances
     // TODO: replace with something that has less than 6'000 lines of code
-    require_once(__DIR__ . '/Horde_Date_Recurrence.php');
+    require_once(INSTALL_PATH . 'plugins/libcalendaring/lib/Horde_Date_Recurrence.php');
 
     $this->cal = $cal;
     $this->event = $event;
