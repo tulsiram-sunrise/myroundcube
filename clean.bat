@@ -1,4 +1,8 @@
 del trunk\plugins\UPDATE
+rmdir trunk\plugins\pwstrength /s/q
+rmdir trunk\plugins\tinymce /s/q
+rmdir trunk\plugins\settings /s/q
+rmdir trunk\plugins\custom_logo /s/q
 rmdir trunk\plugins\limit_skins /s/q
 rmdir trunk\plugins\login_info /s/q
 rmdir trunk\plugins\custom_login_logout /s/q
@@ -23,8 +27,6 @@ rmdir trunk\plugins\filters /s/q
 rmdir trunk\plugins\companyaddressbook /s/q
 rmdir trunk\plugins\compose_myroundcube /s/q
 rmdir trunk\plugins\db_config /s/q
-rmdir trunk\plugins\tasklist /s/q
-rmdir trunk\plugins\libcalendaring /s/q
 rmdir trunk\plugins\rc_identity /s/q
 rmdir trunk\plugins\regkey /s/q
 rmdir trunk\plugins\package_xml /s/q
@@ -48,6 +50,15 @@ rmdir trunk\plugins\google_ads /s/q
 rmdir trunk\plugins\summary /s/q
 rmdir trunk\plugins\compose_in_taskbar /s/q
 rmdir trunk\plugins\detach_attachments /s/q
+rmdir trunk\plugins\qtip /s/q
+rmdir trunk\plugins\fancybox /s/q
+rmdir trunk\plugins\vkeyboard /s/q
+rmdir trunk\plugins\http_request /s/q
+rmdir trunk\plugins\gibberish /s/q
+rmdir trunk\plugins\carddav /s/q
+rmdir trunk\plugins\captcha /s/q
+rmdir trunk\plugins\timepicker /s/q
+rmdir trunk\plugins\qtip /s/q
 rmdir trunk\plugins\scheduled_sending /s/q
 rmdir trunk\plugins\vcard_attach /s/q
 rmdir trunk\plugins\hmail_autoresponder /s/q
@@ -179,6 +190,16 @@ mkdir trunk\plugins\captcha\temp
 rmdir trunk\plugins\compose_attach /s/q
 rmdir trunk\plugins\vcard_attachments /s/q
 rmdir trunk\plugins\detach_attachments\dl /s/q
+rmdir trunk\plugins\moreuserinfo /s/q
+rmdir trunk\plugins\http_auth /s/q
+rmdir trunk\plugins\userprofile /s/q
+rmdir trunk\plugins\recaptcha /s/q
+rmdir trunk\plugins\myrc_navigation /s/q
+rmdir trunk\plugins\password_plus /s/q
+rmdir trunk\plugins\savepassword /s/q
+rmdir trunk\archivefolder /s/q
+rmdir trunk\vkeyboard /s/q/
+rmdir trunk\persistent_login /s/q
 del trunk\plugins\.htaccess
 del trunk\plugins\robots.txt
 del trunk\plugins\dblog\config.inc.php
