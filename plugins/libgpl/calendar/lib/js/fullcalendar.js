@@ -4021,6 +4021,9 @@ function AgendaEventRenderer() {
 
 		var cur_time = new Date();
 		var offset_rc = rcmail.env.libcal_settings.timezone;
+		if (rcmail.env.libcal_settings.dst == 1) {
+		  offset_rc += 1;
+		}
 		var offset_client = - cur_time.getTimezoneOffset() / 60;
 		var offset_adjust = - (offset_client - offset_rc);
 		

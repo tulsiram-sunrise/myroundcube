@@ -1,6 +1,5 @@
 var mh_cur_row;
-
-$(document).ready(function() {
+$(window).load(function() {
   if(window.rcmail) {
     $('.color').each(function(){
       $(this).blur(function(){
@@ -22,7 +21,6 @@ $(document).ready(function() {
       }
     });  
 
-  
     $('.mh_delete').on('click', function() {
       mh_delete(this);
     });

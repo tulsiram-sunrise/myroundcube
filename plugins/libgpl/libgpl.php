@@ -18,8 +18,8 @@ class libgpl extends rcube_plugin
   static private $plugin = 'libgpl';
   static private $author = 'myroundcube@mail4us.net';
   static private $authors_comments = '<a href="http://myroundcube.com/myroundcube-plugins/helper-plugin?libgpl" target="_blank">Documentation</a>';
-  static private $version = '1.1.42';
-  static private $date = '03-05-2014';
+  static private $version = '1.1.50';
+  static private $date = '25-05-2014';
   static private $licence = 'GPL';
   static private $requirements = array(
     'Roundcube' => '1.1',
@@ -54,12 +54,6 @@ class libgpl extends rcube_plugin
           'attendeeplaceholder' => 'calendar',
           'events' => 'calendar',
           'tasks' => 'calendar',
-          'calendar_kolab' => 'calendar',
-          'calendar_database' => 'calendar',
-          'calendar_caldav' => 'calendar',
-          'calendar_ical' => 'calendar',
-          'calendar_webcal' => 'calendar',
-          'calendar_google_xml' => 'calendar',
           'errorimportingtask' => 'calendar',
           'treat_as_allday' => 'calendar',
           'hours' => 'calendar',

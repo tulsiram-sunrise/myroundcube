@@ -910,7 +910,6 @@ class caldav_driver extends database_driver
                 $this->_sync_calendar($cal_id, true);
             }
         }
-        
         return $result ? $obj_id : $result;
     }
 
@@ -1138,14 +1137,21 @@ class caldav_driver extends database_driver
             if($update['remote_event']['_type'] == 'event')
             {
                 // local event -> update event
-                if(isset($update["local_event"]))
+                if(isset($update['local_event']))
                 {
-                    $local_event = (array)$update["local_event"];
-                    unset($local_event["attachments"]);
-
-                    if(parent::edit_event($update["remote_event"] + $local_event))
+                    $local_event = (array)$update['local_event'];
+                    unset($local_event['attachments']);
+                    $start_tz = $update['remote_event']['start']->getTimezone(); // ToDo: Support different Timezones for start and end
+                    $end_tz = $update['remote_event']['end']->getTimezone();
+                    if($start_tz->getName() != $end_tz->getName())
                     {
-                        $event_id = $update["local_event"]["id"];
+                        $update['remote_event']['start']->setTimezone(new DateTimeZone($end_tz->getName()));
+                    }
+                    $update['remote_event']['tzname'] = $update['remote_event']['start']->getTimezone();
+                    $update['remote_event']['tzname'] = $update['remote_event']['tzname']->getName();
+                    if(parent::edit_event($update['remote_event'] + $local_event))
+                    {
+                        $event_id = $update['local_event']['id'];
                         self::debug_log("Updated event \"$event_id\".");
 
                         $props = array(
@@ -1166,7 +1172,15 @@ class caldav_driver extends database_driver
                 // no local event -> create event
                 else
                 {
-                    $event_id = parent::new_event($update["remote_event"]);
+                    $start_tz = $update['remote_event']['start']->getTimezone();
+                    $end_tz = $update['remote_event']['end']->getTimezone();
+                    if($start_tz->getName() != $end_tz->getName())
+                    {
+                        $update['remote_event']['start']->setTimezone(new DateTimeZone($end_tz->getName()));
+                    }
+                    $update['remote_event']['tzname'] = $update['remote_event']['start']->getTimezone(); // ToDo: Support different Timezones for start and end
+                    $update['remote_event']['tzname'] = $update['remote_event']['tzname']->getName();
+                    $event_id = parent::new_event($update['remote_event']);
 
                     // check for attachments (otherwise they will be lost)
                     $result = $this->rc->db->limitquery(
@@ -1489,6 +1503,12 @@ class caldav_driver extends database_driver
             if($old_event == null)
             {
                 $old_event = parent::get_master($event);
+                
+                if($old_event['categories'] && is_string($old_event['categories']))
+                {
+                    $old_event['categories'] = explode(',', $old_event['categories']);
+                }
+                
                 $old_event = $this->_save_preprocess($old_event);
             }
 
@@ -1496,6 +1516,10 @@ class caldav_driver extends database_driver
             {
                 // Get updates event and push to caldav.
                 $event = parent::get_master(array('id' => $event_id));
+                if($event['categories'] && is_string($event['categories']))
+                {
+                    $event['categories'] = explode(',', $event['categories']);
+                }
                 $event = $this->_save_preprocess($event);
                 $sync_client = $this->sync_clients[$cal_id];
                 $props_id = $event['current']['recurrence_id'] ? (int)$event['current']['recurrence_id'] : $event_id;
@@ -1832,33 +1856,39 @@ class caldav_driver extends database_driver
             if(preg_match('#(http|https)://[p0-9]*\-caldav\.icloud\.com/[0-9]*/calendars/(home|tasks)#i', $event['props']['url']))
             {
                 $tz = new DateTimezone('UTC');
+            }
+            else
+            {
+                $tz = $event['tzname'] ? new DateTimezone($event['tzname']) : $this->cal->timezone;
                 $event['start']->setTimezone($tz);
                 $event['end']->setTimezone($tz);
-                if($event['recurrence_date'])
+            }
+            $event['start']->setTimezone($tz);
+            $event['end']->setTimezone($tz);
+            if($event['recurrence_date'])
+            {
+                $event['recurrence_date'] = $event['recurrence_date']->setTimezone($tz);
+            }
+            if(is_array($event['recurrence']) && is_array($event['recurrence']['RDATE']))
+            {
+                foreach($event['recurrence']['RDATE'] as $idx => $rdate)
                 {
-                    $event['recurrence_date'] = $event['recurrence_date']->setTimezone($tz);
+                    $event['recurrence']['RDATE'][$idx] = $event['recurrence']['RDATE'][$idx]->setTimezone($tz);
                 }
-                if(is_array($event['recurrence']) && is_array($event['recurrence']['RDATE']))
+            }
+            if(is_array($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS']))
+            {
+                foreach($event['recurrence']['EXCEPTIONS'] as $idx => $exception)
                 {
-                    foreach($event['recurrence']['RDATE'] as $idx => $rdate)
-                    {
-                        $event['recurrence']['RDATE'][$idx] = $event['recurrence']['RDATE'][$idx]->setTimezone($tz);
-                    }
+                    $event['recurrence']['EXCEPTIONS'][$idx]['start'] = $event['recurrence']['EXCEPTIONS'][$idx]['start']->setTimezone($tz);
+                    $event['recurrence']['EXCEPTIONS'][$idx]['end'] = $event['recurrence']['EXCEPTIONS'][$idx]['end']->setTimezone($tz);
                 }
-                if(is_array($event['recurrence']) && is_array($event['recurrence']['EXCEPTIONS']))
+            }
+            if(is_array($event['recurrence']) && is_array($event['recurrence']['EXDATE']))
+            {
+                foreach($event['recurrence']['EXDATE'] as $idx => $exdate)
                 {
-                    foreach($event['recurrence']['EXCEPTIONS'] as $idx => $exception)
-                    {
-                        $event['recurrence']['EXCEPTIONS'][$idx]['start'] = $event['recurrence']['EXCEPTIONS'][$idx]['start']->setTimezone($tz);
-                        $event['recurrence']['EXCEPTIONS'][$idx]['end'] = $event['recurrence']['EXCEPTIONS'][$idx]['end']->setTimezone($tz);
-                    }
-                }
-                if(is_array($event['recurrence']) && is_array($event['recurrence']['EXDATE']))
-                {
-                    foreach($event['recurrence']['EXDATE'] as $idx => $exdate)
-                    {
-                        $event['recurrence']['EXDATE'][$idx] = $event['recurrence']['EXDATE'][$idx]->setTimezone($tz);
-                    }
+                    $event['recurrence']['EXDATE'][$idx] = $event['recurrence']['EXDATE'][$idx]->setTimezone($tz);
                 }
             }
         }

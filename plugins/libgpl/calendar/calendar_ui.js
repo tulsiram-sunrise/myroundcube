@@ -22,6 +22,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+function calendar_timezonepicker_opened(props)
+{
+  if (props.url.indexOf('tzpicker.php') > -1) {
+    rcmail.env.calendar_timezonepicker = props.handle;
+  }
+}
+
 // Roundcube calendar UI client class
 function rcube_calendar_ui(settings)
 {
@@ -277,6 +284,7 @@ function rcube_calendar_ui(settings)
     {
       var $dialog = $("#eventshow").removeClass().addClass('uidialog');
       var calendar = event.calendar && me.calendars[event.calendar] ? me.calendars[event.calendar] : { editable:false };
+      var tags = '';
 
       me.selected_event = event;
 
@@ -302,11 +310,30 @@ function rcube_calendar_ui(settings)
       
       if (event.alarms && event.alarms_text)
         $('#event-alarm').show().children('.event-text').html(Q(event.alarms_text));
-      
+      if (event.categories && event.categories.length) {
+        var ii = 0;
+        var iii = 0;
+        var items = event.categories.split(', ');
+        var title = items.join(', ');
+        tags += '<span class="event-text"><label>' + rcmail.gettext('categories', 'calendar') + '</label>';
+        for (var i in items) {
+          ii++;
+          tags += '<span class="tag-element">' + items[i] + '</span>';
+          if (ii == 3) {
+            if (iii == 1) {
+              tags += '&nbsp;<span title="' + title + '">...</span></span>';
+              break;
+            }
+            tags += '</span><br /><br /><span class="event-text"><label></label>';
+            ii = 0;
+            iii ++;
+          }
+        }
+        tags += '</span>';
+        $('#event-categories').show().html(tags);
+      }
       if (calendar.name)
         $('#event-calendar').show().children('.event-text').html(Q(calendar.name)).removeClass().addClass('event-text').addClass('cal-'+calendar.id);
-      if (event.categories)
-        $('#event-category').show().children('.event-text').html(Q(event.categories)).removeClass().addClass('event-text cat-'+String(event.categories).replace(rcmail.identifier_expr, ''));
       if (event.free_busy)
         $('#event-free-busy').show().children('.event-text').html(Q(rcmail.gettext(event.free_busy, 'calendar')));
       if (event.priority > 0) {
@@ -455,32 +482,65 @@ function rcube_calendar_ui(settings)
       var location = $('#edit-location').val(event.location || '');
       var description = $('#edit-description').html(event.description || '');
       var vurl = $('#edit-url').val(event.vurl || '');
-      var categories = $('#edit-categories').val(event.categories);
       var calendars = $('#edit-calendar').val(event.calendar);
       var freebusy = $('#edit-free-busy').val(event.free_busy);
       var priority = $('#edit-priority').val(event.priority);
       var sensitivity = $('#edit-sensitivity').val(event.sensitivity);
-      
+      if (event.tzadjust && event.tzadjust != 0) {
+        event.start = new Date(event.start.getTime() + event.tzadjust * 1000);
+        event.end = new Date(event.end.getTime() + event.tzadjust * 1000);
+      }
       var duration = Math.round((event.end.getTime() - event.start.getTime()) / 1000);
       var startdate = $('#edit-startdate').val($.fullCalendar.formatDate(event.start, settings['date_format'])).data('duration', duration);
       var starttime = $('#edit-starttime').val($.fullCalendar.formatDate(event.start, settings['time_format'])).show();
       var enddate = $('#edit-enddate').val($.fullCalendar.formatDate(event.end, settings['date_format']));
       var endtime = $('#edit-endtime').val($.fullCalendar.formatDate(event.end, settings['time_format'])).show();
       var allday = $('#edit-allday').get(0);
-      var notify = $('#edit-attendees-donotify').get(0);
-      var invite = $('#edit-attendees-invite').get(0);
-      notify.checked = has_attendees(event), invite.checked = true;
-      
       // Begin mod by Rosali (https://issues.kolab.org/show_bug.cgi?id=3481)
       if (event.allDay && !event.allDayfake) {
-      // End mod by Rosali
         starttime.val("12:00").hide();
         endtime.val("13:00").hide();
         allday.checked = true;
+        $('.tzname').hide();
+         $('.localtime').show();
       }
       else {
         allday.checked = false;
+        $('.tzname').show();
+        $('.localtime').hide();
       }
+      // End mod by Rosali
+      // Start mod by Rosali (timezone)
+      var tzname_onclick = 'cal.event_edit_timezone(this, event, $(\'#val-tzname\').val(), $(this).offset().top, $(this).offset().left, $(this).width()); return false;';
+      var tzname_full = event.tzname ? event.tzname : rcmail.env.timezone;
+      if (tzname_full == 'UTC' && event.allDay) {
+        tzname_full = rcmail.env.timezone;
+      }
+      var tzname_disp = tzname_full.replace('_', ' ');
+      if (tzname_disp.length > 13) {
+        tzname_disp = tzname_disp.substr(0, 10) + '...';
+      }
+      tzname_disp = $('.tzname').html('<a title="' + tzname_full.replace('_', ' ') + '" class="tzname_disp" href="#" onclick="' + tzname_onclick + '">' + tzname_disp + '</a>');
+      $('#val-tzname').removeData();
+      $('#val-tzname').data(event);
+
+      var tzname_val = $('#val-tzname').val(event.tzname ? event.tzname : rcmail.env.timezone);
+      $('#edit-allday').click(function() {
+        if (this.checked) {
+          $('.tzname').hide();
+          $('.localtime').show();
+          $('#val-tzname').val('UTC');
+        }
+        else {
+          $('.tzname').show();
+          $('.localtime').hide();
+          $('#val-tzname').val(rcmail.env.timezone);
+        }
+      });
+      // End mod by Rosali
+      var notify = $('#edit-attendees-donotify').get(0);
+      var invite = $('#edit-attendees-invite').get(0);
+      notify.checked = has_attendees(event), invite.checked = true;
       
       // Begin mod by Rosali (disable GUI element for recurring events)
       if(event.recurrence || event.recurrence_id){
@@ -527,11 +587,6 @@ function rcube_calendar_ui(settings)
       
       // enable/disable alarm property according to backend support
       $('#edit-alarms')[(calendar.alarms ? 'show' : 'hide')]();
-
-      // check categories drop-down: add value if not exists
-      if (event.categories && !categories.find("option[value='"+event.categories+"']").length) {
-        $('<option>').attr('value', event.categories).text(event.categories).appendTo(categories).prop('selected', true);
-      }
 
       // set recurrence form
       var recurrence, interval, rrtimes, rrenddate;
@@ -684,16 +739,20 @@ function rcube_calendar_ui(settings)
           return false;
         }
         
+        var tzname = $('#val-tzname').val();
+        
         // post data to server
         var data = {
           calendar: event.calendar,
+          type: 'event',
           start: date2servertime(start),
           end: date2servertime(end),
+          tzname: tzname ? tzname : rcmail.env.timezone,
           allday: allday.checked?1:0,
           title: title.val(),
           description: description.val(),
           location: location.val(),
-          categories: categories.val(),
+          categories: [],
           vurl: vurl.val(),
           free_busy: freebusy.val(),
           priority: priority.val(),
@@ -704,6 +763,12 @@ function rcube_calendar_ui(settings)
           deleted_attachments: rcmail.env.deleted_attachments,
           attachments: []
         };
+        
+        $('input[name*="categories"]').each(function(){
+          if ($(this).val() != '') {
+            data.categories.push($(this).val());
+          }
+        });
 
         // serialize alarm settings
         // TODO: support multiple alarm entries
@@ -824,7 +889,26 @@ function rcube_calendar_ui(settings)
       // hack: set task to 'calendar' to make all dialog actions work correctly
       var comm_path_before = rcmail.env.comm_path;
       rcmail.env.comm_path = comm_path_before.replace(/_task=[a-z]+/, '_task=calendar');
-
+        
+      var tagline = $(rcmail.gui_objects.edittagline).empty();
+      if (event.categories) {
+        event.categories = event.categories.split(', ');
+      }
+      $.each(typeof event.categories == 'object' && event.categories.length ? event.categories : [''], function(i, val){
+        $('<input>')
+          .attr('name', 'categories[]')
+          .addClass('tag')
+          .val(val)
+          .appendTo(tagline);
+      });
+      $('input.tag', rcmail.gui_objects.edittagline).tagedit({
+        animSpeed: 100,
+        allowEdit: false,
+        checkNewEntriesCaseSensitive: false,
+        autocompleteOptions: { source: rcmail.env.calendar_categories, minLength: 0 },
+        texts: { removeLinkTitle: rcmail.gettext('delete') }
+      });
+      
       var editform = $("#eventedit");
       
       // open jquery UI dialog
@@ -840,6 +924,11 @@ function rcube_calendar_ui(settings)
           rcmail.ksearch_destroy();
           freebusy_data = {};
           rcmail.env.comm_path = comm_path_before;  // restore comm_path
+          // Begin mod by Rosali (timezone)
+          if (typeof rcmail.env.calendar_timezonepicker == 'object' && rcmail.env.calendar_timezonepicker.closed == false) {
+            rcmail.env.calendar_timezonepicker.close();
+          }
+          // End mod by Rosali
         },
         buttons: buttons,
         minWidth: 500,
@@ -2304,6 +2393,67 @@ function rcube_calendar_ui(settings)
       fc.fullCalendar('removeEvents', function(e){ return e.temp; });
     };
     
+    // Begin mod by Rosali (timezone)
+    this.event_edit_timezone = function(obj, evt, tzname, top, left, width)
+    {
+      if (typeof rcmail.env.calendar_timezonepicker == 'object') {
+        if (rcmail.env.calendar_timezonepicker.closed == false) {
+          rcmail.env.calendar_timezonepicker.focus();
+          return;
+        }
+        else {
+          rcmail.env.calendar_timezonepicker = null;
+        }
+      }
+      var event = $('#val-tzname').data();
+      var latitude = event.tzinfo ? Math.round(event.tzinfo.latitude) : 0;
+      var longitude = event.tzinfo ? Math.round(event.tzinfo.longitude) : 0;
+      var tzadjust = (event.tzadjust ? (event.tzadjust / 60 + event.start.getTimezoneOffset()) : event.start.getTimezoneOffset()) * -1;
+      var locale = rcmail.env.locale.split('_');
+      locale = locale[0];
+      locale = locale ? locale : 'en';
+      var dialog_height = 500;
+      $('.ui-dialog').each(function(){
+        if($(this).is(':visible')){
+          height = $(this).height();
+          return false;
+        }
+      });
+      top = Math.round(top - Math.round(dialog_height / 2));
+      left = Math.round(left + width + 10);
+      var favicon = '../../../' + $($('link').get(0)).attr('href');
+      var url = 'plugins/libgpl/timezonepicker/tzpicker.php?tzname=' + tzname.replace(' ', '_');
+      url += '&latitude=' + latitude;
+      url += '&longitude=' + longitude;
+      url += '&lang=' + locale;
+      url += '&zoom=2';
+      url += '&minzoom=2';
+      url += '&maxzoom=6';
+      url += '&width=' + dialog_height + '&height=' + dialog_height + '&top=' + top + '&left=' + left;
+      url += '&title=' + urlencode(rcmail.gettext('selecttimezone', 'libgpl')) + '&reset=' + urlencode(rcmail.gettext('reset', 'libgpl'));
+      url += '&callback=opener.cal.event_edit_timezone_callback';
+      url += '&unload=1&favicon=' + favicon + '&_t=' + new Date().getTime();
+      rcmail.open_window(url, true, false);
+    };
+    
+    this.event_edit_timezone_callback = function(olsonName, utcOffset, tzName, tzAdjust)
+    {
+      var event = $('#val-tzname').data();
+      var duration = Math.round((event.end.getTime() - event.start.getTime()) / 1000);
+      var startdate = $('#edit-startdate').val($.fullCalendar.formatDate(new Date(event.start.getTime() + tzAdjust * 1000 * 60), settings['date_format'])).data('duration', duration);
+      var starttime = $('#edit-starttime').val($.fullCalendar.formatDate(new Date(event.start.getTime() + tzAdjust * 1000 * 60), settings['time_format']));
+      var enddate = $('#edit-enddate').val($.fullCalendar.formatDate(new Date(event.end.getTime() + tzAdjust * 1000 * 60), settings['date_format']));
+      var endtime = $('#edit-endtime').val($.fullCalendar.formatDate(new Date(event.end.getTime() + tzAdjust * 1000 * 60), settings['time_format'])).show();
+      var olsonName_disp = olsonName;
+      if(olsonName_disp.length > 13){
+        olsonName_disp = olsonName_disp.substr(0, 10) + '...';
+      }
+      $('.tzname_disp').text(olsonName_disp.replace('_', ' '));
+      $('.tzname_disp').attr('title', olsonName.replace('_', ' '));
+      $('#val-tzname').val(olsonName.replace(' ', '_'));
+    }
+    // End mod by Rosali
+        
     this.add_update_event = function(event, source)
     {
       event.temp = false;
@@ -3071,10 +3221,12 @@ function rcube_calendar_ui(settings)
 
 // Begin mod by Rosali
 var calendar_ui_event_show_dialog;
+var cal;
 // End mod by Rosali
 
 /* calendar plugin initialization */
 window.rcmail && rcmail.addEventListener('init', function(evt) {
+  rcmail.addEventListener('openwindow', 'calendar_timezonepicker_opened');
   // configure toolbar buttons
   rcmail.register_command('addevent', function(){ cal.add_event(); }, true);
   rcmail.register_command('print', function(){ cal.print_calendars(); }, true);
@@ -3101,7 +3253,7 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
   rcmail.addEventListener('requestrefresh', function(q){ return cal.before_refresh(q); });
 
   // let's go
-  var cal = new rcube_calendar_ui($.extend(rcmail.env.calendar_settings, rcmail.env.libcal_settings));
+  cal = new rcube_calendar_ui($.extend(rcmail.env.calendar_settings, rcmail.env.libcal_settings));
   
   $(window).resize(function(e) {
     // check target due to bugs in jquery

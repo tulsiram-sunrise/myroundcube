@@ -216,12 +216,15 @@ class calendar_core extends rcube_plugin // Mod by Rosali
       }
       foreach ($this->get_drivers() as $driver_name => $driver) {
         foreach ($preinstalled_calendars as $cal) {
-          if (method_exists($driver, 'insert_default_calendar')) {
+          if (get_class($driver) == ($cal['driver'] . '_driver') && method_exists($driver, 'insert_default_calendar')) {
             if ($cal['is_default']) {
               $cal['events'] = 1;
             }
             $success = $driver->insert_default_calendar($cal);
             if (!$success) {
+              write_log('errors', 'Unable to add default calendar...');
+              write_log('errors', get_class($driver));
+              write_log('errors', $cal);
               $error_msg = $this->gettext('unabletoadddefaultcalendars') . ($driver && $driver->last_error ? ': ' . $driver->last_error :'');
               $this->rc->output->show_message($error_msg, 'error');
             }
@@ -983,7 +986,7 @@ class calendar_core extends rcube_plugin // Mod by Rosali
           $event['id'] = $event['uid'];
           $this->cleanup_event($event);
         }
-        $reload = $success && $event['recurrence'] ? 2 : 1;
+        $reload = $success && ($event['recurrence'] || $event['tzname'] != $this->timezone->getName()) ? 2 : 1;
         break;
 
       case "edit":
@@ -1009,7 +1012,7 @@ class calendar_core extends rcube_plugin // Mod by Rosali
             $this->cleanup_event($event);
         }
         // End mod by Rosali
-        $reload = $success && ($event['recurrence'] || $event['recurrence_id'] || $event['_savemode'] || $event['_fromcalendar']) ? 2 : 1; // Mod by Rosali (trigger complete reload if there is a recurrence_id)
+        $reload = $success && ($event['recurrence'] || $event['recurrence_id'] || $event['tzname'] != $this->timezone->getName() || $event['_savemode'] || $event['_fromcalendar']) ? 2 : 1; // Mod by Rosali (trigger complete reload if there is a recurrence_id)
         break;
 
       case "resize":
@@ -1372,6 +1375,7 @@ class calendar_core extends rcube_plugin // Mod by Rosali
 
         $event['_owner'] = $user_email;
         $event['calendar'] = $calendar;
+
         if ($driver->new_event($event)) {
           $count++;
         }
@@ -1572,6 +1576,19 @@ class calendar_core extends rcube_plugin // Mod by Rosali
    */
   private function _client_event($event, $addcss = false)
   {
+    $cal_tz = $this->timezone->getName();
+    if (!$event['allday'] && $event['tzname'] && $cal_tz != $event['tzname']) {
+      $cal_tz = new DateTimeZone($cal_tz);
+      $event_tz = new DateTimeZone($event['tzname']);
+      $event['tzinfo'] = $event_tz->getLocation();
+      $cal_dt = new DateTime(date('Y-m-d H:i:s', $event['start']->format('U')), $cal_tz);
+      $event_dt = new DateTime(date('Y-m-d H:i:s', $event['start']->format('U')), $event_tz);
+      $event['tzadjust'] = - ($cal_dt->getOffset() - $event_dt->getOffset());
+    }
+    else {
+      $event['tzadjust'] = 0;
+    }
+    
     // compose a human readable strings for alarms_text and recurrence_text
     if ($event['alarms'])
       $event['alarms_text'] = libcalendaring::alarms_text($event['alarms']);
@@ -1914,8 +1931,9 @@ class calendar_core extends rcube_plugin // Mod by Rosali
   private function prepare_event(&$event, $action)
   {
     // convert dates into DateTime objects in user's current timezone
-    $event['start'] = new DateTime($event['start'], $this->timezone);
-    $event['end'] = new DateTime($event['end'], $this->timezone);
+    $tz = $event['tzname'] ? new DateTimeZone($event['tzname']) : $this->timezone;
+    $event['start'] = new DateTime($event['start'], $tz);
+    $event['end'] = new DateTime($event['end'], $tz);
     
     // start/end is all we need for 'move' action (#1480)
     if ($action == 'move') {

@@ -357,26 +357,46 @@ class tasklist_database_driver extends tasklist_driver
                 ),
                 $datefrom
            );
+
            while ($result && ($rec = $this->rc->db->fetch_assoc($result))) {
                 $has_children = $this->get_childs(array('id' => $rec['task_id']), true);
                 if (!empty($has_children)) {
-                  $rec['has_children'] = true;
+                    $rec['has_children'] = true;
                 }
                 if ($rec['startdate'] && $rec['recurrence'] && $virtual) {
                     $has_parent = false;
                     if (!$this->_is_exception($rec)) {
-                      $has_parent = true;
-                      $tasks[] = $this->_read_postprocess($rec);
+                        $has_parent = true;
+                        $tasks[] = $this->_read_postprocess($rec);
+                    }
+                    else if($rec['startdate']){
+                        $has_parent = true;
+                        $rec = $this->_read_postprocess($rec);
+                        $engine = libcalendaring::get_recurrence();
+                        $rec['start'] = new DateTime($rec['startdate'] . ($rec['starttime'] ? (' ' . $rec['starttime']) : ''), $this->plugin->timezone);
+                        $engine->init($rec['recurrence'], $rec['start']->format('Y-m-d H:i:s'));
+                        $next_start = $engine->next();
+                        $rec['startdate'] = $next_start->format('Y-m-d');
+                        $rec['starttime'] = $next_start->format('H:i');
+                        if ($rec['date']) {
+                            $rec['due'] = new DateTime($rec['date'] . ($rec['time'] ? (' ' . $rec['time']) : ''), $this->plugin->timezone);
+                            $engine->init($rec['recurrence'], $rec['due']->format('Y-m-d H:i:s'));
+                            $next_due = $engine->next();
+                            $rec['date'] = $next_due->format('Y-m-d');
+                            $rec['time'] = $next_due->format('H:i');
+                        }
+                        unset($rec['start'], $rec['due']);
+                        $tasks[] = $rec;
                     }
                     $clones = (array) $this->_get_recurrences($rec, $has_parent);
                     $tasks = array_merge($tasks, $clones);
                 }
                 else {
                     if ($rec['parent_id']) {
-                      $parent = $this->get_task(array('id' => $rec['parent_id']));
-                      if ($this->_is_exception($parent)) {
-                        unset($rec['parent_id']);
-                      }
+                        $parent = $this->get_task(array('id' => $rec['parent_id']));
+                        if ($this->_is_exception($parent)) {
+                            unset($rec['parent_id']);
+                        }
                     }
                     $tasks[] = $this->_read_postprocess($rec);
                 }
@@ -724,7 +744,7 @@ class tasklist_database_driver extends tasklist_driver
     {
         // check list permissions
         $list_id = $prop['list'] ? $prop['list'] : reset(array_keys($this->lists));
-
+        
         if (!$this->lists[$list_id] || $this->lists[$list_id]['readonly'])
             return false;
         
@@ -1327,7 +1347,7 @@ class tasklist_database_driver extends tasklist_driver
             $exdate->setTimezone($this->plugin->timezone);
             $result = $this->rc->db->query(
               "SELECT task_id FROM " . $this->db_tasks . "
-              WHERE recurrence_id = ? AND exdate = ? AND tasklist_id = ?",
+              WHERE recurrence_id = ? AND exdate = ? AND tasklist_id = ? AND recurrence_id <> ?",
               $task['id'],
               $exdate->format(self::DB_DATE_FORMAT),
               $task['list']
@@ -1342,7 +1362,8 @@ class tasklist_database_driver extends tasklist_driver
                 $ts_changed,
                 0,
                 $exists['task_id'],
-                $task['list']
+                $task['list'],
+                0
               );
             }
             else {
@@ -1566,6 +1587,7 @@ class tasklist_database_driver extends tasklist_driver
     }
     
     $task_id = $task['id'] ? $task['id'] : $task['task_id'];
+    $task_id = current(explode('-', $task_id));
     $list_id = $task['list'] ? $task['list'] : $task['tasklist_id'];
     
     $result = $this->rc->db->limitquery(
@@ -1577,6 +1599,7 @@ class tasklist_database_driver extends tasklist_driver
       $list_id,
       $task_id
     );
+
     if ($this->rc->db->fetch_assoc($result)) {
       return true;
     }

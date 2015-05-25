@@ -75,7 +75,7 @@ class calendar_ui
     $this->cal->register_handler('plugin.calendar_list', array($this, 'calendar_list'));
     $this->cal->register_handler('plugin.calendar_select', array($this, 'calendar_select'));
     $this->cal->register_handler('plugin.identity_select', array($this, 'identity_select'));
-    $this->cal->register_handler('plugin.category_select', array($this, 'category_select'));
+    $this->cal->register_handler('plugin.category_edit', array($this, 'category_edit'));
     $this->cal->register_handler('plugin.freebusy_select', array($this, 'freebusy_select'));
     $this->cal->register_handler('plugin.priority_select', array($this, 'priority_select'));
     $this->cal->register_handler('plugin.sensitivity_select', array($this, 'sensitivity_select'));
@@ -112,6 +112,7 @@ class calendar_ui
    */
   public function addJS()
   {
+    $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/jquery_tagedit/jquery.tagedit.js')));
     $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/calendar/calendar_ui.js')));
     $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/calendar/lib/js/fullcalendar.js')));
     $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/calendar/lib/js/jquery.miniColors.min.js')));
@@ -188,8 +189,13 @@ class calendar_ui
       if ($prop['class_name'])
         $class .= ' '.$prop['class_name'];
 
+      $disabled = array();
+      if (!$prop['unsubscribe']) {
+        $disabled = array('disabled' => 'disabled');
+      }
+
       $li .= html::tag('li', array('id' => 'rcmlical' . $html_id, 'class' => $class),
-        ($prop['virtual'] ? '' : html::tag('input', array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active']), '') .
+        ($prop['virtual'] ? '' : html::tag('input', array_merge($disabled, array('type' => 'checkbox', 'name' => '_cal[]', 'value' => $id, 'checked' => $prop['active'])), '') .
         html::span('handle', '&nbsp;')) .
         html::span(array('class' => 'calname', 'title' => $title), $prop['listname']));
     }
@@ -263,29 +269,21 @@ class calendar_ui
 
     return $select->show(null);
   }
-
-  /**
-   * Render a HTML select box to select an event category
-   */
-  function category_select($attrib = array())
+  
+  function category_edit($attrib = array())
   {
     $attrib['name'] = 'categories';
-    $select = new html_select($attrib);
-    $select->add('---', '');
-    // TODO: Categories are taken from kolab driver by default. Use categories from all available drivers.
-    // Begin Mod by Rosali (avoid duplicates)
     $categories = array();
     foreach ($this->cal->get_drivers() as $driver) {
       foreach (array_keys((array)$driver->list_categories()) as $cat) {
         $categories[$cat] = $cat; // filter duplicates
       }
     }
-    foreach($categories as $cat) {
-      $select->add($cat, $cat);
-    }
-    // End mod by Rosali
-    
-    return $select->show(null);
+    $this->rc->output->set_env('calendar_categories', array_keys($categories));
+    $this->rc->output->add_gui_object('edittagline', $attrib['id']);
+
+    $input = new html_inputfield(array('name' => 'categories[]', 'class' => 'tag'));
+    return html::div($attrib, $input->show(''));
   }
 
   /**
@@ -563,7 +561,7 @@ class calendar_ui
     foreach($this->cal->get_drivers() as $name => $driver)
     {
       $content .= html::tag('li', null, $this->rc->output->button(
-          array('label' => 'calendar.calendar_'.$name,
+          array('label' => 'libgpl.calendar_'.$name, // Mod by Rosali (use labels from libgpl)
                 'class' => 'active',
                 'prop' => json_encode(array('driver' => $name)),
                 'command' => 'calendar-create',

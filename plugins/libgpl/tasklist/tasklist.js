@@ -863,12 +863,15 @@ function rcube_tasklist_ui(settings)
         if (tags_title != '') {
           tags_title = tags_title.substr(0, tags_title.length -2);
         }
-
+        rec.title = text2html(Q(rec.title));
+        if (rec.isexception) {
+          rec.title = '<i title="' + rcmail.gettext('removeexception', 'libgpl') + '">' + rec.title + '</i>'
+        }
         var div = $('<div>').addClass('taskhead').html(
             '<div class="progressbar"><div class="progressvalue" style="width:' + (rec.complete * 100) + '%"></div></div>' +
-            '<input type="checkbox" name="completed[]" value="1" class="complete" aria-label="' + rcmail.gettext('complete','tasklist') + '" ' + (is_complete(rec) ? 'checked="checked" ' : '') + '/>' + 
-            '<span class="flagged"></span>' +
-            '<span class="title">' + text2html(Q(rec.title)) + '</span>' +
+            (rec.isexception ? '<input type="checkbox" class="complete" disabled />' : ('<input type="checkbox" name="completed[]" value="1" class="complete" aria-label="' + rcmail.gettext('complete','tasklist') + '" ' + (is_complete(rec) ? 'checked="checked" ' : '') + '/>')) + 
+            (rec.isexception ? '<span class="empty_flagged"></span>' : '<span class="flagged"></span>') +
+            '<span class="title">' + rec.title + '</span>' +
             '<span class="tags" title="' + tags_title + '">' +
             (rec.startdate ? '<span class="startdate">' + rec.startdate + (rec.starttime ? (' ' + rec.starttime) : ' 00:00') + '</span>' : '') +
             ((rec.startdatetime && (rec.startdatetime < new Date().getTime() / 1000 ) && (rec.status == 'NEEDS-ACTION' || !rec.status)) ? '<span class="taskstatus warning">' + rcmail.gettext('status-needs-action', 'tasklist') + '</span>' :
@@ -882,7 +885,7 @@ function rcube_tasklist_ui(settings)
             '<span class="alarms" style="display:none;">' + (rec.alarms ? rec.alarms : '') + '</span>' +
             '<span class="priority" style="display:none;">' + (rec.flagged ? rec.flagged : '') + '</span>' +
             '<span class="priority" style="display:none;">' + (rec.recurrence ? $(rec.recurrence).serialize() : '') + '</span>' +
-            '<a href="#" class="actions">V</a>'
+            (rec.isexception ? '' : '<a href="#" class="actions">V</a>')
             )
             .data('id', rec.id)
             .data('recurrence', rec.recurrence ? rec.recurrence : null); // pass recurrence object
@@ -1176,16 +1179,44 @@ function rcube_tasklist_ui(settings)
         var itags = get_inherited_tags(rec);
         var taglist = $('#task-tags')[(rec.tags && rec.tags.length || itags.length ? 'show' : 'hide')]().children('.task-text').empty();
         if (rec.tags && rec.tags.length) {
+            /* Begin mod by Rosali */
+            var ii = 0;
+            var iii = 0;
+            var html = '';
+            var title = rec.tags.join(', ');
+            var items = rec.tags;
+            html += '<span class="event-text"><label>' + rcmail.gettext('tags', 'tasklist') + '</label>';
+            for (var i in items) {
+                ii++;
+                html += '<span class="tag-element">' + items[i] + '</span>';
+                if (ii == 3) {
+                    if (iii == 1) {
+                        html += '&nbsp;<span title="' + title + '">...</span></span>';
+                        break;
+                    }
+                    html += '</span><br /><br /><span class="event-text"><label></label>';
+                    ii = 0;
+                    iii ++;
+                }
+            }
+            html += '</span>';
+            $('#task-tags').show().html(html);
+            /* End mod by Rosali */
+            /*
             $.each(rec.tags, function(i,val){
                 $('<span>').addClass('tag-element').html(Q(val)).appendTo(taglist);
             });
+            */
         }
 
         // append inherited tags
         if (itags.length) {
             $.each(itags, function(i,val){
-                if (!rec.tags || $.inArray(val, rec.tags) < 0)
+                if (!rec.tags || $.inArray(val, rec.tags) < 0) {
+                    var ii = 0;
+                    var iii = 0;
                     $('<span>').addClass('tag-element inherit').html(Q(val)).appendTo(taglist);
+                }
             });
             // re-sort tags list
             $(taglist).children().sortElements(function(a,b){

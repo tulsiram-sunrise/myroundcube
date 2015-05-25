@@ -24,7 +24,8 @@
  */
 
 require_once(INSTALL_PATH . 'plugins/libgpl/calendar/drivers/database/database_driver.php');
-require_once (INSTALL_PATH . 'plugins/libgpl/ical/ical_sync.php');
+require_once(INSTALL_PATH . 'plugins/libgpl/ical/ical_sync.php');
+require_once(INSTALL_PATH . 'plugins/libgpl/encryption/encryption.php');
 
 class ical_driver extends database_driver
 {

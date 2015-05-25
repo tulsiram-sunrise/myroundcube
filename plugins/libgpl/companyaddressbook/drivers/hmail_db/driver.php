@@ -5,7 +5,8 @@
  *
  ****************************/
  
-define('HMAIL_DB_VERSION', '5400');
+define('HMAIL_DB_VERSION_MIN', '5400');
+define('HMAIL_DB_VERSION_MAX', '5601');
 
 /* This driver supports (user_get must be supported) */
 function driver_get_backend(){
@@ -24,7 +25,7 @@ function hmail_db_connect(){
       return false;
     }
     $v = $db->fetch_assoc($result);
-    if($v['value'] == HMAIL_DB_VERSION){
+    if($v['value'] >= HMAIL_DB_VERSION_MIN && $v['value'] <= HMAIL_DB_VERSION_MAX){
       return $db;
     }
     else{
