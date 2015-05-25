@@ -101,7 +101,7 @@ class zipdownload_core extends rcube_plugin
         }
 
         foreach (array('eml', 'mbox', 'maildir') as $type) {
-            $menu[] = html::tag('li', null, $rcmail->output->button(array(
+            $menu[] = html::tag('li', array('id' => 'zipdownload-menu-' . $type), $rcmail->output->button(array( // Mod by Rosali (add id)
                     'command'  => "download-$type",
                     'label'    => "zipdownload.download$type",
                     'classact' => 'active',
@@ -261,7 +261,7 @@ class zipdownload_core extends rcube_plugin
                     fwrite($tmpfp, $header);
 
                     // Use stream filter to quote "From " in the message body
-                    stream_filter_register('mbox_filter', 'zipdownload_mbox_filter');
+                    stream_filter_register('mbox_filter', '_zipdownload_mbox_filter');
                     $filter = stream_filter_append($tmpfp, 'mbox_filter');
                     $imap->get_raw_body($uid, $tmpfp);
                     stream_filter_remove($filter);
@@ -361,7 +361,7 @@ class zipdownload_core extends rcube_plugin
     }
 }
 
-class zipdownload_mbox_filter extends php_user_filter
+class _zipdownload_mbox_filter extends php_user_filter
 {
     function filter($in, $out, &$consumed, $closing)
     {

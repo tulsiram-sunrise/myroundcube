@@ -1,6 +1,7 @@
 <?php
 $labels = array();
 $labels['calendar_caldav'] = 'CalDAV Calendar';
+$labels['calendar_caldav_local'] = 'Local CalDAV Calendar';
 $labels['calendar_kolab'] = 'Kolab Calendar';
 $labels['calendar_database'] = 'Local Calendar';
 $labels['calendar_ical'] = 'iCAL Calendar';
@@ -102,6 +103,7 @@ $labels['cal_notify_to'] = 'Recipient';
 $labels['events'] = 'Events';
 $labels['export'] = 'Export';
 $labels['custommail'] = 'Schedule a custom email';
+$labels['clickhere'] = 'click here';
 $labels['sounds'] = 'Sounds';
 $labels['play'] = 'play';
 $labels['nodefaultcalendar'] = 'Please choose a default calendar in calendar settings.';
@@ -118,4 +120,7 @@ $labels['detect'] = 'detect';
 $labels['basic']  = 'basic';
 $labels['digest'] = 'digest';
 $labels['cantdeletedefaultcalendar'] = 'You can\'t delete the default calendar.';
+$labels['selecttimezone'] = 'Select Timezone';
+$labels['reset'] = 'Reset';
+$labels['localtime'] = 'Local Time';
 ?>

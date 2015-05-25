@@ -10,6 +10,12 @@ div.uidialog {
 	display: none;
 }
 
+.ui-autocomplete {
+  position: absolute;
+  cursor: default;
+  z-index: 1000 !important;
+}
+
 #mainscreentasks {
   position: absolute;
   top: 45px;
@@ -516,6 +522,14 @@ div.boxtitle {
 
 .taskhead .title {
 	font-size: 12px;
+}
+
+.taskhead .empty_flagged {
+	display: inline-block;
+	visibility: hidden;
+	width: 16px;
+	height: 16px;
+	margin: -3px 1em 0 0;
 }
 
 .taskhead .flagged {

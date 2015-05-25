@@ -59,7 +59,9 @@ class tasklist_ui
             ), 'taskbar');
 
             $this->plugin->include_stylesheet($this->plugin->local_skin_path() . '/tasklist.css');
-            $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/tasklist/tasklist_base.js')));
+            if($this->rc->output->type == 'html'){
+              $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/tasklist/tasklist_base.js')));
+            }
         }
         
         $this->ready = true;
@@ -86,7 +88,7 @@ class tasklist_ui
         $this->plugin->register_handler('plugin.attachments_list', array($this, 'attachments_list'));
         $this->plugin->register_handler('plugin.filedroparea', array($this, 'file_drop_area'));
         
-        $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/tasklist/jquery.tagedit.js')));
+        $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/jquery_tagedit/jquery.tagedit.js')));
         $this->rc->output->add_header(html::tag('script', array('type' => 'text/javascript', 'src' => 'plugins/libgpl/tasklist/tasklist.js')));
     }
 

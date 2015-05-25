@@ -311,6 +311,7 @@ class caldav_client extends Sabre\DAV\Client
             // TODO: Remove this todo if we could ensure that those errors come not from incomplete event properties.
             //$err_rep = error_reporting(E_ERROR);
             $vcal = $this->libvcal->export(array($event));
+
             if (is_array($vcal))
                 $vcal = array_shift($vcal);
 

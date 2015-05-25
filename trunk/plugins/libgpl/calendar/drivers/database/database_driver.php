@@ -142,6 +142,15 @@ class database_driver extends calendar_driver
         }
       }
     }
+
+    if ($default_calendar = $this->rc->config->get('calendar_default_calendar', false)) {
+      if ($calendars[$default_calendar]['subscribed'] == '0') {
+        $sql = 'UPDATE ' . $this->_get_table($this->db_calendars) . ' SET subscribed=? WHERE calendar_id=?';
+        $this->rc->db->query($sql, 1, $default_calendar);
+      }
+      $calendars[$default_calendar]['unsubscribe'] = '0';
+    }
+
     return $calendars;
   }
   
@@ -420,7 +429,6 @@ class database_driver extends calendar_driver
       $event['list'] = $event['calendar'];
       return $tasks->create_task($event);
     }
-
     if (!$this->validate($event))
       return false;
 
@@ -428,13 +436,16 @@ class database_driver extends calendar_driver
       if ($event['calendar'] && !$this->calendars[$event['calendar']]) {
         return false;
       }
+
       if (!$event['calendar']) {
         $event['calendar'] = reset(array_keys($this->calendars));
       }
       $event['sequence'] = 0;
+
       $event = $this->_save_preprocess($event);
       
       $now = gmdate(self::DB_DATE_FORMAT);
+
       $this->rc->db->query(sprintf(
         "INSERT INTO " . $this->_get_table($this->db_events) . "
          (calendar_id, created, changed, uid, %s, %s, duration, tzname, all_day, recurrence, title, description, location, categories, url, free_busy, priority, sensitivity, attendees, alarms, notifyat)
@@ -449,7 +460,7 @@ class database_driver extends calendar_driver
         $event['allday'] ? $event['start']->format(self::DB_DATE_FORMAT_ALLDAY) : $event['start']->format(self::DB_DATE_FORMAT),
         $event['allday'] ? $event['end']->format(self::DB_DATE_FORMAT_ALLDAY) : $event['end']->format(self::DB_DATE_FORMAT),
         $event['duration'],
-        $event['allday'] ? 'UTC' : $this->cal->timezone->getName(),
+        $event['allday'] ? 'UTC' : ($event['tzname'] ? $event['tzname'] : $this->cal->timezone->getName()),
         intval($event['all_day']),
         $event['_recurrence'],
         strval($event['title']),
@@ -518,7 +529,13 @@ class database_driver extends calendar_driver
             return $this->new_event($event);
           
           case 'current':
-            $event['recurrence_date'] = new DateTime(date('Y-m-d', $event['start']->format('U')) . ' ' . date('H:i:s', $old['start']->format('U')), $this->cal->timezone);
+            if ($event['allday']) {
+              $tz = new DateTimeZone('UTC');
+            }
+            else {
+              $tz = $event['tzname'] ? new DateTimeZone($event['tzname']) : $this->cal->timezone;
+            }
+            $event['recurrence_date'] = new DateTime(date('Y-m-d', $event['start']->format('U')) . ' ' . date('H:i:s', $old['start']->format('U')), $tz);
             $event['uid'] = $old['uid'];
             $event['recurrence_id'] = $old['id'];
             $old = $this->get_master($event);
@@ -612,21 +629,40 @@ class database_driver extends calendar_driver
     $event['duration'] = $event['end']->format('U') - $event['start']->format('U');
 
     if ($event['allday']) {
+      $event['start']->setTimezone(new DateTimeZone('UTC'));
       $event['start']->_dateonly = true;
+      $event['start']->setDate($event['start']->format('Y'), $event['start']->format('m'), $event['start']->format('d'));
+      $event['start']->setTime(0, 0, 0);
+      $event['end']->setTimezone(new DateTimeZone('UTC'));
       $event['end']->_dateonly = true;
+      $event['end']->setDate($event['end']->format('Y'), $event['end']->format('m'), $event['end']->format('d'));
+      $event['end']->setTime(0, 0, 0);
       if ($event['recurrence_date']) {
+        $event['recurrence_date']->setTimezone(new DateTimeZone('UTC'));
         $event['recurrence_date']->_dateonly = true;
+        $event['recurrence_date']->setDate($event['recurrence_date']->format('Y'), $event['recurrence_date']->format('m'), $event['recurrence_date']->format('d'));
+        $event['recurrence_date']->setTime(0, 0, 0);
       }
       if (is_array($event['recurrence']) && is_array($event['recurrence']['RDATE'])) {
         foreach ($event['recurrence']['RDATE'] as $idx => $rdate) {
+          $event['recurrence']['RDATE'][$idx]->setTimezone(new DateTimeZone('UTC'));
           $event['recurrence']['RDATE'][$idx]->_dateonly = true;
+          $event['recurrence']['RDATE'][$idx]->setDate($rdate->format('Y'), $rdate->format('m'), $rdate->format('d'));
+          $event['recurrence']['RDATE'][$idx]->setTime(0, 0, 0);
         }
       }
       if (is_array($event['recurrence']) && is_array($event['recurrence']['EXDATE'])) {
         foreach ($event['recurrence']['EXDATE'] as $idx => $exdate) {
+          $event['recurrence']['EXDATE'][$idx]->setTimezone(new DateTimeZone('UTC'));
           $event['recurrence']['EXDATE'][$idx]->_dateonly = true;
+          $event['recurrence']['EXDATE'][$idx]->setDate($exdate->format('Y'), $exdate->format('m'), $exdate->format('d'));
+          $event['recurrence']['EXDATE'][$idx]->setTime(0, 0, 0);
         }
       }
+    }
+    
+    if ($event['categories'] && is_array($event['categories'])) {
+      $event['categories'] = implode(',', $event['categories']);
     }
     
     // compose vcalendar-style recurrencue rule from structured data
@@ -638,10 +674,10 @@ class database_driver extends calendar_driver
     if (isset($event['allday'])) {
       $event['all_day'] = $event['allday'] ? 1 : 0;
     }
-    
+
     // compute absolute time to notify the user
     $event['notifyat'] = $this->_get_notification($event, $action);
-    
+
     // process event attendees
     $_attendees = '';
     foreach ((array)$event['attendees'] as $attendee) {
@@ -674,7 +710,7 @@ class database_driver extends calendar_driver
           return $this->last_clone['notifyat'];
         }
       }
-      else if($event['start'] > new DateTime()) {
+      else if ($event['start'] > new DateTime()) {
         $alarm = libcalendaring::get_next_alarm($event);
       }
       if ($alarm['time']) {
@@ -732,7 +768,7 @@ class database_driver extends calendar_driver
         $this->rc->db->quote($changed),
         ($sql_set ? ', ' . join(', ', $sql_set) : '')
       ),
-      $event['allday'] ? 'UTC' : $this->cal->timezone->getName(),
+      $event['allday'] ? 'UTC' : ($event['tzname'] ? $event['tzname'] : $this->cal->timezone->getName()),
       $event['id']
     );
     $success = $this->rc->db->affected_rows($query);
@@ -822,7 +858,6 @@ class database_driver extends calendar_driver
   {
     if (empty($this->calendars))
       return;
-    
     // mark existing recurrence exceptions for deletion
     $this->rc->db->query(
       "UPDATE " . $this->_get_table($this->db_events) . "
@@ -837,8 +872,11 @@ class database_driver extends calendar_driver
       $changed = gmdate(self::DB_DATE_FORMAT);
       if (is_array($event['recurrence']['EXCEPTIONS'])) {
         foreach ($event['recurrence']['EXCEPTIONS'] as $exception) {
+          if(!$event['allday']){
+            $tz = $event['tzname'] ? new DateTimeZone($event['tzname']) : $this->cal->timezone;
+            $exception['recurrence_date']->setTimezone($tz);
+          }
           $exception = $this->_save_preprocess($exception, 'update');
-          $exception['recurrence_date']->setTimezone($this->cal->timezone);
           $result = $this->rc->db->query(
             "SELECT event_id FROM " . $this->_get_table($this->db_events) . "
              WHERE recurrence_id = ? AND exception = ? AND calendar_id=?",
@@ -850,7 +888,7 @@ class database_driver extends calendar_driver
           if (is_array($exists)) {
             $this->rc->db->query(sprintf(
               "UPDATE " . $this->_get_table($this->db_events) . "
-               SET recurrence_id = ?, exception = ?, changed = %s, uid = ?, %s = ?, %s = ?, all_day = ?, title = ?, description = ?, location = ?, categories = ?, url = ?, free_busy = ?, priority = ?, sensitivity = ?, attendees = ?, alarms = ?, notifyat = ?, del = ?
+               SET recurrence_id = ?, exception = ?, changed = %s, uid = ?, %s = ?, %s = ?, tzname = ?, all_day = ?, title = ?, description = ?, location = ?, categories = ?, url = ?, free_busy = ?, priority = ?, sensitivity = ?, attendees = ?, alarms = ?, notifyat = ?, del = ?
                WHERE event_id = ? and calendar_id = ?",
                 $this->rc->db->quote($changed),
                 $this->rc->db->quote_identifier('start'),
@@ -861,6 +899,7 @@ class database_driver extends calendar_driver
               strval($event['uid']),
               $exception['all_day'] ? $exception['start']->format(self::DB_DATE_FORMAT_ALLDAY) : $exception['start']->format(self::DB_DATE_FORMAT),
               $exception['all_day'] ? $exception['end']->format(self::DB_DATE_FORMAT_ALLDAY) : $exception['end']->format(self::DB_DATE_FORMAT),
+              $event['tzname'],
               intval($exception['all_day']),
               strval($exception['title']),
               strval($exception['description']),
@@ -881,8 +920,8 @@ class database_driver extends calendar_driver
           else {
             $result = $this->rc->db->query(sprintf(
               "INSERT INTO " . $this->_get_table($this->db_events) . "
-               (calendar_id, recurrence_id, exception, created, changed, uid, %s, %s, all_day, title, description, location, categories, url, free_busy, priority, sensitivity, attendees, alarms, notifyat, del)
-               VALUES (?, ?, ?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+               (calendar_id, recurrence_id, exception, created, changed, uid, %s, %s, tzname, all_day, title, description, location, categories, url, free_busy, priority, sensitivity, attendees, alarms, notifyat, del)
+               VALUES (?, ?, ?, %s, %s, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 $this->rc->db->quote_identifier('start'),
                 $this->rc->db->quote_identifier('end'),
                 $this->rc->db->quote($changed),
@@ -894,6 +933,7 @@ class database_driver extends calendar_driver
               strval($event['uid']),
               $exception['all_day'] ? $exception['start']->format(self::DB_DATE_FORMAT_ALLDAY) : $exception['start']->format(self::DB_DATE_FORMAT),
               $exception['all_day'] ? $exception['end']->format(self::DB_DATE_FORMAT_ALLDAY) : $exception['end']->format(self::DB_DATE_FORMAT),
+              $event['tzname'],
               intval($exception['all_day']),
               strval($exception['title']),
               strval($exception['description']),
@@ -957,7 +997,10 @@ class database_driver extends calendar_driver
       }
       if (is_array($event['recurrence']['EXDATE'])) {
         foreach ($event['recurrence']['EXDATE'] as $exdate) {
-          $exdate->setTimezone($this->cal->timezone);
+          if(!$event['allday']){
+            $tz = $event['tzname'] ? new DateTimeZone($event['tzname']) : $this->cal->timezone;
+            $exdate->setTimezone($tz);
+          }
           $result = $this->rc->db->query(
             "SELECT event_id FROM " . $this->_get_table($this->db_events) . "
              WHERE recurrence_id = ? AND exdate = ? AND calendar_id = ?",
@@ -969,10 +1012,11 @@ class database_driver extends calendar_driver
           if (is_array($exists)) {
             $this->rc->db->query(
               "UPDATE " . $this->_get_table($this->db_events) . "
-               SET exdate = ?, changed = ?, del = ?
+               SET exdate = ?, changed = ?, title=?, del = ?
                WHERE event_id = ? AND calendar_id = ?",
               $event['all_day'] ? $exdate->format(self::DB_DATE_FORMAT_ALLDAY) : $exdate->format(self::DB_DATE_FORMAT),
               $changed,
+              $event['title'],
               0,
               $exists['event_id'],
               $event['calendar']
@@ -995,7 +1039,7 @@ class database_driver extends calendar_driver
               $event['all_day'] ? $event['start']->format(self::DB_DATE_FORMAT_ALLDAY) : $event['start']->format(self::DB_DATE_FORMAT),
               $event['all_day'] ? $event['end']->format(self::DB_DATE_FORMAT_ALLDAY) : $event['end']->format(self::DB_DATE_FORMAT),
               0,
-              '',
+              $event['title'],
               '',
               '',
               '',
@@ -1400,6 +1444,11 @@ class database_driver extends calendar_driver
           if (is_array ($recurrences)) {
             foreach ($recurrences as $recurrence) {
               $recurrence['id'] = $recurrence['id'] . '-' . md5($recurrence['start']->format('U'));
+              $recurrence['tzname'] = $event['tzname'];
+              if($event['tzname']){
+                $recurrence['start']->setTimezone($this->cal->timezone);
+                $recurrence['end']->setTimezone($this->cal->timezone);
+              }
               $events[] = $recurrence;
             }
           }
@@ -1431,6 +1480,10 @@ class database_driver extends calendar_driver
           }
           else {
             $event['id'] = $event['id'] . '-' . md5($event['start']->format('U'));
+          }
+          if($event['tzname']){
+            $event['start']->setTimezone($this->cal->timezone);
+            $event['end']->setTimezone($this->cal->timezone);
           }
           $events[] = $event;
         }
@@ -1508,18 +1561,14 @@ class database_driver extends calendar_driver
     if ($action == 'update') {
       unset($event['notifyat']);
     }
-    
+
     if (!$this->_has_recurrence_exception($event, $event['start'], $modifiedsince)) {
       $recurrences[] = $event;
     }
 
-    // shift event to client timezone
-    if (!$event['allday']) {
-      $event['start']->setTimezone($this->cal->timezone);
-      $event['end']->setTimezone($this->cal->timezone);
-    }
-    
     $start = $event['start'];
+    
+    $tz = $event['tzname'] ? new DateTimeZone($event['tzname']) : $this->cal->timezone;
     
     if (is_array($event['recurrence']) && $event['recurrence']['BYMONTHDAY']) {
       $days = explode(',', $event['recurrence']['BYMONTHDAY']);
@@ -1527,10 +1576,10 @@ class database_driver extends calendar_driver
       foreach ($days as $day) {
         $base_date = $event['start']->format($year . '-07-' . $day . ' ' . $event['start']->format('H') . ':' . $event['start']->format('i') . ':' . $event['start']->format('s'));
         if ($base_date = strtotime($base_date)) {
-          $event['start'] = new DateTime(date('Y-m-d H:i:s', $base_date), $this->cal->timezone);
+          $event['start'] = new DateTime(date('Y-m-d H:i:s', $base_date), $tz);
           $base_date = $event['end']->format($year . '-07-' . $day . ' ' . $event['end']->format('H') . ':' . $event['end']->format('i') . ':' . $event['end']->format('s'));
           $base_date = strtotime($base_date);
-          $event['end'] = new DateTime(date('Y-m-d H:i:s', $base_date), $this->cal->timezone);
+          $event['end'] = new DateTime(date('Y-m-d H:i:s', $base_date), $tz);
           $base_events[] = $event;
         }
       }
@@ -1541,10 +1590,10 @@ class database_driver extends calendar_driver
       foreach ($months as $month) {
         $base_date = $year . '-' . $month . '-' . $event['start']->format('d') . ' ' . $event['start']->format('H') . ':' . $event['start']->format('i') . ':' . $event['start']->format('s');
         if ($base_date = strtotime($base_date)) {
-          $event['start'] = new DateTime(date('Y-m-d H:i:s', $base_date), $this->cal->timezone);
+          $event['start'] = new DateTime(date('Y-m-d H:i:s', $base_date), $tz);
           $base_date = $year . '-' . $month . '-' . $event['end']->format('d') . ' ' . $event['end']->format('H') . ':' . $event['end']->format('i') . ':' . $event['end']->format('s');
           $base_date = strtotime($base_date);
-          $event['end'] = new DateTime(date('Y-m-d H:i:s', $base_date), $this->cal->timezone);
+          $event['end'] = new DateTime(date('Y-m-d H:i:s', $base_date), $tz);
           $base_events[] = $event;
         }
       }
@@ -1561,15 +1610,21 @@ class database_driver extends calendar_driver
       // So, do it yourself and don't trust Horde
       if (is_array($event['recurrence']['RDATE'])) {
         foreach ($event['recurrence']['RDATE'] as $idx => $rdate) {
-          $tz = $event['tzname'] ? $event['tzname'] : 'UTC';
-          $tz = new DateTimezone($tz);
-          $rdate->setTimezone($tz);
           $next = $event;
           $next['start'] = clone $rdate;
           $next['end'] = clone $rdate;
           $next['end']->add($duration);
+          if ($event['allday']) {
+            $next['start']->setTimezone($this->cal->timezone);
+            $next['start']->setDate($next['start']->format('Y'), $next['start']->format('m'), $next['start']->format('d'));
+            $next['start']->setTime(0, 0, 0);
+            $next['end'] = $next['start'];
+          }
+          else{
+            $next['end'] = clone $rdate;
+            $next['end']->add($duration);
+          }
           $next['recurrence_id'] = $event['id'];
-
           if (!$this->_has_recurrence_exception($event, $next['start'], $modifiedsince) && $next['start'] > $event['start']) {
             $next['isclone'] = 1;
             $recurrences[] = $next;
@@ -1579,7 +1634,6 @@ class database_driver extends calendar_driver
       }
       $recurrence = $this->_get_recurrence_engine();
       $recurrence->init($event['recurrence'], $event['start']);
-      
       while ($next_start = $recurrence->next()) {
         if ($next_start->format(self::DB_DATE_FORMAT) <= $start->format(self::DB_DATE_FORMAT)) {
           continue;
@@ -1591,7 +1645,10 @@ class database_driver extends calendar_driver
         $next['end'] = $next_end;
         $next['recurrence_id'] = $event['id'];
 
-        if (!$this->_has_recurrence_exception($event, $next_start, $modifiedsince)) {
+        $date = clone $next['start'];
+        $event_tz = $event['start']->getTimezone();
+        $date->setTimezone($event_tz);
+        if (!$this->_has_recurrence_exception($event, $date, $modifiedsince)) {
           $next['isclone'] = 1;
           $recurrences[] = $next;
         }
@@ -1607,6 +1664,7 @@ class database_driver extends calendar_driver
           }
           else {
             $this->last_clone = $next;
+            break;
           }
         }
         else if ($next_start->format('U') >= $end) {
@@ -1615,7 +1673,7 @@ class database_driver extends calendar_driver
         }
       }
     }
-
+    
     return $recurrences;
   }
   
@@ -1633,7 +1691,7 @@ class database_driver extends calendar_driver
       $event['calendar'],
       $event['id']
     );
-    
+
     if (!$exception = $this->rc->db->fetch_assoc($result)) {
       // Check for EXDATE (internal exdate)
       $result = $this->rc->db->limitquery(sprintf(

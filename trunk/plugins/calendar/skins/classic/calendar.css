@@ -277,6 +277,12 @@ div.uidialog {
 	display: none;
 }
 
+.ui-autocomplete {
+  position: absolute;
+  cursor: default;
+  z-index: 1000 !important;
+}
+
 #user {
 	position: absolute;
 	top: 10px;
@@ -460,6 +466,22 @@ a.miniColors-trigger {
 	margin-bottom: 0.3em;
 }
 
+#eventshow span.tag-element {
+  margin-right: 0.6em;
+  padding: 2px 6px;
+  background: #ddeef5;
+  background: -moz-linear-gradient(top, #edf6fa 0%, #d6e9f3 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#edf6fa), color-stop(100%,#d6e9f3));
+  background: -o-linear-gradient(top, #edf6fa 0%, #d6e9f3 100%);
+  background: -ms-linear-gradient(top, #edf6fa 0%, #d6e9f3 100%);
+  background: linear-gradient(top, #edf6fa 0%, #d6e9f3 100%);
+  border: 1px solid #c2dae5;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  color: #0d5165;
+}
+
 #eventedit {
 	position: relative;
 	padding: 0.5em 0.1em;
@@ -613,6 +635,10 @@ td.topalign {
 .event-update-confirm a.button {
 	margin: 0 0.5em 0 0.2em;
 	min-width: 5em;
+}
+
+#edit-categories {
+  width: 97%;
 }
 
 #event-rsvp,

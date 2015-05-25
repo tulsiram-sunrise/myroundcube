@@ -28,6 +28,24 @@
         <br />
         <input type="text" class="text" name="vurl" id="edit-url" size="40" />
       </div>
+			<div class="event-section">
+				<label for="event-categories"><roundcube:label name="libgpl.tags" /></label>
+				<roundcube:object name="plugin.category_edit" id="edit-categories" class="tagedit" />
+			</div>
+      <div class="event-section">
+				<label style="float:right;padding-right:0.5em"><input type="checkbox" name="allday" id="edit-allday" value="1" /><roundcube:label name="calendar.all-day" /></label>
+				<label for="edit-startdate"><roundcube:label name="calendar.start" /></label>
+				<input type="text" name="startdate" size="11" id="edit-startdate" /> &nbsp;
+				<input type="text" name="starttime" size="6" id="edit-starttime" /> &nbsp;
+				<span class="tzname"></span><span class="localtime" style="display:none"><roundcube:label name="libgpl.localtime" /></span>
+				<input type="hidden" name="tzname" id="val-tzname" />
+			</div>
+			<div class="event-section">
+				<label for="edit-enddate"><roundcube:label name="calendar.end" /></label>
+				<input type="text" name="enddate" size="11" id="edit-enddate" /> &nbsp;
+				<input type="text" name="endtime" size="6" id="edit-endtime" /> &nbsp;
+				<span class="tzname"></span><span class="localtime" style="display:none"><roundcube:label name="libgpl.localtime" /></span>
+			</div>
       <div class="event-section">
         <label style="float:right;padding-right:0.5em"><input type="checkbox" name="allday" id="edit-allday" value="1" /><roundcube:label name="calendar.all-day" /></label>
         <label for="edit-startdate"><roundcube:label name="calendar.start" /></label>
@@ -46,10 +64,6 @@
       <div class="event-section" id="calendar-select">
         <label for="edit-calendar"><roundcube:label name="calendar.calendar" /></label>
         <roundcube:object name="plugin.calendar_select" id="edit-calendar" />
-      </div>
-      <div class="event-section">
-        <label for="edit-categories"><roundcube:label name="calendar.category" /></label>
-        <roundcube:object name="plugin.category_select" id="edit-categories" />
       </div>
       <div class="event-section">
         <label for="edit-free-busy"><roundcube:label name="calendar.freebusy" /></label>

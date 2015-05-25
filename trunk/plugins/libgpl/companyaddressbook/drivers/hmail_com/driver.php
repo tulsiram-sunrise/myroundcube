@@ -1,5 +1,5 @@
 <?php
-/* This driver supports (user_get must be supported) */
+/* This driver supports... (user_get must be supported always) */
 function driver_get_backend(){
   return array('user_create', 'user_edit', 'user_delete');
 }
